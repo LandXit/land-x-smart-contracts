@@ -1,0 +1,20 @@
+{
+  "name": "land-x-smart-contracts",
+  "version": "1.0.0",
+  "description": "Nodejs: 14.17.0",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LandXit/land-x-smart-contracts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LandXit/land-x-smart-contracts/issues"
+  },
+  "homepage": "https://github.com/LandXit/land-x-smart-contracts#readme",
+  "devDependencies": {
+    "truffle": "5.3.11"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "4.1.0"
+  }
+}
