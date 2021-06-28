@@ -1,3 +1,10 @@
 node_modules/
 build/
 secrets.json
+.env
+
+#Hardhat files
+cache
+artifacts
+mnemonic.txt
+.openzeppelin
