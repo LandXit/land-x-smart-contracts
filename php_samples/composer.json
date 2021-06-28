@@ -1,0 +1,15 @@
+{
+  "name": "landx/php_samples",
+  "require": {
+    "sc0vu/web3.php": "dev-master",
+    "web3p/ethereum-tx": "^0.4.2",
+    "prestashop/decimal": "^1.4",
+    "nftstorage/php-client": "*@dev"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/nftstorage/php-client.git"
+    }
+  ]
+}

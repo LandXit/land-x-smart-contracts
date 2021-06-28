@@ -43,6 +43,14 @@ module.exports = {
       port: 7545,
       network_id: "*",
     },
+    ganache_sign: {
+      provider: () => new HDWalletProvider(secrets.ganache_sign.mnemonic, 'http://127.0.0.1:7545'),
+      network_id: "*",
+      gas: 6721975,
+      confirmations: 0,
+      timeoutBlocks: 200,
+      skipDryRun: true
+    },
     ropsten: {
       provider: () => new HDWalletProvider(secrets.ropsten.mnemonic, `https://ropsten.infura.io/v3/${secrets.infura.projectId}`),
       network_id: 3,       // Ropsten's id
