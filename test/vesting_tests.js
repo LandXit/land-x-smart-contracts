@@ -29,7 +29,9 @@ describe("NFT", function () {
 
 	it("should not allow to withdraw prior to clif", async function () {})
 
-	it("should allow to withdraw full after the complete duration", async function () {})
+	it("should allow to withdraw full after the complete duration", async function () {
+		//await time.increase(time.duration.days(30)) //use this to increase time
+	})
 
 	it("should calculate correctly the amounts after the cliff", async function () {})
 })
