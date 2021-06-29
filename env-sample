@@ -1,9 +1,8 @@
 MAINNET_RPC=https://eth-mainnet.alchemyapi.io/v2/xxx
-RINKEBY_RPC=https://eth-rinkeby.alchemyapi.io/v2/xxxx
-RINKEBY_RPC=https://eth-ropsten.alchemyapi.io/v2/xxxx
-PRIVATE_KEY_RINKEBY="0xxxxxxxxxxx"
-PRIVATE_KEY_RINKEBY="0xxxxxxxxxxxx"
-PRIVATE_KEY_MAINNET="0xxxxxxxxx"
-PRIVATE_KEY_MATIC="0xxxxxxxxxxx"
-ETHERSCAN_KEY="xxxxxxxxx"
-COINMARKETCAP_API="xxxxxxxx"
+RINKEBY_RPC=https://eth-rinkeby.alchemyapi.io/v2/xxxxxxxx
+ROPSTEN_RPC=https://eth-ropsten.alchemyapi.io/v2/xxxx
+PRIVATE_KEY_ROPSTEN="0x123..."
+PRIVATE_KEY_RINKEBY="0x123..."
+PRIVATE_KEY_MAINNET="0x123..."
+ETHERSCAN_KEY="xxxxx"
+COINMARKETCAP_API="xxxxx"
