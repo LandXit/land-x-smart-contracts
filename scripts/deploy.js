@@ -14,8 +14,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const NFTToken = await hre.ethers.getContractFactory("LandXNFT")
-	console.log("Deploying LandXNFT...")
+	const LNDXContract = await hre.ethers.getContractFactory("LNDX")
+	console.log("Deploying LNDX...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 
@@ -32,7 +32,7 @@ async function main() {
 		"ETH"
 	)
 
-	const deployed = await NFTToken.deploy()
+	const deployed = await LNDXContract.deploy()
 
 	let dep = await deployed.deployed()
 

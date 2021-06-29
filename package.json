@@ -10,9 +10,10 @@
 		"generate": "npx hardhat generate",
 		"test": "REPORT_GAS=true npx hardhat test --network ganache",
 		"prettier": "prettier --write 'contracts/**/*.sol'",
-		"deploy:ropsten": "NETWORK=ropsten npx hardhat run --network ropsten scripts/deploy.js",
-		"deploy:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy.js",
-		"deploy:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy.js"
+		"deploy_t:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy.js",
+		"deploy_t:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy.js",
+		"deploy_v:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_vesting.js",
+		"deploy_v:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_vesting.js"
 	},
 	"author": "LandX",
 	"license": "MIT",
