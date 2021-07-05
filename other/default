@@ -1,0 +1,20 @@
+{
+	"description": "LandX Description...",
+	"external_url": "www.placeholder.com",
+	"image": "https://raw.githubusercontent.com/LandXit/land-x-smart-contracts/develop/other/default.png?token=AAEEPSOIKJKW4PHAVLAYFCLA5QMAO",
+	"name": "LandX NFT #0001",
+	"attributes": [
+		{
+			"trait_type": "Crop Share",
+			"value": 280
+		},
+		{
+			"trait_type": "Gross Acres",
+			"value": 82.64
+		},
+		{
+			"trait_type": "Fields",
+			"value": 2
+		}
+	]
+}
