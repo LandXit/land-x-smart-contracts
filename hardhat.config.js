@@ -46,14 +46,6 @@ module.exports = {
 			timeout: 15000,
 			accounts: [process.env.PRIVATE_KEY_RINKEBY],
 		},
-		ropsten: {
-			url: process.env.ROPSTEN_RPC,
-			network_id: 3,
-			gas: 1500000,
-			gasPrice: 101000000000, //101 gwei
-			timeout: 15000,
-			accounts: [process.env.PRIVATE_KEY_ROPSTEN],
-		},
 	},
 
 	gasReporter: {
