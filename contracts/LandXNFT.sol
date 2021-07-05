@@ -14,12 +14,11 @@ contract LandXNFT is ERC1155, Ownable {
 
 	// other parameters
 	string private _baseTokenURI =
-		"https://raw.githubusercontent.com/AndreiD/Playground/master/nfts_sample/json/";
+		"http://landx-nfts.s3-website-us-east-1.amazonaws.com/j/";
 	string private _contractURI =
 		"https://raw.githubusercontent.com/AndreiD/Playground/master/nfts_sample/contract_uri";
 
 	mapping(uint256 => uint256) public totalSupply;
-	mapping(uint256 => uint256) public maxSupply;
 	mapping(uint256 => uint256) public landArea; // in square-meters
 	mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
 
@@ -30,51 +29,18 @@ contract LandXNFT is ERC1155, Ownable {
 	}
 
 	/**@dev sets the token details. price is in *wei* */
-	function setTokenDetailsAndMint(
+	function setDetailsAndMint(
 		uint256 _index,
-		uint256 _maxSupply,
 		uint256 _landArea,
 		uint256 _rent,
 		address _to
 	) public {
 		require(msg.sender == detailsSetter, "not detailsSetter");
+		require(totalSupply[_index] == 0, "tokenID already minted");
 		landArea[_index] = _landArea;
 		rent[_index] = _rent;
-		maxSupply[_index] = _maxSupply;
-
 		totalSupply[_index] = totalSupply[_index] + 1;
-		_mint(msg.sender, _index, 1, "0x0000");
-	}
-
-	/**@dev the core of the system  */
-	function buyNFT(uint256 _id) public {
-		//get the item price
-		require(price[_id] != 0, "price not set");
-		require(totalSupply[_id] < maxSupply[_id], "max quantity reached");
-
-		//how much would it pay for them
-		// uint256 trailRequired = price[_id];
-
-		// //transfer all the trail token to the smart contract
-		// require(
-		// 	trailToken.transferFrom(msg.sender, address(this), trailRequired),
-		// 	"failed to transfer"
-		// );
-
-		totalSupply[_id] = totalSupply[_id] + 1;
-		_mint(msg.sender, _id, 1, "0x0000");
-	}
-
-	//the minting by owner
-	function mint(
-		address to,
-		uint256 id,
-		uint256 qty,
-		bytes memory data
-	) public onlyOwner {
-		require(totalSupply[id] < maxSupply[id], "max quantity reached");
-		totalSupply[id] = totalSupply[id] + qty;
-		_mint(to, id, qty, data);
+		_mint(_to, _index, 1, "0x0000");
 	}
 
 	//burns one token
@@ -99,11 +65,11 @@ contract LandXNFT is ERC1155, Ownable {
 		_contractURI = newuri;
 	}
 
-	function uri(uint256 tokenId) public view override returns (string memory) {
-		return string(abi.encodePacked(_baseTokenURI, uint2str(tokenId)));
+	function contractURI() public view returns (string memory) {
+		return _contractURI;
 	}
 
-	function tokenURI(uint256 tokenId) public view returns (string memory) {
+	function uri(uint256 tokenId) public view override returns (string memory) {
 		return string(abi.encodePacked(_baseTokenURI, uint2str(tokenId)));
 	}
 

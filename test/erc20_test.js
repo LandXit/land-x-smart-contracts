@@ -6,7 +6,7 @@ const ether = require("@openzeppelin/test-helpers/src/ether")
 let lndx
 let owner, acc1, acc2
 
-describe("NFT", function () {
+describe("ERC20", function () {
 	beforeEach(async function () {
 		;[owner, acc1, acc2, acc3] = await ethers.getSigners()
 

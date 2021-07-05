@@ -1,8 +1,8 @@
 # LandX NFT Contracts
 
-## Always use the correct contract addresses
+### Always use the correct contract addresses
 
-### LNDX
+## LNDX
 
 Rinkeby: 0x579d9EBB5B5FFa356673f47E533356F31A15BEcD
 
@@ -10,11 +10,27 @@ https://rinkeby.etherscan.io/address/0x579d9EBB5B5FFa356673f47E533356F31A15BEcD#
 
 Mainnet: -
 
-### Vesting LNDX
+## Vesting LNDX
 
 Rinkeby: 0x3eb4D4A6115a883D37B0712a31dE28f47BFa857a
 
 https://rinkeby.etherscan.io/address/0x3eb4D4A6115a883D37B0712a31dE28f47BFa857a#code
+
+Mainnet: -
+
+## NFT
+
+Rinkeby: 0x1071B8DAF7f95014fE2013F15Ae717Ce3D5d5506
+
+https://rinkeby.etherscan.io/address/0x1071B8DAF7f95014fE2013F15Ae717Ce3D5d5506#code
+
+Mainnet: -
+
+## Shard Manager
+
+Rinkeby: 0x4c14ad04Caade0A59Bf91B946B6b3485CAaF59CF
+
+https://rinkeby.etherscan.io/address/0x4c14ad04Caade0A59Bf91B946B6b3485CAaF59CF#code
 
 Mainnet: -
 
