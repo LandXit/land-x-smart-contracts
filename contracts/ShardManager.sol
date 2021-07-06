@@ -52,19 +52,19 @@ contract ShardManager is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Ho
 		//transfers the nft. must have setApprovalForAll
 		landXNFT.safeTransferFrom(msg.sender, address(this), _id, 1, "");
 
-		uint256 shards = (landXNFT.landArea(_id) * landXNFT.rent(_id)) / 10000;
+		uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * (10**uint256(18))) / 10000;
 
-		_mint(msg.sender, shards * (10**uint256(18)));
+		_mint(msg.sender, shards);
 	}
 
 	//returns the NFT after you deposit back the shards. requires allowance!
 	function getTheNFT(uint256 _id) external {
 		require(initialOwner[_id] == msg.sender, "only initial owner can redeem the NFT");
 
-		uint256 shards = (landXNFT.landArea(_id) * landXNFT.rent(_id)) / 10000;
+		uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * (10**uint256(18))) / 10000;
 
 		//burns shards!
-		burn(shards * (10**uint256(18)));
+		burn(shards);
 
 		//transfer the NFTs
 		landXNFT.safeTransferFrom(address(this), msg.sender, _id, 1, "");
