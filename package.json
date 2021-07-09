@@ -17,7 +17,9 @@
 		"deploy_nft:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_nft.js",
 		"deploy_nft:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_nft.js",
 		"deploy_sm:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_shard_manager.js",
-		"deploy_sm:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_shard_manager.js"
+		"deploy_sm:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_shard_manager.js",
+		"deploy_ah:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_ah.js",
+		"deploy_ah:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_ah.js"
 	},
 	"author": "LandX",
 	"license": "MIT",

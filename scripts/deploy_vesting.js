@@ -19,7 +19,7 @@ async function main() {
 
 	// We get the contract to deploy
 	const Vesting = await hre.ethers.getContractFactory("VestingLNDX")
-	console.log("Deploying Contract...")
+	console.log("Deploying Vesting Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 	console.log(">-> Network is set to " + network)
