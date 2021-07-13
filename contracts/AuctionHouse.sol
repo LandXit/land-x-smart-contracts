@@ -65,6 +65,7 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 endTime;
 		uint256 price;
 		bool sold;
+		bool removedFromSale;
 	}
 
 	//nothing fancy
@@ -244,7 +245,8 @@ contract AuctionHouse is Ownable, Pausable {
 			block.timestamp,
 			block.timestamp + saleDurationInSeconds,
 			price,
-			false //sold
+			false,
+			false
 		);
 
 		sellListings[sellsCount] = sl;
@@ -259,6 +261,8 @@ contract AuctionHouse is Ownable, Pausable {
 		SellListing storage sl = sellListings[saleID];
 		require(sl.sold == false, "can't claim a sold item");
 		require(msg.sender == sl.seller, "only the seller can remove it");
+
+		sl.removedFromSale = true;
 
 		//Release the item back to the auctioneer
 		landXNFT.safeTransferFrom(address(this), msg.sender, sl.nftID, 1, "");
