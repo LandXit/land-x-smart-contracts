@@ -39,6 +39,7 @@ contract AuctionHouse is Ownable, Pausable {
 	);
 	event BidPlaced(uint256 auction_id, address indexed bidder, uint256 price, uint256 currency);
 	event AuctionWon(uint256 auction_id, uint256 highestBid, uint256 currency, address winner);
+	event AuctionCanceled(uint256 auction_id);
 
 	event OnSale(uint256 currency, uint256 itemID, uint256 price, uint256 endTime);
 	event ListingSold(uint256 itemID, uint256 price, uint256 currency, address buyer);
@@ -137,7 +138,6 @@ contract AuctionHouse is Ownable, Pausable {
 	/// @notice Place a bid on an auction
 	/// @param auctionId uint. Which listing to place bid on.
 	function bid(uint256 auctionId, uint256 bidAmount) public {
-		require(auctionId < auctionCount, "auctionId < auctionCount");
 		require(auctionActive[auctionId] == true, "auctionActive[auctionId] == true");
 
 		AuctionListing storage al = auctions[auctionId];
@@ -180,6 +180,31 @@ contract AuctionHouse is Ownable, Pausable {
 		auctions[auctionId] = al;
 
 		emit BidPlaced(al.auctionId, msg.sender, bidAmount, al.currency);
+	}
+
+	/// @param auctionId uint.
+	function cancelAuction(uint256 auctionId) public {
+		require(auctionActive[auctionId] == true, "auctionActive[auctionId] == true");
+		AuctionListing storage al = auctions[auctionId];
+		require(block.timestamp < al.endTime, "auction expired");
+		require(al.auctioneer == msg.sender, "only the auctioneer can cancel");
+
+		//set the auction as inactive
+		auctionActive[auctionId] = false;
+
+		//if bids, refund the money to the highest bidder
+		if (al.bidCount > 0) {
+			if (al.currency == 0) {
+				require(lndx.transfer(al.highBidder, al.currentBid), "transfer failed");
+			} else {
+				require(usdc.transfer(al.highBidder, al.currentBid), "transfer failed");
+			}
+		}
+
+		//relsease the NFT back to the auctioneer
+		landXNFT.safeTransferFrom(address(this), al.auctioneer, auctions[auctionId].nftID, 1, "");
+
+		emit AuctionCanceled(al.auctionId);
 	}
 
 	/// @notice Claim. Release the goods and send funds to auctioneer. If no bids, item is returned to auctioneer!
@@ -307,7 +332,7 @@ contract AuctionHouse is Ownable, Pausable {
 		return 0xf23a6e61;
 	}
 
-	// withdraw the ETH from this contract (ONLY OWNER)
+	// withdraw the ETH from this contract (ONLY OWNER). not needed...
 	function withdrawETH(uint256 amount) external onlyOwner {
 		(bool success, ) = msg.sender.call{ value: amount }("");
 		require(success, "transfer failed.");
@@ -315,7 +340,6 @@ contract AuctionHouse is Ownable, Pausable {
 
 	//get tokens back.  emergency use only.
 	function reclaimERC20(address _tokenContract) external onlyOwner {
-		require(_tokenContract != address(0), "invalid address");
 		IERC20 token = IERC20(_tokenContract);
 		uint256 balance = token.balanceOf(address(this));
 		require(token.transfer(msg.sender, balance), "transfer failed");
