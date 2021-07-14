@@ -36,9 +36,9 @@ Mainnet: -
 
 ## Auction House
 
-Rinkeby: 0x2BA9562d54BC5d21c15CFE273f033CFF3a3E2b6E
+Rinkeby: 0x8145FA081BBB8634ce7Cdf6e601A23891E2932E7
 
-https://rinkeby.etherscan.io/address/0x2BA9562d54BC5d21c15CFE273f033CFF3a3E2b6E#code
+https://rinkeby.etherscan.io/address/0x8145FA081BBB8634ce7Cdf6e601A23891E2932E7#code
 
 ### Build and test
 
