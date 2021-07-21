@@ -14,8 +14,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const LNDXContract = await hre.ethers.getContractFactory("LNDX")
-	console.log("Deploying LNDX...")
+	const WTCContract = await hre.ethers.getContractFactory("WTC")
+	console.log("Deploying WTC...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 
@@ -32,7 +32,8 @@ async function main() {
 		"ETH"
 	)
 
-	const deployed = await LNDXContract.deploy()
+	//deployerAddress is minter
+	const deployed = await WTCContract.deploy(deployerAddress)
 
 	let dep = await deployed.deployed()
 
@@ -41,7 +42,7 @@ async function main() {
 	await sleep(30000) //30 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [],
+		constructorArguments: [deployerAddress],
 	})
 }
 

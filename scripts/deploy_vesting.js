@@ -18,7 +18,7 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const Vesting = await hre.ethers.getContractFactory("VestingLNDX")
+	const Vesting = await hre.ethers.getContractFactory("VestingWTC")
 	console.log("Deploying Vesting Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
@@ -35,17 +35,17 @@ async function main() {
 		"ETH"
 	)
 
-	let lndxTokenAddress = "0x......" //mainnet
+	let wtcTokenAddress = "0x......" //mainnet
 	if (network === "rinkeby") {
-		lndxTokenAddress = "0x579d9EBB5B5FFa356673f47E533356F31A15BEcD" //rinkeby
+		wtcTokenAddress = "0x5d202a1369d112db015010d8713CdfEA25CD5324" //rinkeby
 	}
-	let deployed = await Vesting.deploy(lndxTokenAddress)
+	let deployed = await Vesting.deploy(wtcTokenAddress)
 	let dep = await deployed.deployed()
 
 	await sleep(45000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [lndxTokenAddress],
+		constructorArguments: [wtcTokenAddress],
 	})
 
 	//---------- The Operations ----------
@@ -53,7 +53,7 @@ async function main() {
 	const GASPrice = "1" //!important
 
 	//give allowance for transfering tokens
-	let erc20contract = new ethers.Contract(lndxTokenAddress, ERC20_ABI, deployer)
+	let erc20contract = new ethers.Contract(wtcTokenAddress, ERC20_ABI, deployer)
 	let numberOfTokens = ethers.utils.parseUnits("60000000", 18) //just give 100% allowance
 	let options = { gasLimit: 70000, gasPrice: ethers.utils.parseUnits(GASPrice, "gwei") }
 	let tx = await erc20contract.increaseAllowance(dep.address, numberOfTokens, options)

@@ -2,19 +2,19 @@
 
 ### Always use the correct contract addresses
 
-## LNDX
+## WTC
 
-Rinkeby: 0x579d9EBB5B5FFa356673f47E533356F31A15BEcD
+Rinkeby: 0x5d202a1369d112db015010d8713CdfEA25CD5324
 
-https://rinkeby.etherscan.io/address/0x579d9EBB5B5FFa356673f47E533356F31A15BEcD#code
+https://rinkeby.etherscan.io/address/0x5d202a1369d112db015010d8713CdfEA25CD5324#code
 
 Mainnet: -
 
-## Vesting LNDX
+## Vesting WTC
 
-Rinkeby: 0x3eb4D4A6115a883D37B0712a31dE28f47BFa857a
+Rinkeby: 0xfeBA3Dac50ec32fB7dC32bc6F248A257EC686EFf
 
-https://rinkeby.etherscan.io/address/0x3eb4D4A6115a883D37B0712a31dE28f47BFa857a#code
+https://rinkeby.etherscan.io/address/0xfeBA3Dac50ec32fB7dC32bc6F248A257EC686EFf#code
 
 Mainnet: -
 
