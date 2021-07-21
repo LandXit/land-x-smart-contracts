@@ -4,7 +4,7 @@ const { BN, time, balance, expectEvent, expectRevert } = require("@openzeppelin/
 const ether = require("@openzeppelin/test-helpers/src/ether")
 
 let ah //auctionHouse
-let nft, lndx, usdc
+let nft, wtc, usdc
 let owner, acc1, acc2
 
 describe("Auction House 2 (auctioning)", function () {
@@ -16,15 +16,15 @@ describe("Auction House 2 (auctioning)", function () {
 		await nft.deployed()
 
 		let ERC20MockContract = await ethers.getContractFactory("ERC20Mock")
-		lndx = await ERC20MockContract.deploy("LNDXMock", "LNDX", "100000")
-		await lndx.deployed()
+		wtc = await ERC20MockContract.deploy("wtcMock", "wtc", "100000")
+		await wtc.deployed()
 
 		usdc = await ERC20MockContract.deploy("USDCMock", "USDC", "100000")
 		await usdc.deployed()
 
 		let AuctionHouseContract = await ethers.getContractFactory("AuctionHouse")
-		//address _landxNFT, address _lndx, address _usdc
-		ah = await AuctionHouseContract.deploy(nft.address, lndx.address, usdc.address)
+		//address _landxNFT, address _wtc, address _usdc
+		ah = await AuctionHouseContract.deploy(nft.address, wtc.address, usdc.address)
 		await ah.deployed()
 
 		//mint some NFT Tokens
@@ -39,15 +39,15 @@ describe("Auction House 2 (auctioning)", function () {
 		await nft.connect(acc2).setApprovalForAll(ah.address, true)
 
 		//transfer some currencies
-		await lndx.transfer(acc1.address, "10000")
-		await lndx.transfer(acc2.address, "10000")
+		await wtc.transfer(acc1.address, "10000")
+		await wtc.transfer(acc2.address, "10000")
 		await usdc.transfer(acc1.address, "10000")
 		await usdc.transfer(acc2.address, "10000")
 
 		//set allowance for the AuctionHouse
-		await lndx.connect(owner).increaseAllowance(ah.address, 99999999999999)
-		await lndx.connect(acc1).increaseAllowance(ah.address, 99999999999999)
-		await lndx.connect(acc2).increaseAllowance(ah.address, 99999999999999)
+		await wtc.connect(owner).increaseAllowance(ah.address, 99999999999999)
+		await wtc.connect(acc1).increaseAllowance(ah.address, 99999999999999)
+		await wtc.connect(acc2).increaseAllowance(ah.address, 99999999999999)
 
 		await usdc.connect(owner).increaseAllowance(ah.address, 99999999999999)
 		await usdc.connect(acc1).increaseAllowance(ah.address, 99999999999999)
@@ -60,8 +60,8 @@ describe("Auction House 2 (auctioning)", function () {
 
 	it("withdrawing money put in an lost auction", async function () {
 		//initial balance acc1
-		expect(await lndx.balanceOf(acc1.address)).to.equal(10000)
-		expect(await lndx.balanceOf(acc2.address)).to.equal(10000)
+		expect(await wtc.balanceOf(acc1.address)).to.equal(10000)
+		expect(await wtc.balanceOf(acc2.address)).to.equal(10000)
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...owner
@@ -70,13 +70,13 @@ describe("Auction House 2 (auctioning)", function () {
 		//acc1 bid
 		await ah.connect(acc1).bid(0, "100")
 
-		expect(await lndx.balanceOf(acc1.address)).to.equal(9900)
+		expect(await wtc.balanceOf(acc1.address)).to.equal(9900)
 
 		//acc2 bid
 		await ah.connect(owner).bid(0, "110")
 
 		//acc1 should get it's money back
-		expect(await lndx.balanceOf(acc1.address)).to.equal(10000)
+		expect(await wtc.balanceOf(acc1.address)).to.equal(10000)
 	})
 
 	it("withdrawing an unsold item", async function () {
@@ -120,8 +120,8 @@ describe("Auction House 2 (auctioning)", function () {
 	})
 
 	it("bidding on an auction works", async function () {
-		expect(await lndx.balanceOf(acc1.address)).to.equal(10000)
-		expect(await lndx.balanceOf(acc2.address)).to.equal(10000)
+		expect(await wtc.balanceOf(acc1.address)).to.equal(10000)
+		expect(await wtc.balanceOf(acc2.address)).to.equal(10000)
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...acc2
@@ -148,11 +148,11 @@ describe("Auction House 2 (auctioning)", function () {
 		//acc1 has the nft
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(1)
 		//acc2 has the money
-		expect(Number(await lndx.balanceOf(acc2.address))).to.equal(10100)
+		expect(Number(await wtc.balanceOf(acc2.address))).to.equal(10100)
 	})
 
 	it("creating an auction works", async function () {
-		//uint256 nftID,uint256 startPrice,uint256 currency //0 - lndx, 1 - usdc
+		//uint256 nftID,uint256 startPrice,uint256 currency //0 - wtc, 1 - usdc
 		await ah.createAuction(9, 10, 0)
 		expect(await ah.auctionCount()).to.equal(1)
 

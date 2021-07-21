@@ -11,12 +11,12 @@ describe("Vesting", function () {
 	beforeEach(async function () {
 		;[owner, acc1, acc2, acc3] = await ethers.getSigners()
 
-		//deploy an erc20 token as LNDX
+		//deploy an erc20 token as WTC
 		let ERC20MockContract = await ethers.getContractFactory("ERC20Mock")
-		erc20 = await ERC20MockContract.deploy("LNDXMock", "LNDX", "100000")
+		erc20 = await ERC20MockContract.deploy("WTCMock", "WTC", "100000")
 		await erc20.deployed()
 
-		let VestingContract = await ethers.getContractFactory("VestingLNDX")
+		let VestingContract = await ethers.getContractFactory("VestingWTC")
 		vesting = await VestingContract.deploy(erc20.address)
 		await vesting.deployed()
 		await erc20.increaseAllowance(vesting.address, 99999999999999)

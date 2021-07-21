@@ -8,19 +8,19 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 contract AuctionHouse is Ownable, Pausable {
-	uint256 marketFeeLNDX = 50; //0.5%
+	uint256 marketFeeWTC = 50; //0.5%
 	uint256 marketFeeUSDC = 300; //3%
 
 	uint256 public auctionPeriod = 1 days;
 	uint256 public auctionBoost = 5 minutes;
-	uint256 public tickLNDX = 1; //bidding tick for LNDX
+	uint256 public tickWTC = 1; //bidding tick for WTC
 	uint256 public tickUSD = 1; //bidding tick ofr USD
 
 	uint256 public auctionCount = 0;
 	uint256 public sellsCount = 0;
 	uint256 minSaleTime = 1 minutes;
 	IERC1155 public landXNFT; //address for landXNFT
-	IERC20 public lndx; //erc20 lndx
+	IERC20 public wtc; //erc20 WTC
 	IERC20 public usdc; //erc20 usdc
 
 	mapping(uint256 => uint256) public fundsByBidder;
@@ -50,7 +50,7 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 nftID;
 		uint256 startTime;
 		uint256 endTime;
-		uint256 currency; //0 - lndx, 1 - usdc
+		uint256 currency; //0 - WTC, 1 - USDC
 		uint256 startPrice;
 		uint256 currentBid;
 		uint256 tick;
@@ -59,7 +59,7 @@ contract AuctionHouse is Ownable, Pausable {
 	}
 
 	struct SellListing {
-		uint256 currency; //0 - lndx, 1 - usdc
+		uint256 currency; //0 - WTC, 1 - USDC
 		address seller;
 		uint256 nftID;
 		uint256 startTime;
@@ -72,11 +72,11 @@ contract AuctionHouse is Ownable, Pausable {
 	//nothing fancy
 	constructor(
 		address _landxNFT,
-		address _lndx,
+		address _wtc,
 		address _usdc
 	) {
 		landXNFT = IERC1155(_landxNFT);
-		lndx = IERC20(_lndx);
+		wtc = IERC20(_wtc);
 		usdc = IERC20(_usdc);
 		sellsCount = 0;
 		auctionCount = 0;
@@ -89,7 +89,7 @@ contract AuctionHouse is Ownable, Pausable {
 	function createAuction(
 		uint256 nftID,
 		uint256 startPrice,
-		uint256 currency //0 - lndx, 1 - usdc
+		uint256 currency //0 - WTC, 1 - USDC
 	) public whenNotPaused {
 		require(startPrice >= 1, "startprice should be >= 1");
 
@@ -112,7 +112,7 @@ contract AuctionHouse is Ownable, Pausable {
 
 		//TODO: move them up
 		if (currency == 0) {
-			al.tick = tickLNDX;
+			al.tick = tickWTC;
 		} else {
 			al.tick = tickUSD;
 		}
@@ -150,7 +150,7 @@ contract AuctionHouse is Ownable, Pausable {
 			require(bidAmount >= currentBid + al.tick, "bidAmount >= currentBid + al.tick");
 			//refund the previous bidder
 			if (al.currency == 0) {
-				require(lndx.transfer(al.highBidder, al.currentBid), "transfer failed");
+				require(wtc.transfer(al.highBidder, al.currentBid), "transfer failed");
 			} else {
 				require(usdc.transfer(al.highBidder, al.currentBid), "transfer failed");
 			}
@@ -163,9 +163,9 @@ contract AuctionHouse is Ownable, Pausable {
 
 		//escrow tokens
 		if (al.currency == 0) {
-			require(lndx.transferFrom(msg.sender, address(this), bidAmount), "failed to transfer lndx");
+			require(wtc.transferFrom(msg.sender, address(this), bidAmount), "failed to transfer WTC");
 
-			require(lndx.transfer(address(this), bidAmount), "transfer failed");
+			//require(wtc.transfer(address(this), bidAmount), "transfer failed");
 		} else {
 			require(usdc.transferFrom(msg.sender, address(this), bidAmount), "failed to transfer usdc");
 		}
@@ -195,7 +195,7 @@ contract AuctionHouse is Ownable, Pausable {
 		//if bids, refund the money to the highest bidder
 		if (al.bidCount > 0) {
 			if (al.currency == 0) {
-				require(lndx.transfer(al.highBidder, al.currentBid), "transfer failed");
+				require(wtc.transfer(al.highBidder, al.currentBid), "transfer failed");
 			} else {
 				require(usdc.transfer(al.highBidder, al.currentBid), "transfer failed");
 			}
@@ -229,7 +229,7 @@ contract AuctionHouse is Ownable, Pausable {
 
 		//Release the funds to auctioneer
 		if (al.currency == 0) {
-			require(lndx.transfer(al.auctioneer, al.currentBid), "transfer failed");
+			require(wtc.transfer(al.auctioneer, al.currentBid), "transfer failed");
 		} else {
 			require(usdc.transfer(al.auctioneer, al.currentBid), "transfer failed");
 		}
@@ -300,13 +300,13 @@ contract AuctionHouse is Ownable, Pausable {
 		require(sl.sold == false, "can't buy a sold item");
 
 		if (sl.currency == 0) {
-			//lndx
-			uint256 _fee = _calcPercentage(sl.price, marketFeeLNDX);
+			//WTC
+			uint256 _fee = _calcPercentage(sl.price, marketFeeWTC);
 			uint256 amtForSeller = sl.price - _fee;
 
-			//transfer all the trail token to the smart contract
-			require(lndx.transferFrom(msg.sender, address(this), _fee), "failed to transfer lndx (fee)");
-			require(lndx.transferFrom(msg.sender, sl.seller, amtForSeller), "failed to transfer lndx");
+			//transfer all the WTC token to the smart contract
+			require(wtc.transferFrom(msg.sender, address(this), _fee), "failed to transfer WTC (fee)");
+			require(wtc.transferFrom(msg.sender, sl.seller, amtForSeller), "failed to transfer WTC");
 		} else {
 			//usdc
 			uint256 _fee = _calcPercentage(sl.price, marketFeeUSDC);
@@ -351,9 +351,9 @@ contract AuctionHouse is Ownable, Pausable {
 	}
 
 	// changes the market fee. 50 = 0.5%
-	function changeMarketFeeLNDX(uint256 _marketFee) public onlyOwner {
+	function changeMarketFeeWTC(uint256 _marketFee) public onlyOwner {
 		require(_marketFee < 500, "anti greed protection");
-		marketFeeLNDX = _marketFee;
+		marketFeeWTC = _marketFee;
 	}
 
 	// changes the market fee. 50 = 0.5%
@@ -384,8 +384,8 @@ contract AuctionHouse is Ownable, Pausable {
 	}
 
 	//set bid Tick
-	function setBidTickLNDX(uint256 _newTick) public onlyOwner {
-		tickLNDX = _newTick;
+	function setBidTickWTC(uint256 _newTick) public onlyOwner {
+		tickWTC = _newTick;
 	}
 
 	//setAuctionPeriod. you should only increase it

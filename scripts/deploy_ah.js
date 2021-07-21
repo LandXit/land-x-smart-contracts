@@ -35,22 +35,22 @@ async function main() {
 	)
 
 	let nft = "0x....." //mainnet
-	let lndxTokenAddress = "0x......" //mainnet
+	let wtcTokenAddress = "0x......" //mainnet
 	let usdcTokenAddress = "0x...." //mainnet
 	if (network === "rinkeby") {
 		nft = "0x1071B8DAF7f95014fE2013F15Ae717Ce3D5d5506" //rinkeby
-		lndxTokenAddress = "0x579d9EBB5B5FFa356673f47E533356F31A15BEcD" //rinkeby
+		wtcTokenAddress = "0x5d202a1369d112db015010d8713CdfEA25CD5324" //rinkeby
 		usdcTokenAddress = "0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b" //rinkeby
 	}
 
-	//address _landxNFT, address _lndx, address _usdc
-	let deployed = await AH.deploy(nft, lndxTokenAddress, usdcTokenAddress)
+	//address _landxNFT, address _wtc, address _usdc
+	let deployed = await AH.deploy(nft, wtcTokenAddress, usdcTokenAddress)
 	let dep = await deployed.deployed()
 
 	await sleep(45000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nft, lndxTokenAddress, usdcTokenAddress],
+		constructorArguments: [nft, wtcTokenAddress, usdcTokenAddress],
 	})
 }
 
