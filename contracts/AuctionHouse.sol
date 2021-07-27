@@ -338,7 +338,7 @@ contract AuctionHouse is Ownable, Pausable {
 		require(success, "transfer failed.");
 	}
 
-	//get tokens back.  emergency use only.
+	//get tokens back. emergency use only.
 	function reclaimERC20(address _tokenContract) external onlyOwner {
 		IERC20 token = IERC20(_tokenContract);
 		uint256 balance = token.balanceOf(address(this));
