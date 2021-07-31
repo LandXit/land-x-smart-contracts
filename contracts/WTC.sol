@@ -18,14 +18,12 @@ contract WTC is
 	ERC20Snapshot,
 	Ownable
 {
-	//9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6 = MINTER_ROLE
 	bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-	//98db8a220cd0f09badce9f22d0ba7e93edb3d404448cc3560d391ab096ad16e9 = BLACKLISTER_ROLE
 	bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
-
 	mapping(address => bool) public blacklist; //keep track of blacklist
 
 	constructor(address _address) ERC20Permit("WTC") ERC20("Wheat Coin", "WTC") {
+		_setupRole(DEFAULT_ADMIN_ROLE, _address);
 		_setupRole(MINTER_ROLE, _address);
 		_setupRole(BLACKLISTER_ROLE, _address);
 	}

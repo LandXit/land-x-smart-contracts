@@ -37,7 +37,7 @@ async function main() {
 
 	let wtcTokenAddress = "0x......" //mainnet
 	if (network === "rinkeby") {
-		wtcTokenAddress = "0x5d202a1369d112db015010d8713CdfEA25CD5324" //rinkeby
+		wtcTokenAddress = "0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3" //rinkeby
 	}
 	let deployed = await Vesting.deploy(wtcTokenAddress)
 	let dep = await deployed.deployed()

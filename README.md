@@ -4,17 +4,17 @@
 
 ## WTC
 
-Rinkeby: 0x5d202a1369d112db015010d8713CdfEA25CD5324
+Rinkeby: 0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3
 
-https://rinkeby.etherscan.io/address/0x5d202a1369d112db015010d8713CdfEA25CD5324#code
+https://rinkeby.etherscan.io/address/0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3#code
 
 Mainnet: -
 
 ## Vesting WTC
 
-Rinkeby: 0xfeBA3Dac50ec32fB7dC32bc6F248A257EC686EFf
+Rinkeby: 0x67EFf653a0eB75612DE9a49Ec30374b15d7f31c3
 
-https://rinkeby.etherscan.io/address/0xfeBA3Dac50ec32fB7dC32bc6F248A257EC686EFf#code
+https://rinkeby.etherscan.io/address/0x67EFf653a0eB75612DE9a49Ec30374b15d7f31c3#code
 
 Mainnet: -
 
