@@ -35,8 +35,8 @@ contract Staking is Ownable, Pausable, ReentrancyGuard {
 	event RewardAdded(uint256 amount);
 	event EmissionRateChanged(uint256 newEmissionRate);
 
-	constructor(IERC20 _lpToken, uint256 _emissionRate) {
-		wtcToken = _lpToken;
+	constructor(IERC20 _theToken, uint256 _emissionRate) {
+		wtcToken = _theToken;
 		emissionRate = _emissionRate;
 	}
 

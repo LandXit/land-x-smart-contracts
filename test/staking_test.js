@@ -38,6 +38,22 @@ describe("Deploy Staking", function () {
 		expect(await WTC.balanceOf(staking.address)).to.equal(0)
 	})
 
+	it("user can be forced to unstake by the owner", async function () {
+		await staking.changeMinAmount(1)
+		await staking.changeEmissionRate(100000000000) // 0.1 WTC per 1 WTC staked 11days
+		await expect(staking.addReward(toWTC("1000"))).to.emit(staking, "RewardAdded")
+
+		await staking.connect(acc1).stake(toWTC("1")) //stake 1 WTC
+		await time.increase(time.duration.seconds(1000000)) // ~11 days
+
+		await staking.forceUnstake(acc1.address)
+
+		balanceAcc1 = Number(await WTC.balanceOf(acc1.address))
+		//balance of the acc1 is now: initial (1000) + claimed (~0.1)
+		expect(balanceAcc1).to.least(Number(toWTC("1000")) + Number(toWTC("0.1")))
+		expect(balanceAcc1).to.most(Number(toWTC("1000")) + Number(toWTC("0.11")))
+	})
+
 	//acc1 starts with 1000 WTC. stakes 100. receives 50 in 1 years.
 	//total = 1150 at the end of 1 year
 	it("50% APR test", async function () {
