@@ -68,7 +68,7 @@ contract VestingWTC is Ownable {
 		uint16 daysVested;
 		uint256 amountVested;
 		(daysVested, amountVested) = calculateGrantClaim(msg.sender);
-		require(amountVested > 0, "vested is 0");
+		require(amountVested > 0, "wait one day or vested is 0");
 
 		Grant storage tokenGrant = tokenGrants[msg.sender];
 		tokenGrant.daysClaimed = uint16(tokenGrant.daysClaimed.add(daysVested));
@@ -97,7 +97,7 @@ contract VestingWTC is Ownable {
 		require(tokenGrant.totalClaimed < tokenGrant.amount, "grant fully claimed");
 
 		// For grants created with a future start date, that hasn't been reached, return 0, 0
-		if (block.timestamp < tokenGrant.startTime) {
+		if (currentTime() < tokenGrant.startTime) {
 			return (0, 0);
 		}
 
@@ -116,7 +116,7 @@ contract VestingWTC is Ownable {
 		}
 	}
 
-	function getBlockTimestamp() public view returns (uint256) {
+	function currentTime() private view returns (uint256) {
 		return block.timestamp;
 	}
 }

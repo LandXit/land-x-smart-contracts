@@ -27,6 +27,28 @@ describe("Vesting", function () {
 		expect(Number(await erc20.balanceOf(owner.address))).to.equal(100000)
 	})
 
+	it("should calculate correctly the clif. version 2", async function () {
+		expect(Number(await erc20.balanceOf(acc1.address))).to.equal(0)
+		// address _recipient,
+		// uint256 _amount,
+		// uint16 _vestingDurationInDays,
+		// uint16 _vestingCliffInDays
+		await expect(vesting.addTokenGrant(acc1.address, 10000, 10, 0)).to.emit(vesting, "GrantAdded")
+		await time.increase(time.duration.days(1))
+		await expect(vesting.connect(acc1).claimVestedTokens()).to.emit(vesting, "GrantTokensClaimed")
+		expect(Number(await erc20.balanceOf(acc1.address))).to.equal(2000)
+
+		await time.increase(time.duration.hours(1))
+		//vested is 0 - must wait one day
+		await expect(vesting.connect(acc1).claimVestedTokens()).to.be.revertedWith("vested is 0")
+		expect(Number(await erc20.balanceOf(acc1.address))).to.equal(2000)
+
+		await time.increase(time.duration.days(1))
+
+		await expect(vesting.connect(acc1).claimVestedTokens()).to.emit(vesting, "GrantTokensClaimed")
+		expect(Number(await erc20.balanceOf(acc1.address))).to.equal(3000)
+	})
+
 	it("should allow to create a grant", async function () {
 		//recipient, amount, vesting, clif
 		await vesting.addTokenGrant(acc1.address, 10, 10, 5)
