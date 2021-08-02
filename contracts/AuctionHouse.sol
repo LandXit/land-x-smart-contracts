@@ -23,8 +23,6 @@ contract AuctionHouse is Ownable, Pausable {
 	IERC20 public wtc; //erc20 WTC
 	IERC20 public usdc; //erc20 usdc
 
-	mapping(uint256 => uint256) public fundsByBidder;
-
 	mapping(uint256 => SellListing) public sellListings;
 	mapping(uint256 => AuctionListing) public auctions;
 	mapping(uint256 => bool) public auctionActive;

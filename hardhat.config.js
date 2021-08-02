@@ -42,7 +42,7 @@ module.exports = {
 			url: process.env.RINKEBY_RPC,
 			network_id: 4,
 			gas: 1500000,
-			gasPrice: 1000000000, //1 gwei
+			gasPrice: 1500000000, //1.5 gwei
 			timeout: 15000,
 			accounts: [process.env.PRIVATE_KEY_RINKEBY],
 		},
