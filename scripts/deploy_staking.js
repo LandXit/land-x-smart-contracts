@@ -35,74 +35,22 @@ async function main() {
 		"ETH"
 	)
 
+	let emissionRate = 48767800000
 	let wtcTokenAddress = "0x......" //mainnet
 	if (network === "rinkeby") {
 		wtcTokenAddress = "0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3" //rinkeby
 	}
-	let deployed = await Vesting.deploy(wtcTokenAddress)
+
+	let deployed = await StakingC.deploy(wtcTokenAddress, emissionRate) //50% APR
 	let dep = await deployed.deployed()
 
 	await sleep(45000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [wtcTokenAddress],
+		constructorArguments: [wtcTokenAddress, emissionRate],
 	})
 
-	//---------- The Operations ----------
-
-	const GASPrice = "1" //!important
-
-	//give allowance for transfering tokens
-	let erc20contract = new ethers.Contract(wtcTokenAddress, ERC20_ABI, deployer)
-	let numberOfTokens = ethers.utils.parseUnits("60000000", 18) //just give 100% allowance
-	let options = { gasLimit: 70000, gasPrice: ethers.utils.parseUnits(GASPrice, "gwei") }
-	let tx = await erc20contract.increaseAllowance(dep.address, numberOfTokens, options)
-	console.log("Vested Allowance Set.....", tx.hash)
-
-	await sleep(30000) //allow allowance to be mined
-
-	//1. -------------- VESTING --------------
-	let wallet = "0x9B1a411A5b82A65f5f50Aa603514935C7c9bF35A"
-	let amount = ethers.utils.parseUnits("100000", 18)
-	let duration = 14 //days
-	let cliff = 1 //days
-	let vestingContract = new ethers.Contract(dep.address, VESTING_ABI, deployer)
-	options = { gasLimit: 250000, gasPrice: ethers.utils.parseUnits(GASPrice, "gwei") }
-	tx = await vestingContract.addTokenGrant(wallet, amount, duration, cliff, options)
-	console.log("Vested Grant Created ", tx.hash)
-	//------------------------------------------
-
-	//2.
-	wallet = "0x00000004Af22764bb04ddf4402Fd35F6e3011123"
-	amount = ethers.utils.parseUnits("100000", 18)
-	duration = 30 //days
-	cliff = 1 //days
-	tx = await vestingContract.addTokenGrant(wallet, amount, duration, cliff, options)
-	console.log("Vested Grant Created ", tx.hash)
-
-	//3.
-	wallet = "0xeea4ffaD75BCE60Ec0C4711bE84243A441a27DB1"
-	amount = ethers.utils.parseUnits("100000", 18)
-	duration = 20 //days
-	cliff = 1 //days
-	tx = await vestingContract.addTokenGrant(wallet, amount, duration, cliff, options)
-	console.log("Vested Grant Created ", tx.hash)
-
-	//3.
-	wallet = "0xCf8aEf3CB3421D569e770c84A5cDa30dAC8Ebb96"
-	amount = ethers.utils.parseUnits("100000", 18)
-	duration = 20 //days
-	cliff = 1 //days
-	tx = await vestingContract.addTokenGrant(wallet, amount, duration, cliff, options)
-	console.log("Vested Grant Created ", tx.hash)
-
-	//3.
-	wallet = "0x2d9c53F6e6ED64591cfeca540AbB33De901ED37B"
-	amount = ethers.utils.parseUnits("100000", 18)
-	duration = 20 //days
-	cliff = 1 //days
-	tx = await vestingContract.addTokenGrant(wallet, amount, duration, cliff, options)
-	console.log("Vested Grant Created ", tx.hash)
+	//change ownership to: 0x9b1a411a5b82a65f5f50aa603514935c7c9bf35a
 }
 
 // We recommend this pattern to be able to use async/await everywhere

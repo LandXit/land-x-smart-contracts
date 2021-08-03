@@ -40,6 +40,12 @@ Rinkeby: 0xe47E770EB487e600acF9fee3cf43AfEDcB152374
 
 https://rinkeby.etherscan.io/address/0xe47E770EB487e600acF9fee3cf43AfEDcB152374#code
 
+## Staking #1 (50% APR)
+
+Rinkeby: 0xa4245c472eCcaD3e55311E1D7f1B414F1671a6D9
+
+https://rinkeby.etherscan.io/address/0xa4245c472eCcaD3e55311E1D7f1B414F1671a6D9#code
+
 ### Build and test
 
 copy-paste the env-sample to .env and replace the private keys & api keys accordingly
