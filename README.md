@@ -34,11 +34,11 @@ https://rinkeby.etherscan.io/address/0x4c14ad04Caade0A59Bf91B946B6b3485CAaF59CF#
 
 Mainnet: -
 
-## Auction House
+## Auction House (v2. with reserved price)
 
-Rinkeby: 0xe47E770EB487e600acF9fee3cf43AfEDcB152374
+Rinkeby: 0x5bf6f639146e4291Aba51B954046C32a74B8eE9e
 
-https://rinkeby.etherscan.io/address/0xe47E770EB487e600acF9fee3cf43AfEDcB152374#code
+https://rinkeby.etherscan.io/address/0x5bf6f639146e4291Aba51B954046C32a74B8eE9e#code
 
 ## Staking #1 (50% APR)
 
