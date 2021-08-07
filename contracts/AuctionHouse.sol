@@ -50,6 +50,7 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 endTime;
 		uint256 currency; //0 - WTC, 1 - USDC
 		uint256 startPrice;
+		uint256 reservedPrice;
 		uint256 currentBid;
 		uint256 tick;
 		uint256 bidCount;
@@ -87,9 +88,11 @@ contract AuctionHouse is Ownable, Pausable {
 	function createAuction(
 		uint256 nftID,
 		uint256 startPrice,
+		uint256 reservedPrice,
 		uint256 currency //0 - WTC, 1 - USDC
 	) public whenNotPaused {
 		require(startPrice >= 1, "startprice should be >= 1");
+		require(reservedPrice > startPrice, "reserve price > start price");
 
 		//transfer the NFT
 		landXNFT.safeTransferFrom(msg.sender, address(this), nftID, 1, "");
@@ -98,11 +101,12 @@ contract AuctionHouse is Ownable, Pausable {
 			msg.sender,
 			auctionCount,
 			nftID,
-			0,
-			0,
+			block.timestamp,
+			block.timestamp + auctionPeriod,
 			currency,
 			startPrice,
-			startPrice,
+			reservedPrice,
+			0,
 			0,
 			0,
 			address(0)
@@ -114,9 +118,6 @@ contract AuctionHouse is Ownable, Pausable {
 		} else {
 			al.tick = tickUSD;
 		}
-		al.currency = currency;
-		al.startTime = block.timestamp;
-		al.endTime = block.timestamp + auctionPeriod;
 
 		auctions[auctionCount] = al;
 		auctionActive[auctionCount] = true;
@@ -141,6 +142,8 @@ contract AuctionHouse is Ownable, Pausable {
 		AuctionListing storage al = auctions[auctionId];
 
 		require(block.timestamp < al.endTime, "auction expired");
+
+		require(bidAmount >= al.reservedPrice, "reserved price not met");
 
 		uint256 currentBid = al.currentBid;
 

@@ -65,7 +65,7 @@ describe("Auction House 3 (auctioning)", function () {
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...owner
-		await ah.connect(acc2).createAuction(11, 100, 0)
+		await ah.connect(acc2).createAuction(11, 99, 100, 0)
 
 		let auctionActive = await ah.auctionActive(0)
 		expect(auctionActive).to.equal(true)
@@ -83,7 +83,7 @@ describe("Auction House 3 (auctioning)", function () {
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...owner
-		await ah.connect(acc2).createAuction(11, 1000, 0)
+		await ah.connect(acc2).createAuction(11, 999, 1000, 0)
 
 		//acc1 bid
 		await ah.connect(acc1).bid(0, "1000")
@@ -95,7 +95,7 @@ describe("Auction House 3 (auctioning)", function () {
 	})
 
 	it("only auctioneer can cancel", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 0)
+		await ah.connect(acc2).createAuction(11, 100, 200, 0)
 		await expect(ah.connect(acc1).cancelAuction(0)).to.be.revertedWith(
 			"only the auctioneer can cancel"
 		)
@@ -104,7 +104,7 @@ describe("Auction House 3 (auctioning)", function () {
 	it("canceling an auction gives the NFT back", async function () {
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1) //in wallet
 		//create auction ...owner
-		await ah.connect(acc2).createAuction(11, 100, 0)
+		await ah.connect(acc2).createAuction(11, 100, 200, 0)
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(0) //in escrow
 		await ah.connect(acc2).cancelAuction(0)
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1) //in wallet again
