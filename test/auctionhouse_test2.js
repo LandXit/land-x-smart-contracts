@@ -66,7 +66,7 @@ describe("Auction House 2 (auctioning)", function () {
 
 		//create auction ...owner
 		//uint256 nftID, uint256 startPrice, uint256 reservedPrice, uint256 currency //0 - WTC, 1 - USDC
-		await ah.connect(acc2).createAuction(11, 100, 101, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
 
 		//acc1 bid
 		await ah.connect(acc1).bid(0, "101")
@@ -82,7 +82,7 @@ describe("Auction House 2 (auctioning)", function () {
 
 	it("withdrawing an unsold item", async function () {
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1)
-		await ah.connect(acc2).createAuction(11, 100, 101, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(0)
 
 		//one day passes
@@ -97,8 +97,26 @@ describe("Auction House 2 (auctioning)", function () {
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1)
 	})
 
+	it("withdrawing an unsold item (reserved price is not reached)", async function () {
+		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1)
+		await ah.connect(acc2).createAuction(11, 100, 105, 86400, 0)
+		expect(await nft.balanceOf(acc2.address, 11)).to.equal(0)
+
+		//acc1 bid
+		await ah.connect(acc1).bid(0, "101")
+
+		//one day passes
+		await time.increase(time.duration.days(1))
+
+		// claim prizes
+		await ah.claim(0)
+
+		//owner has the nft
+		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1)
+	})
+
 	it("you can't claim a pending auction", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
 		await ah.connect(acc1).bid(0, "101")
 		await time.increase(time.duration.minutes(60))
 		await expect(ah.connect(acc1).claim(0)).to.be.revertedWith("ongoing auction")
@@ -106,7 +124,7 @@ describe("Auction House 2 (auctioning)", function () {
 
 	it("you can't bid on an expired auction", async function () {
 		//create auction ...acc2
-		await ah.connect(acc2).createAuction(11, 100, 101, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
 		// //bid on it, acc1
 		//function bid(uint256 auctionId, uint256 bidAmount) public {
 		await ah.connect(acc1).bid(0, "101")
@@ -121,15 +139,9 @@ describe("Auction House 2 (auctioning)", function () {
 	})
 
 	it("reserved price is respected", async function () {
-		await expect(ah.connect(acc2).createAuction(11, 100, 100, 0)).to.be.revertedWith(
+		await expect(ah.connect(acc2).createAuction(11, 100, 100, 86400, 0)).to.be.revertedWith(
 			"reserve price > start price"
 		)
-
-		await ah.connect(acc2).createAuction(11, 99, 100, 0)
-
-		expect(await ah.auctionCount()).to.equal(1)
-
-		await expect(ah.connect(acc1).bid(0, 99)).to.be.revertedWith("reserved price not met")
 	})
 
 	it("bidding on an auction works", async function () {
@@ -138,7 +150,7 @@ describe("Auction House 2 (auctioning)", function () {
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...acc2
-		await ah.connect(acc2).createAuction(11, 99, 100, 0)
+		await ah.connect(acc2).createAuction(11, 99, 100, 86400, 0)
 
 		expect(await ah.auctionCount()).to.equal(1)
 		expect(await nft.balanceOf(ah.address, 11)).to.equal(1)
@@ -161,15 +173,16 @@ describe("Auction House 2 (auctioning)", function () {
 		//acc1 has the nft
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(1)
 		//acc2 has the money
-		expect(Number(await wtc.balanceOf(acc2.address))).to.equal(10100)
+		expect(Number(await wtc.balanceOf(acc2.address))).to.equal(10097) //bid amount - fee
+		expect(Number(await wtc.balanceOf(ah.address))).to.equal(3) // fee = 3
 	})
 
 	it("creating an auction works", async function () {
 		//uint256 nftID,uint256 startPrice,uint256 currency //0 - wtc, 1 - usdc
-		await ah.createAuction(9, 10, 11, 0)
+		await ah.createAuction(9, 10, 11, 86400, 0)
 		expect(await ah.auctionCount()).to.equal(1)
 
-		await ah.connect(acc1).createAuction(10, 100, 150, 1)
+		await ah.connect(acc1).createAuction(10, 100, 150, 86400, 1)
 		expect(await ah.auctionCount()).to.equal(2)
 	})
 })
