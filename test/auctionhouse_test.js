@@ -2,6 +2,7 @@ const { expect, assert } = require("chai")
 const { web3, ethers } = require("hardhat")
 const { BN, time, balance, expectEvent, expectRevert } = require("@openzeppelin/test-helpers")
 const ether = require("@openzeppelin/test-helpers/src/ether")
+const { ZERO_ADDRESS } = require("@openzeppelin/test-helpers/src/constants")
 
 let ah //auctionHouse
 let nft, wtc, usdc
@@ -60,43 +61,43 @@ describe("Auction House", function () {
 
 	it("as an owner you can withdraw comission", async function () {
 		let initialBalancewtc = await wtc.balanceOf(owner.address)
-		await ah.connect(acc1).putForSale(0, 10, 2000, 60)
+		await ah.connect(acc1).putForSale(0, 10, 2000, 60, ZERO_ADDRESS)
 		await ah.connect(acc2).buyItem(0)
-		//0.5% of 2000 = 10
-		expect(Number(await wtc.balanceOf(ah.address))).to.equal(10)
+		//03% of 2000 = 60
+		expect(Number(await wtc.balanceOf(ah.address))).to.equal(60)
 		await ah.connect(owner).reclaimERC20(wtc.address)
 		let finalBalancewtc = await wtc.balanceOf(owner.address)
-		expect(finalBalancewtc - initialBalancewtc).to.equal(10)
+		expect(finalBalancewtc - initialBalancewtc).to.equal(60)
 	})
 
 	it("(wtc) - buying an item will give the seller his cut and the ah its cut", async function () {
 		expect(Number(await wtc.balanceOf(acc1.address))).to.equal(10000)
 		expect(Number(await wtc.balanceOf(acc2.address))).to.equal(10000)
 
-		await ah.connect(acc1).putForSale(0, 10, 2000, 60)
+		await ah.connect(acc1).putForSale(0, 10, 2000, 60, ZERO_ADDRESS)
 		await ah.connect(acc2).buyItem(0)
-		//0.5% of 2000 = 10
+		//3% of 2000 = 60
 		expect(Number(await wtc.balanceOf(acc2.address))).to.equal(8000)
-		expect(Number(await wtc.balanceOf(ah.address))).to.equal(10)
-		expect(Number(await wtc.balanceOf(acc1.address))).to.equal(11990) //-10 tokens fee
+		expect(Number(await wtc.balanceOf(ah.address))).to.equal(60)
+		expect(Number(await wtc.balanceOf(acc1.address))).to.equal(11940) //-60 tokens fee
 	})
 
 	it("(USDC) - buying an item will give the seller his cut and the ah its cut", async function () {
 		expect(Number(await usdc.balanceOf(acc1.address))).to.equal(10000)
 		expect(Number(await usdc.balanceOf(acc2.address))).to.equal(10000)
 
-		await ah.connect(acc1).putForSale(1, 10, 300, 60)
+		await ah.connect(acc1).putForSale(1, 10, 300, 60, ZERO_ADDRESS)
 		await ah.connect(acc2).buyItem(0)
-		//3% of 300 = 9
+		//5% of 300 = 15
 		expect(Number(await usdc.balanceOf(acc2.address))).to.equal(9700)
-		expect(Number(await usdc.balanceOf(ah.address))).to.equal(9)
-		expect(Number(await usdc.balanceOf(acc1.address))).to.equal(10291) //-9 tokens fee
+		expect(Number(await usdc.balanceOf(ah.address))).to.equal(15)
+		expect(Number(await usdc.balanceOf(acc1.address))).to.equal(10285) //-15 tokens fee
 	})
 
 	it("you can buy an item (simple)", async function () {
 		expect(await nft.balanceOf(acc1.address, 10)).to.equal(1)
 		expect(await nft.balanceOf(acc2.address, 10)).to.equal(0)
-		await ah.connect(acc1).putForSale(0, 10, 100, 60)
+		await ah.connect(acc1).putForSale(0, 10, 100, 60, ZERO_ADDRESS)
 		await ah.connect(acc2).buyItem(0)
 		expect(await nft.balanceOf(acc1.address, 10)).to.equal(0)
 		expect(await nft.balanceOf(acc2.address, 10)).to.equal(1)
@@ -105,7 +106,7 @@ describe("Auction House", function () {
 	it("withdrawing an unsold item", async function () {
 		expect(await nft.balanceOf(acc1.address, 10)).to.equal(1)
 		//	function putForSale(uint256 currency,uint256 nftID,uint256 price,uint256 saleDurationInSeconds)
-		await ah.connect(acc1).putForSale(0, 10, 100, 60)
+		await ah.connect(acc1).putForSale(0, 10, 100, 60, ZERO_ADDRESS)
 		expect(await nft.balanceOf(acc1.address, 10)).to.equal(0)
 
 		await ah.connect(acc1).removeFromSale(0)
@@ -113,22 +114,36 @@ describe("Auction House", function () {
 	})
 
 	it("only the seller can remove an unsold item", async function () {
-		await ah.connect(acc1).putForSale(0, 10, 100, 60)
+		await ah.connect(acc1).putForSale(0, 10, 100, 60, ZERO_ADDRESS)
 		await expect(ah.connect(acc2).removeFromSale(0)).to.be.revertedWith(
 			"only the seller can remove it"
 		)
 	})
 
 	it("you can't put for sale an un-owned nft", async function () {
-		await expect(ah.connect(acc1).putForSale(0, 99, 100, 60)).to.be.revertedWith(
+		await expect(ah.connect(acc1).putForSale(0, 99, 100, 60, ZERO_ADDRESS)).to.be.revertedWith(
 			"ERC1155: insufficient balance for transfer"
 		)
 	})
 
 	it("you can't withdraw a sold item", async function () {
-		await ah.connect(acc1).putForSale(0, 10, 100, 60)
+		await ah.connect(acc1).putForSale(0, 10, 100, 60, ZERO_ADDRESS)
 		await ah.connect(acc2).buyItem(0)
 		await expect(ah.connect(acc2).removeFromSale(0)).to.be.revertedWith("can't claim a sold item")
+	})
+
+	it("you can buy an item (private listing)", async function () {
+		expect(await nft.balanceOf(acc1.address, 10)).to.equal(1)
+		expect(await nft.balanceOf(acc2.address, 10)).to.equal(0)
+		await ah.connect(acc1).putForSale(0, 10, 100, 60, acc2.address)
+		await ah.connect(acc2).buyItem(0)
+		expect(await nft.balanceOf(acc1.address, 10)).to.equal(0)
+		expect(await nft.balanceOf(acc2.address, 10)).to.equal(1)
+	})
+
+	it("you can't buy an item (private listing)", async function () {
+		await ah.connect(acc1).putForSale(0, 10, 100, 60, acc3.address)
+		await expect(ah.connect(acc2).buyItem(0)).to.be.revertedWith("this listing is private")
 	})
 })
 
