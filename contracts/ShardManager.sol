@@ -46,8 +46,13 @@ contract ShardManager is
 {
     ILANDXNFT public landXNFT; //address of landXNFT
 
+    uint256 public marketFee = 300; //3%
+
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
+
+    event Sharded(uint256 nftID, uint256 amount, string name);
+    event BuyOut(uint256 nftID, uint256 amount, string name);
 
     constructor(address _landXNFT)
         ERC20Permit("LDXS")
@@ -70,10 +75,14 @@ contract ShardManager is
         //transfers the nft. must have setApprovalForAll
         landXNFT.safeTransferFrom(msg.sender, address(this), _id, 1, "");
 
-        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) *
+        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * 12 *
             (10**uint256(18))) / 10000;
 
-        _mint(msg.sender, shards);
+        _mint(address(this), shards);
+        
+        uint256 fee = _calcPercentage(shards);
+        _transfer(address(this), msg.sender, shards - fee);
+        emit Sharded(_id, shards, symbol());
     }
 
     //returns the NFT after you deposit back the shards. requires allowance!
@@ -83,7 +92,7 @@ contract ShardManager is
             "only initial owner can redeem the NFT"
         );
 
-        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) *
+        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * 12 *
             (10**uint256(18))) / 10000;
 
         //burns shards!
@@ -91,6 +100,7 @@ contract ShardManager is
 
         //transfer the NFTs
         landXNFT.safeTransferFrom(address(this), msg.sender, _id, 1, "");
+        emit BuyOut(_id, shards, symbol());
     }
 
     // reclaim accidentally sent eth
@@ -108,5 +118,24 @@ contract ShardManager is
         require(address(token) != address(0));
         uint256 balance = token.balanceOf(address(this));
         token.transfer(msg.sender, balance);
+    }
+    
+	function changeMarketFee(uint256 _marketFee) public onlyOwner {
+		require(_marketFee < 500, "anti greed protection");
+		marketFee = _marketFee;
+	}
+
+    function _calcPercentage(uint256 amount) internal view returns (uint256) {
+		return (amount * marketFee) / 10000;
+	}
+
+   function preview(uint256 id) public view returns(uint256, uint256, uint256) {
+        require(landXNFT.landArea(id) > 0, "this NFT has no land area set");
+        require(landXNFT.rent(id) > 0, "this NFT has no rent set");
+        uint256 shards = ((landXNFT.landArea(id) * landXNFT.rent(id)) * 12 *
+            (10**uint256(18))) / 10000;
+        uint256 fee = _calcPercentage(shards);
+        uint256 toBeReceived = shards -fee;
+        return (shards, fee, toBeReceived);    
     }
 }
