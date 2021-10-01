@@ -32,8 +32,9 @@ describe("Shard Manager", function () {
 		await theNFT.connect(acc2).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
 		expect(await shardManager.connect(acc2).getShards(11))
-		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("90000", "ether"))
-		expect(await shardManager.balanceOf(acc2.address)).to.equal(web3.utils.toWei("900000", "ether"))
+		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("1047600", "ether"))
+		expect(await shardManager.balanceOf(acc2.address)).to.equal(web3.utils.toWei("10476000", "ether"))
+		expect(await shardManager.balanceOf(shardManager.address)).to.equal(web3.utils.toWei("356400", "ether"))
 
 		//set allowance
 		await shardManager
@@ -56,18 +57,18 @@ describe("Shard Manager", function () {
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
-		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("90000", "ether"))
+		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("1047600", "ether"))
 
-		await shardManager.connect(acc1).transfer(acc2.address, web3.utils.toWei("10000", "ether"))
+		//await shardManager.connect(acc1).transfer(acc2.address, web3.utils.toWei("10000", "ether"))
 
-		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("80000", "ether"))
+		//expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("80000", "ether"))
 
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(0)
 
 		//set allowance
 		await shardManager
 			.connect(acc1)
-			.approve(shardManager.address, web3.utils.toWei("90000", "ether"))
+			.approve(shardManager.address, web3.utils.toWei("1047600", "ether"))
 
 		await expect(shardManager.connect(acc1).getTheNFT(10)).to.be.revertedWith(
 			"burn amount exceeds balance"
@@ -80,8 +81,14 @@ describe("Shard Manager", function () {
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
-		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("90000", "ether"))
-		expect(await shardManager.totalSupply()).to.equal(web3.utils.toWei("90000", "ether"))
+		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("1047600", "ether"))
+		expect(await shardManager.balanceOf(shardManager.address)).to.equal(web3.utils.toWei("32400", "ether"))
+		expect(await shardManager.totalSupply()).to.equal(web3.utils.toWei("1080000", "ether"))
+		
+		await theNFT.setDetailsAndMint(11, 3000000, 300, acc2.address)
+		await theNFT.connect(acc2).setApprovalForAll(shardManager.address, true)
+		expect(await shardManager.connect(acc2).getShards(11))
+		await shardManager.connect(acc2).transfer(acc1.address, ethers.utils.parseEther("32400"))
 
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(0)
 		//set allowance
@@ -94,7 +101,7 @@ describe("Shard Manager", function () {
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 
 		expect(await shardManager.balanceOf(acc1.address)).to.equal(0)
-		expect(await shardManager.totalSupply()).to.equal(0)
+		expect(await shardManager.totalSupply()).to.equal(web3.utils.toWei("1080000", "ether"))
 	})
 
 	it("you should get NFT when you deposit the shards back", async function () {
@@ -102,14 +109,19 @@ describe("Shard Manager", function () {
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
-		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("90000", "ether"))
+		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("1047600", "ether"))
 
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(0)
+
+		await theNFT.setDetailsAndMint(11, 3000000, 300, acc2.address)
+		await theNFT.connect(acc2).setApprovalForAll(shardManager.address, true)
+		expect(await shardManager.connect(acc2).getShards(11))
+		await shardManager.connect(acc2).transfer(acc1.address, ethers.utils.parseEther("32400"))
 
 		//set allowance
 		await shardManager
 			.connect(acc1)
-			.approve(shardManager.address, web3.utils.toWei("90000", "ether"))
+			.approve(shardManager.address, web3.utils.toWei("1080000", "ether"))
 
 		//now deposit the shards back to get the NFT
 		await shardManager.connect(acc1).getTheNFT(10)
@@ -126,7 +138,7 @@ describe("Shard Manager", function () {
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
-		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("90000", "ether"))
+		expect(await shardManager.balanceOf(acc1.address)).to.equal(web3.utils.toWei("1047600", "ether"))
 	})
 
 	it("you must approve the NFT before getting the shards", async function () {
