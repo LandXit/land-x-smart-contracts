@@ -24,8 +24,8 @@ describe("Shard Manager", function () {
 	})
 
 	it("only initial owner can redeem the NFT", async function () {
-		await theNFT.setDetailsAndMint(10, 3000000, 300, acc1.address)
-		await theNFT.setDetailsAndMint(11, 3000000, 3000, acc2.address)
+		await theNFT.setDetailsAndMint(10, 3000000, 300, shardManager.address, acc1.address)
+		await theNFT.setDetailsAndMint(11, 3000000, 3000,shardManager.address, acc2.address)
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		expect(await theNFT.balanceOf(acc2.address, 11)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
@@ -53,7 +53,7 @@ describe("Shard Manager", function () {
 	})
 
 	it("you can't get the NFT if you don't have enough shards", async function () {
-		await theNFT.setDetailsAndMint(10, 3000000, 300, acc1.address)
+		await theNFT.setDetailsAndMint(10, 3000000, 300, shardManager.address, acc1.address)
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
@@ -77,7 +77,7 @@ describe("Shard Manager", function () {
 	})
 
 	it("shards would be gone when you get your NFT back", async function () {
-		await theNFT.setDetailsAndMint(10, 3000000, 300, acc1.address)
+		await theNFT.setDetailsAndMint(10, 3000000, 300, shardManager.address, acc1.address)
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
@@ -85,7 +85,7 @@ describe("Shard Manager", function () {
 		expect(await shardManager.balanceOf(shardManager.address)).to.equal(web3.utils.toWei("32400", "ether"))
 		expect(await shardManager.totalSupply()).to.equal(web3.utils.toWei("1080000", "ether"))
 		
-		await theNFT.setDetailsAndMint(11, 3000000, 300, acc2.address)
+		await theNFT.setDetailsAndMint(11, 3000000, 300, shardManager.address, acc2.address)
 		await theNFT.connect(acc2).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc2).getShards(11))
 		await shardManager.connect(acc2).transfer(acc1.address, ethers.utils.parseEther("32400"))
@@ -105,7 +105,7 @@ describe("Shard Manager", function () {
 	})
 
 	it("you should get NFT when you deposit the shards back", async function () {
-		await theNFT.setDetailsAndMint(10, 3000000, 300, acc1.address)
+		await theNFT.setDetailsAndMint(10, 3000000, 300, shardManager.address, acc1.address)
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
@@ -113,7 +113,7 @@ describe("Shard Manager", function () {
 
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(0)
 
-		await theNFT.setDetailsAndMint(11, 3000000, 300, acc2.address)
+		await theNFT.setDetailsAndMint(11, 3000000, 300, shardManager.address, acc2.address)
 		await theNFT.connect(acc2).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc2).getShards(11))
 		await shardManager.connect(acc2).transfer(acc1.address, ethers.utils.parseEther("32400"))
@@ -134,7 +134,7 @@ describe("Shard Manager", function () {
 		// uint256 _landArea,
 		// uint256 _rent,
 		// address _to
-		await theNFT.setDetailsAndMint(10, 3000000, 300, acc1.address)
+		await theNFT.setDetailsAndMint(10, 3000000, 300, shardManager.address, acc1.address)
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await theNFT.connect(acc1).setApprovalForAll(shardManager.address, true)
 		expect(await shardManager.connect(acc1).getShards(10))
@@ -142,7 +142,7 @@ describe("Shard Manager", function () {
 	})
 
 	it("you must approve the NFT before getting the shards", async function () {
-		await theNFT.setDetailsAndMint(10, 3000000, 300, acc1.address)
+		await theNFT.setDetailsAndMint(10, 3000000, 300, shardManager.address, acc1.address)
 		expect(await theNFT.balanceOf(acc1.address, 10)).to.equal(1)
 		await expect(shardManager.connect(acc1).getShards(10)).to.be.revertedWith(
 			"caller is not owner nor approved"
@@ -150,7 +150,7 @@ describe("Shard Manager", function () {
 	})
 
 	it("you must own this NFT", async function () {
-		await theNFT.setDetailsAndMint(123, 3000000, 300, acc2.address)
+		await theNFT.setDetailsAndMint(123, 3000000, 300, shardManager.address, acc2.address)
 		await expect(shardManager.connect(acc1).getShards(123)).to.be.revertedWith(
 			"you must own this NFT"
 		)
