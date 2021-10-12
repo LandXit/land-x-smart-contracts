@@ -16,6 +16,8 @@ interface ILANDXNFT is IERC165 {
 
     function rent(uint256 id) external view returns (uint256);
 
+    function shardManager(uint256 id) external view returns (address);
+
     function balanceOf(address account, uint256 id)
         external
         view
@@ -65,6 +67,7 @@ contract ShardManager is
     function getShards(uint256 _id) external {
         require(landXNFT.landArea(_id) > 0, "this NFT has no land area set");
         require(landXNFT.rent(_id) > 0, "this NFT has no rent set");
+        require(landXNFT.shardManager(_id) == address(this), "Unable to shard this NFT");
         require(
             landXNFT.balanceOf(msg.sender, _id) > 0,
             "you must own this NFT"
