@@ -15,23 +15,23 @@ describe("Auction House 2 (auctioning)", function () {
 		nft = await NFTContract.deploy()
 		await nft.deployed()
 
+		let shardContract = await ethers.getContractFactory("ShardManager")
+		shard = await shardContract.deploy(nft.address)
+
 		let ERC20MockContract = await ethers.getContractFactory("ERC20Mock")
 		wtc = await ERC20MockContract.deploy("wtcMock", "wtc", "100000")
 		await wtc.deployed()
 
-		usdc = await ERC20MockContract.deploy("USDCMock", "USDC", "100000")
-		await usdc.deployed()
-
 		let AuctionHouseContract = await ethers.getContractFactory("AuctionHouse")
 		//address _landxNFT, address _wtc, address _usdc
-		ah = await AuctionHouseContract.deploy(nft.address, wtc.address, usdc.address)
+		ah = await AuctionHouseContract.deploy(nft.address, wtc.address)
 		await ah.deployed()
 
 		//mint some NFT Tokens
 		//uint256 _index, uint256 _landArea, uint256 _rent, address _to
-		await nft.setDetailsAndMint(9, 3000000, 300, owner.address)
-		await nft.setDetailsAndMint(10, 3000000, 300, acc1.address)
-		await nft.setDetailsAndMint(11, 3000000, 300, acc2.address)
+		await nft.setDetailsAndMint(9, 3000000, 300, 0, shard.address, owner.address)
+		await nft.setDetailsAndMint(10, 3000000, 300, 0, shard.address, acc1.address)
+		await nft.setDetailsAndMint(11, 3000000, 300, 0, shard.address, acc2.address)
 
 		//setApprovalForAll
 		await nft.connect(owner).setApprovalForAll(ah.address, true)
@@ -41,17 +41,11 @@ describe("Auction House 2 (auctioning)", function () {
 		//transfer some currencies
 		await wtc.transfer(acc1.address, "10000")
 		await wtc.transfer(acc2.address, "10000")
-		await usdc.transfer(acc1.address, "10000")
-		await usdc.transfer(acc2.address, "10000")
 
 		//set allowance for the AuctionHouse
 		await wtc.connect(owner).increaseAllowance(ah.address, 99999999999999)
 		await wtc.connect(acc1).increaseAllowance(ah.address, 99999999999999)
 		await wtc.connect(acc2).increaseAllowance(ah.address, 99999999999999)
-
-		await usdc.connect(owner).increaseAllowance(ah.address, 99999999999999)
-		await usdc.connect(acc1).increaseAllowance(ah.address, 99999999999999)
-		await usdc.connect(acc2).increaseAllowance(ah.address, 99999999999999)
 	})
 
 	it("simple test...", async function () {
@@ -65,8 +59,8 @@ describe("Auction House 2 (auctioning)", function () {
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...owner
-		//uint256 nftID, uint256 startPrice, uint256 reservedPrice, uint256 currency //0 - WTC, 1 - USDC
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
+		//uint256 nftID, uint256 startPrice, uint256 reservedPrice
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
 
 		//acc1 bid
 		await ah.connect(acc1).bid(0, "101")
@@ -82,7 +76,7 @@ describe("Auction House 2 (auctioning)", function () {
 
 	it("withdrawing an unsold item", async function () {
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1)
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(0)
 
 		//one day passes
@@ -99,7 +93,7 @@ describe("Auction House 2 (auctioning)", function () {
 
 	it("withdrawing an unsold item (reserved price is not reached)", async function () {
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(1)
-		await ah.connect(acc2).createAuction(11, 100, 105, 86400, 0)
+		await ah.connect(acc2).createAuction(11, 100, 105, 8640)
 		expect(await nft.balanceOf(acc2.address, 11)).to.equal(0)
 
 		//acc1 bid
@@ -116,7 +110,7 @@ describe("Auction House 2 (auctioning)", function () {
 	})
 
 	it("you can't claim a pending auction", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
 		await ah.connect(acc1).bid(0, "101")
 		await time.increase(time.duration.minutes(60))
 		await expect(ah.connect(acc1).claim(0)).to.be.revertedWith("ongoing auction")
@@ -124,7 +118,7 @@ describe("Auction House 2 (auctioning)", function () {
 
 	it("you can't bid on an expired auction", async function () {
 		//create auction ...acc2
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400, 0)
+		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
 		// //bid on it, acc1
 		//function bid(uint256 auctionId, uint256 bidAmount) public {
 		await ah.connect(acc1).bid(0, "101")
@@ -139,7 +133,7 @@ describe("Auction House 2 (auctioning)", function () {
 	})
 
 	it("reserved price is respected", async function () {
-		await expect(ah.connect(acc2).createAuction(11, 100, 100, 86400, 0)).to.be.revertedWith(
+		await expect(ah.connect(acc2).createAuction(11, 100, 100, 86400)).to.be.revertedWith(
 			"reserve price > start price"
 		)
 	})
@@ -150,7 +144,7 @@ describe("Auction House 2 (auctioning)", function () {
 		expect(await nft.balanceOf(acc1.address, 11)).to.equal(0)
 
 		//create auction ...acc2
-		await ah.connect(acc2).createAuction(11, 99, 100, 86400, 0)
+		await ah.connect(acc2).createAuction(11, 99, 100, 86400)
 
 		expect(await ah.auctionCount()).to.equal(1)
 		expect(await nft.balanceOf(ah.address, 11)).to.equal(1)
@@ -178,11 +172,8 @@ describe("Auction House 2 (auctioning)", function () {
 	})
 
 	it("creating an auction works", async function () {
-		//uint256 nftID,uint256 startPrice,uint256 currency //0 - wtc, 1 - usdc
-		await ah.createAuction(9, 10, 11, 86400, 0)
+		//uint256 nftID,uint256 startPrice
+		await ah.createAuction(9, 10, 11, 86400)
 		expect(await ah.auctionCount()).to.equal(1)
-
-		await ah.connect(acc1).createAuction(10, 100, 150, 86400, 1)
-		expect(await ah.auctionCount()).to.equal(2)
 	})
 })
