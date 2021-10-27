@@ -78,8 +78,7 @@ contract ShardManager is
         //transfers the nft. must have setApprovalForAll
         landXNFT.safeTransferFrom(msg.sender, address(this), _id, 1, "");
 
-        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * 12 *
-            (10**uint256(18))) / 10000;
+        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * (10**uint256(18))) / 10000;
 
         _mint(address(this), shards);
         
@@ -95,8 +94,7 @@ contract ShardManager is
             "only initial owner can redeem the NFT"
         );
 
-        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * 12 *
-            (10**uint256(18))) / 10000;
+        uint256 shards = ((landXNFT.landArea(_id) * landXNFT.rent(_id)) * (10**uint256(18))) / 10000;
 
         //burns shards!
         burn(shards);
@@ -135,9 +133,8 @@ contract ShardManager is
    function preview(uint256 id) public view returns(uint256, uint256, uint256) {
         require(landXNFT.landArea(id) > 0, "this NFT has no land area set");
         require(landXNFT.rent(id) > 0, "this NFT has no rent set");
-        require(landXNFT.shardManager(_id) == address(this), "Unable to shard this NFT");
-        uint256 shards = ((landXNFT.landArea(id) * landXNFT.rent(id)) * 12 *
-            (10**uint256(18))) / 10000;
+        require(landXNFT.shardManager(id) == address(this), "Unable to shard this NFT");
+        uint256 shards = ((landXNFT.landArea(id) * landXNFT.rent(id)) * (10**uint256(18))) / 10000;
         uint256 fee = _calcPercentage(shards);
         uint256 toBeReceived = shards -fee;
         return (shards, fee, toBeReceived);    
