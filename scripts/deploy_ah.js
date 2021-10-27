@@ -40,17 +40,16 @@ async function main() {
 	if (network === "rinkeby") {
 		nft = "0x1071B8DAF7f95014fE2013F15Ae717Ce3D5d5506" //rinkeby
 		wtcTokenAddress = "0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3" //rinkeby
-		usdcTokenAddress = "0x4DBCdF9B62e891a7cec5A2568C3F4FAF9E8Abe2b" //rinkeby
 	}
 
 	//address _landxNFT, address _wtc, address _usdc
-	let deployed = await AH.deploy(nft, wtcTokenAddress, usdcTokenAddress)
+	let deployed = await AH.deploy(nft, wtcTokenAddress)
 	let dep = await deployed.deployed()
 
 	await sleep(45000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nft, wtcTokenAddress, usdcTokenAddress],
+		constructorArguments: [nft, wtcTokenAddress],
 	})
 }
 
