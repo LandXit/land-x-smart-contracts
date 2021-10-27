@@ -21,7 +21,6 @@ contract LandXNFT is ERC1155, Ownable {
     mapping(uint256 => uint256) public totalSupply;
     mapping(uint256 => uint256) public landArea; // in square-meters
     mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
-    mapping(uint256 => address) public shardManager;
 
     //1 shard = (landArea * rent) /  10000
 
@@ -34,15 +33,12 @@ contract LandXNFT is ERC1155, Ownable {
         uint256 _index,
         uint256 _landArea,
         uint256 _rent,
-        address _shardManager,
         address _to
     ) public {
         require(msg.sender == detailsSetter, "not detailsSetter");
         require(totalSupply[_index] == 0, "tokenID already minted");
-        require(_shardManager != address(0), "shardManager is not defined");
         landArea[_index] = _landArea;
         rent[_index] = _rent;
-        shardManager[_index] = _shardManager;
         totalSupply[_index] = totalSupply[_index] + 1;
         _mint(_to, _index, 1, "0x0000");
     }
