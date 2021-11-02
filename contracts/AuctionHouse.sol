@@ -9,6 +9,12 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 interface ILANDXNFT is IERC165 {
 	function optionPremium(uint256 id) external view returns (uint256);
+	
+	function landArea(uint256 id) external view returns (uint256);
+
+	function landOwner(uint256 id) external view returns (address);
+
+    function rent(uint256 id) external view returns (uint256);
 
     function safeTransferFrom(
         address from,
@@ -19,8 +25,14 @@ interface ILANDXNFT is IERC165 {
     ) external;
 }
 
+interface ISHARDMANAGER is IERC165 {
+	function symbol() external view returns (string memory);
+}
+
 contract AuctionHouse is Ownable, Pausable {
 	uint256 marketFeeWTC = 300; //3%
+
+	uint256 USD_WTC_Rate = 30; // for now it hardcoded
 
 	uint256 public auctionBoost = 5 minutes;
 	uint256 public tickWTC = 1; //bidding tick for WTC
@@ -38,6 +50,7 @@ contract AuctionHouse is Ownable, Pausable {
 	mapping(uint256 => AuctionListing) public auctions;
 	mapping(uint256 => bool) public auctionActive;
 	mapping(uint256 => Offer) public offers;
+	mapping(uint256 => bool) public optionApplied;
 
 	event AuctionListed(
 		uint256 auction_id,
@@ -47,15 +60,15 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 endTime
 	);
 	event BidPlaced(uint256 auction_id, address indexed bidder, uint256 price, uint256 currency, uint256 endTime);
-	event AuctionWon(uint256 auction_id, uint256 highestBid, uint256 currency, address winner);
+	event AuctionWon(uint256 auction_id, uint256 highestBid, uint256 currency, address winner, bool optionApplied);
 	event AuctionCanceled(uint256 auction_id, address auctioneer);
 
 	event OnSale(uint256 sale_id, uint256 currency, uint256 itemID, uint256 price, uint256 startTime, address privacy);
-	event ListingSold(uint256 itemID, uint256 price, uint256 currency, address buyer);
+	event ListingSold(uint256 itemID, uint256 price, uint256 currency, address buyer, bool optionApplied);
 	event SaleCanceled(uint256 sale_id, address seller);
 
 	event OfferMade(uint256 offer_id, uint256 nftID, address maker, uint256 price, uint256 currency, uint256 endTime);
-	event OfferAccepted(uint256 offer_id, uint256 nftID, uint256 price, uint256 currency, address maker);
+	event OfferAccepted(uint256 offer_id, uint256 nftID, uint256 price, uint256 currency, address maker, bool optionApplied);
 	event OfferCanceled(uint256 offer_id, uint256 nftID, address maker);
 	event OfferDeclined(uint256 offer_id, uint256 nftID, address seller);
 
@@ -67,6 +80,7 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 date;
 		uint256 endTime;
 		bool actual;
+		uint256 optionPremium;
 	}
 
 	struct AuctionListing {
@@ -82,6 +96,7 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 bidCount;
 		address highBidder;
 		uint256 auctionPeriod;
+		uint256 optionPremium;
 	}
 
 	struct SellListing {
@@ -106,11 +121,18 @@ contract AuctionHouse is Ownable, Pausable {
 		auctionCount = 0;
 	}
 
-	function makeOffer(uint256 nftID, uint256 price, uint256 currency, uint256 listingID, uint256 duration) public whenNotPaused {
+	function makeOffer(uint256 nftID, uint256 price, uint256 currency, uint256 listingID, uint256 duration, bool applyOptionPremium) public whenNotPaused {
 		require(duration <= maxOfferDuration, "too long duration");
 		require((auctionActive[listingID] == true && auctions[listingID].nftID > 0 && auctions[listingID].nftID == nftID && auctions[listingID].endTime >= block.timestamp) || 
 			(sellListings[listingID].nftID > 0 && sellListings[listingID].startTime <= block.timestamp && sellListings[listingID].removedFromSale == false && sellListings[listingID].sold == false && sellListings[listingID].nftID == nftID), "token has no active listings");
 		require(price >= 1, "price should be >= 1");
+		
+		uint256 applyPremium = 0;
+		if (applyOptionPremium == true && landXNFT.optionPremium(nftID) > 0 && optionApplied[nftID] != true)
+		{
+			applyPremium = getOptionAmountInWTC(nftID);
+		}
+
 		Offer memory o = Offer(
 			nftID,
 			price,
@@ -118,8 +140,12 @@ contract AuctionHouse is Ownable, Pausable {
 			msg.sender,
 			block.timestamp,
 			block.timestamp + duration,
-			true
+			true,
+			applyPremium
 		);
+		
+		require(wtc.transferFrom(msg.sender, address(this), price + applyPremium), "failed to transfer WTC");
+
 		offers[offersCount] = o;
 		offersCount = offersCount + 1;
 		emit OfferMade(offersCount -1, nftID, o.offerMaker, price, 0, o.endTime);
@@ -128,6 +154,7 @@ contract AuctionHouse is Ownable, Pausable {
 	function cancelOffer(uint256 offerID) public {
 		require(offers[offerID].offerMaker == msg.sender, "only maker can cancel offer");
 		require(offers[offerID].actual == true, "only actual offer can be cancelled");
+		require(wtc.transferFrom(address(this), offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
 		offers[offerID].actual = false;
 		emit OfferCanceled(offerID, offers[offerID].nftID, offers[offerID].offerMaker);
 	}
@@ -143,10 +170,18 @@ contract AuctionHouse is Ownable, Pausable {
 			//transfer funds to old owner
 			uint256 _fee = _calcPercentage(offers[offerID].price, marketFeeWTC);
 			uint256 amountToTransfer = offers[offerID].price - _fee;
-			require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer WTC (fee)");
-			require(wtc.transferFrom(offers[offerID].offerMaker, sl.seller, amountToTransfer), "transfer failed");
-		    
-			emit OfferAccepted(offerID, sl.nftID, offers[offerID].price, 0, offers[offerID].offerMaker);
+			//require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer WTC (fee)");
+			require(wtc.transferFrom(address(this), sl.seller, amountToTransfer), "transfer failed");
+			
+			if (offers[offerID].optionPremium > 0 && optionApplied[offers[offerID].nftID] != true) {
+				uint256 _fee = _calcPercentage(offers[offerID].optionPremium, marketFeeWTC);
+				require(wtc.transferFrom(address(this), landXNFT.landOwner(offers[offerID].nftID), offers[offerID].optionPremium - _fee), "transfer failed");
+				optionApplied[offers[offerID].nftID] = true;
+			}
+
+			offers[offerID].actual = false;
+			sellListings[sl.saleId].sold = true;
+			emit OfferAccepted(offerID, sl.nftID, offers[offerID].price, 0, offers[offerID].offerMaker, optionApplied[offers[offerID].nftID]);
 			return;
 		}
 		if (auctions[offers[offerID].listingID].nftID > 0 && auctions[offers[offerID].listingID].nftID == offers[offerID].nftID) {
@@ -159,10 +194,18 @@ contract AuctionHouse is Ownable, Pausable {
 			//transfer funds to old owner
 			uint256 _fee = _calcPercentage(offers[offerID].price, marketFeeWTC);
 			uint256 amountToTransfer = offers[offerID].price - _fee;
-			require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer wtc (fee)");
-			require(wtc.transferFrom(offers[offerID].offerMaker, auction.auctioneer, amountToTransfer), "transfer failed");
+			//require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer wtc (fee)");
+			
+			require(wtc.transferFrom(address(this), auction.auctioneer, amountToTransfer), "transfer failed");
+			
+			if (offers[offerID].optionPremium > 0 && optionApplied[offers[offerID].nftID] != true) {
+				uint256 _fee = _calcPercentage(offers[offerID].optionPremium, marketFeeWTC);
+				require(wtc.transferFrom(address(this), landXNFT.landOwner(offers[offerID].nftID), offers[offerID].optionPremium - _fee), "transfer failed");
+				optionApplied[offers[offerID].nftID] = true;
+			}
 			auctionActive[auction.auctionId] = false;
-			emit OfferAccepted(offerID, auction.nftID, offers[offerID].price, 0, offers[offerID].offerMaker);
+			offers[offerID].actual = false;
+			emit OfferAccepted(offerID, auction.nftID, offers[offerID].price, 0, offers[offerID].offerMaker, optionApplied[offers[offerID].nftID]);
 			return;
 		}
 	}
@@ -172,6 +215,7 @@ contract AuctionHouse is Ownable, Pausable {
 		if (sellListings[offers[offerID].listingID].nftID > 0 && sellListings[offers[offerID].listingID].nftID == offers[offerID].nftID) {
 			SellListing storage sl = sellListings[offers[offerID].listingID];
 			require(sl.seller == msg.sender, "only seller can decline offer");
+			require(wtc.transferFrom(address(this), offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
 			offers[offerID].actual = false;
 			emit OfferDeclined(offerID, sl.nftID, sl.seller);
 			return;
@@ -180,6 +224,7 @@ contract AuctionHouse is Ownable, Pausable {
 			offers[offerID].actual = false;
 			AuctionListing storage auction = auctions[offers[offerID].listingID];
 			require(auction.auctioneer == msg.sender, "only seller can decline offer");
+			require(wtc.transferFrom(address(this), offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
 			offers[offerID].actual = false;
 			emit OfferDeclined(offerID, auction.nftID, auction.auctioneer);
 			return;
@@ -215,7 +260,8 @@ contract AuctionHouse is Ownable, Pausable {
 			0,
 			0,
 			address(0),
-			auctionPeriod
+			auctionPeriod,
+			0
 		);
 
 		al.tick = tickWTC;
@@ -236,19 +282,26 @@ contract AuctionHouse is Ownable, Pausable {
 
 	/// @notice Place a bid on an auction
 	/// @param auctionId uint. Which listing to place bid on.
-	function bid(uint256 auctionId, uint256 bidAmount) public {
+	function bid(uint256 auctionId, uint256 bidAmount, bool applyOptionPremium) public {
 		require(auctionActive[auctionId] == true, "auctionActive[auctionId] == true");
 
 		AuctionListing storage al = auctions[auctionId];
 
 		require(block.timestamp < al.endTime, "auction expired");
 
+		uint256 applyPremium = 0;
+
+		if (applyOptionPremium == true && landXNFT.optionPremium(al.nftID) > 0 && optionApplied[al.nftID] != true)
+		{
+			applyPremium = getOptionAmountInWTC(al.nftID);
+		}
+
 		uint256 currentBid = al.currentBid;
 
 		if (al.bidCount > 0) {
 			require(bidAmount >= currentBid + al.tick, "bidAmount >= currentBid + al.tick");
 			//refund the previous bidder
-			require(wtc.transfer(al.highBidder, al.currentBid), "transfer failed");
+			require(wtc.transfer(al.highBidder, al.currentBid + al.optionPremium), "transfer failed");
 
 			//for eth
 			//(bool success, ) = al.highBidder.call{ value: al.currentBid }("");
@@ -267,6 +320,7 @@ contract AuctionHouse is Ownable, Pausable {
 		al.currentBid = bidAmount;
 		al.highBidder = msg.sender;
 		al.bidCount = al.bidCount + 1;
+		al.optionPremium = applyPremium;
 
 		if (((al.endTime - block.timestamp) + auctionBoost) < al.auctionPeriod)
 			al.endTime = al.endTime + auctionBoost;
@@ -288,7 +342,7 @@ contract AuctionHouse is Ownable, Pausable {
 
 		//if bids, refund the money to the highest bidder
 		if (al.bidCount > 0) {
-			require(wtc.transfer(al.highBidder, al.currentBid), "transfer failed");
+			require(wtc.transfer(al.highBidder, al.currentBid + al.optionPremium), "transfer failed");
 		}
 
 		//relsease the NFT back to the auctioneer
@@ -310,24 +364,31 @@ contract AuctionHouse is Ownable, Pausable {
 
 		if (al.bidCount == 0) {
 			//Release the item back to the auctioneer
-			landXNFT.safeTransferFrom(address(this), al.auctioneer, auctions[auctionId].nftID, 1, "");
+			landXNFT.safeTransferFrom(address(this), al.auctioneer, al.nftID, 1, "");
 			return; //nothing else to do
 		} else {
 			if (al.currentBid < al.reservedPrice) {
+				require(wtc.transfer(al.highBidder, al.currentBid + al.optionPremium), "transfer failed");
 				//Release the item back to the auctioneer
-				landXNFT.safeTransferFrom(address(this), al.auctioneer, auctions[auctionId].nftID, 1, "");
+				landXNFT.safeTransferFrom(address(this), al.auctioneer, al.nftID, 1, "");
+				
 				return; //nothing else to do
 			}
 			//Release the item to highBidder
-			landXNFT.safeTransferFrom(address(this), al.highBidder, auctions[auctionId].nftID, 1, "");
+			landXNFT.safeTransferFrom(address(this), al.highBidder, al.nftID, 1, "");
 		}
 
 		//Release the funds to auctioneer
 		uint256 _fee = _calcPercentage(al.currentBid, marketFeeWTC);
 		uint256 amtForAuctioneer = al.currentBid - _fee;
 		require(wtc.transfer(al.auctioneer, amtForAuctioneer), "transfer failed");
+		if (al.optionPremium > 0 && optionApplied[al.nftID] != true) {
+			_fee = _calcPercentage(al.optionPremium, marketFeeWTC);
+			require(wtc.transfer(landXNFT.landOwner(al.nftID), al.optionPremium - _fee), "transfer failed");
+			optionApplied[al.nftID] = true;
+		}
 
-		emit AuctionWon(auctionId, al.currentBid - al.tick, 0, al.highBidder);
+		emit AuctionWon(auctionId, al.currentBid, 0, al.highBidder, optionApplied[al.nftID]);
 	}
 
 	/// @notice Returns time left in seconds or 0 if auction is over or not active.
@@ -391,7 +452,7 @@ contract AuctionHouse is Ownable, Pausable {
 	}
 
 	// buys an NFT from a sale
-	function buyItem(uint256 saleID) public {
+	function buyItem(uint256 saleID, bool applyOptionPremium) public {
 		SellListing storage sl = sellListings[saleID];
 		require(block.timestamp >= sl.startTime, "sale period didn't start");
 		require(sl.sold == false, "can't buy a sold item");
@@ -400,9 +461,22 @@ contract AuctionHouse is Ownable, Pausable {
 			require(msg.sender == sl.privacy, "this listing is private");
 		}
 
+		uint256 applyPremium = 0;
+		if (applyOptionPremium == true && landXNFT.optionPremium(sl.nftID) > 0 && optionApplied[sl.nftID] != true)
+		{
+			applyPremium = getOptionAmountInWTC(sl.nftID);
+		}
+
 			//WTC
 		uint256 _fee = _calcPercentage(sl.price, marketFeeWTC);
 		uint256 amtForSeller = sl.price - _fee;
+
+		if (applyPremium > 0 && optionApplied[sl.nftID] != true) {
+			uint256 fee = _calcPercentage(applyPremium, marketFeeWTC);
+			optionApplied[sl.nftID] = true;
+			require(wtc.transferFrom(msg.sender, landXNFT.landOwner(sl.nftID), applyPremium - fee), "failed to transfer WTC (fee)");
+			_fee += fee;
+		}
 
 		//transfer all the WTC token to the smart contract
 		require(wtc.transferFrom(msg.sender, address(this), _fee), "failed to transfer WTC (fee)");
@@ -412,7 +486,7 @@ contract AuctionHouse is Ownable, Pausable {
 		landXNFT.safeTransferFrom(address(this), msg.sender, sl.nftID, 1, "");
 
 		sl.sold = true;
-		emit ListingSold(sl.nftID, sl.price, 0, msg.sender);
+		emit ListingSold(sl.nftID, sl.price, 0, msg.sender, optionApplied[sl.nftID]);
 	}
 
 	function onERC1155Received(
@@ -463,5 +537,11 @@ contract AuctionHouse is Ownable, Pausable {
 	//set bid Tick
 	function setBidTickWTC(uint256 _newTick) public onlyOwner {
 		tickWTC = _newTick;
+	}
+
+	function getOptionAmountInWTC(uint256 tokenID) public view returns (uint256) {
+		uint256 optionPremium = landXNFT.optionPremium(tokenID);
+		uint256 area = landXNFT.landArea(tokenID);
+		return (area * optionPremium * USD_WTC_Rate * (10**uint256(18))) / (10000 * 100);
 	}
 }
