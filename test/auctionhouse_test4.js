@@ -29,9 +29,9 @@ describe("Auction House 4 (offers)", function () {
 
 		//mint some NFT Tokens
 		//uint256 _index, uint256 _landArea, uint256 _rent, address _to
-		await nft.setDetailsAndMint(9, 3000000, 300, 0, shard.address, owner.address)
-		await nft.setDetailsAndMint(10, 3000000, 300, 0, shard.address, acc1.address)
-		await nft.setDetailsAndMint(11, 3000000, 300, 0, shard.address, acc2.address)
+		await nft.setDetailsAndMint(9, 3000000, 300, shard.address, owner.address)
+		await nft.setDetailsAndMint(10, 3000000, 300, shard.address, acc1.address)
+		await nft.setDetailsAndMint(11, 3000000, 300, shard.address, acc2.address)
 
 		//setApprovalForAll
 		await nft.connect(owner).setApprovalForAll(ah.address, true)
@@ -53,67 +53,67 @@ describe("Auction House 4 (offers)", function () {
 	})
 
 	it("you can't make offer because too big duration", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await expect(ah.connect(acc1).makeOffer(11, 50, 1, 15552001)).to.be.revertedWith("too long duration")
+		await expect(ah.connect(acc1).makeOffer(11, 50, 0, 1, 15552001)).to.be.revertedWith("too long duration")
 	})
 
 	it("you can't make offer because invalid listing", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await expect(ah.connect(acc1).makeOffer(11, 50, 1, 56500)).to.be.revertedWith("token has no active listings")
+		await expect(ah.connect(acc1).makeOffer(11, 50, 0, 1, 56500)).to.be.revertedWith("token has no active listings")
 	})
 
 	it("you can't make offer because auction is expired", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 		await time.increase(time.duration.seconds(86420))
 
-		await expect(ah.connect(acc1).makeOffer(11, 50, 0, 56500)).to.be.revertedWith("token has no active listings")
+		await expect(ah.connect(acc1).makeOffer(11, 50, 0, 0, 56500)).to.be.revertedWith("token has no active listings")
 	})
 
 	it("you can make offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 50, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 50, 0, 0, 56500)
 		expect(await ah.offersCount()).to.equal(1)
 	})
 
 	it("maker can cancel offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 50, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 50, 0, 0, 56500)
 		await ah.connect(acc1).cancelOffer(0)
 		offer = await ah.offers(0)
 		expect(offer.actual).to.equal(false)
 	})
 
 	it("seller can decline offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 50, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 50, 0, 0, 56500)
 		await ah.connect(acc2).declineOffer(0)
 		offer = await ah.offers(0)
 		expect(offer.actual).to.equal(false)
 	})
 
 	it("non-seller can't decline offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 50, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 50, 0, 0, 56500)
 		await expect(ah.connect(acc1).declineOffer(0)).to.be.revertedWith("only seller can decline offer")
 	})
 
 	it("you can't cancel offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 50, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 50, 0, 0, 56500)
 		await expect(ah.connect(acc3).cancelOffer(0)).to.be.revertedWith("only maker can cancel offer")
 	})
 
 	it("you can accept offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 100, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 100, 0, 0, 56500)
 
 		await ah.connect(acc2).acceptOffer(0)
 
@@ -125,9 +125,9 @@ describe("Auction House 4 (offers)", function () {
 	})
 
 	it("you can't accept expired offer", async function () {
-		await ah.connect(acc2).createAuction(11, 100, 101, 86400)
+		await ah.connect(acc2).createAuction(11, 100, 101, 0, 86400)
 	
-		await ah.connect(acc1).makeOffer(11, 100, 0, 56500)
+		await ah.connect(acc1).makeOffer(11, 100, 0, 0, 56500)
 		await time.increase(time.duration.seconds(56550))
 
 		await expect(ah.connect(acc2).acceptOffer(0)).to.be.revertedWith("offer is expired")
