@@ -16,6 +16,8 @@ interface ILANDXNFT is IERC165 {
 
     function rent(uint256 id) external view returns (uint256);
 
+	function shardManager(uint256 id) external view returns (address);
+
     function safeTransferFrom(
         address from,
         address to,
@@ -33,6 +35,11 @@ contract AuctionHouse is Ownable, Pausable {
 	uint256 marketFeeWTC = 300; //3%
 
 	uint256 USD_WTC_Rate = 30; // for now it hardcoded
+
+	uint256 WheatPrice = 27;
+	uint256 RicePrice = 70;
+	uint256 MaizePrice = 29;
+	uint256 SoyPrice = 56;
 
 	uint256 public auctionBoost = 5 minutes;
 	uint256 public tickWTC = 1; //bidding tick for WTC
@@ -165,6 +172,11 @@ contract AuctionHouse is Ownable, Pausable {
 		if (sellListings[offers[offerID].listingID].nftID > 0 && sellListings[offers[offerID].listingID].nftID == offers[offerID].nftID) {
 			SellListing storage sl = sellListings[offers[offerID].listingID];
 			require(sl.sold == false && sl.removedFromSale == false, "listing is not active");
+			
+			if (landXNFT.landOwner(sl.nftID) == sl.seller) {
+			     require(offers[offerID].price > getAnnualRentAmountInWTC(sl.nftID), "price less then annual rent");
+		    }
+
 			landXNFT.safeTransferFrom(address(this), offers[offerID].offerMaker, sl.nftID, 1, "");
 
 			//transfer funds to old owner
@@ -188,6 +200,10 @@ contract AuctionHouse is Ownable, Pausable {
 			AuctionListing storage auction = auctions[offers[offerID].listingID];
 			require(auctionActive[auction.auctionId] == true, "auction is not active");
 		    require(block.timestamp < auction.endTime, "auction expired");
+
+			if (landXNFT.landOwner(auction.nftID) == auction.auctioneer) {
+			     require(offers[offerID].price > getAnnualRentAmountInWTC(auction.nftID), "price less then annual rent");
+		    }
 			
 			landXNFT.safeTransferFrom(address(this), offers[offerID].offerMaker, auction.nftID, 1, "");
 
@@ -244,6 +260,9 @@ contract AuctionHouse is Ownable, Pausable {
 	) public whenNotPaused {
 		require(startPrice >= 1, "startprice should be >= 1");
 		require(reservedPrice > startPrice, "reserve price > start price");
+		if (landXNFT.landOwner(nftID) == msg.sender) {
+			require(reservedPrice > getAnnualRentAmountInWTC(nftID), "reserved price less then annual rent");
+		}
 
 		//transfer the NFT
 		landXNFT.safeTransferFrom(msg.sender, address(this), nftID, 1, "");
@@ -416,6 +435,10 @@ contract AuctionHouse is Ownable, Pausable {
 			startTime = block.timestamp;
 		}
 
+		if (landXNFT.landOwner(nftID) == msg.sender) {
+			require(price > getAnnualRentAmountInWTC(nftID), "price less then annual rent");
+		}
+
 		//transfer the NFT
 		landXNFT.safeTransferFrom(msg.sender, address(this), nftID, 1, "");
 
@@ -543,5 +566,28 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 optionPremium = landXNFT.optionPremium(tokenID);
 		uint256 area = landXNFT.landArea(tokenID);
 		return (area * optionPremium * USD_WTC_Rate * (10**uint256(18))) / (10000 * 100);
+	}
+
+	function getAnnualRentAmountInWTC(uint256 tokenID) public view returns (uint256)
+	{
+		uint256 rent = landXNFT.rent(tokenID);
+		uint256 area = landXNFT.landArea(tokenID);
+		ISHARDMANAGER shardManager = ISHARDMANAGER(landXNFT.shardManager(tokenID));
+		string memory grainType = shardManager.symbol();
+		uint256 price = 0;
+		if (keccak256(abi.encodePacked(grainType)) == keccak256(abi.encodePacked("LDXS"))) {
+			price = SoyPrice;
+		}
+		if (keccak256(abi.encodePacked(grainType)) == keccak256(abi.encodePacked("LDXR"))) {
+			price = RicePrice;
+		}
+		if (keccak256(abi.encodePacked(grainType)) == keccak256(abi.encodePacked("LDXM"))) {
+			price = MaizePrice;
+		}
+		if (keccak256(abi.encodePacked(grainType)) == keccak256(abi.encodePacked("LDXW"))) {
+			price = WheatPrice;
+		}
+
+		return (price * rent * area * (10**uint256(18))) / 10000;
 	}
 }
