@@ -47,7 +47,7 @@ async function main() {
 	let deployed = await AH.deploy(nft, wtcTokenAddress, usdcTokenAddress)
 	let dep = await deployed.deployed()
 
-	await sleep(45000)
+	await sleep(50000)
 	await hre.run("verify:verify", {
 		address: dep.address,
 		constructorArguments: [nft, wtcTokenAddress, usdcTokenAddress],

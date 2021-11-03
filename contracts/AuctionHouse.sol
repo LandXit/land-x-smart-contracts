@@ -4,10 +4,12 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract AuctionHouse is Ownable, Pausable {
+contract AuctionHouse is Ownable, Pausable, ReentrancyGuard {
 	uint256 marketFeeWTC = 50; //0.5%
 	uint256 marketFeeUSDC = 300; //3%
 
@@ -26,6 +28,9 @@ contract AuctionHouse is Ownable, Pausable {
 	mapping(uint256 => SellListing) public sellListings;
 	mapping(uint256 => AuctionListing) public auctions;
 	mapping(uint256 => bool) public auctionActive;
+
+	mapping(address => uint256) public lostBidsWTC; //lost bid tracker
+	mapping(address => uint256) public lostBidsUSDC; //lost bid tracker
 
 	event AuctionListed(
 		uint256 auction_id,
@@ -136,7 +141,7 @@ contract AuctionHouse is Ownable, Pausable {
 
 	/// @notice Place a bid on an auction
 	/// @param auctionId uint. Which listing to place bid on.
-	function bid(uint256 auctionId, uint256 bidAmount) public {
+	function bid(uint256 auctionId, uint256 bidAmount) external nonReentrant {
 		require(auctionActive[auctionId] == true, "auctionActive[auctionId] == true");
 
 		AuctionListing storage al = auctions[auctionId];
@@ -151,9 +156,9 @@ contract AuctionHouse is Ownable, Pausable {
 			require(bidAmount >= currentBid + al.tick, "bidAmount >= currentBid + al.tick");
 			//refund the previous bidder
 			if (al.currency == 0) {
-				require(wtc.transfer(al.highBidder, al.currentBid), "transfer failed");
+				lostBidsWTC[al.highBidder] += al.currentBid;
 			} else {
-				require(usdc.transfer(al.highBidder, al.currentBid), "transfer failed");
+				lostBidsUSDC[al.highBidder] += al.currentBid;
 			}
 			//for eth
 			//(bool success, ) = al.highBidder.call{ value: al.currentBid }("");
@@ -184,7 +189,7 @@ contract AuctionHouse is Ownable, Pausable {
 	}
 
 	/// @param auctionId uint.
-	function cancelAuction(uint256 auctionId) public {
+	function cancelAuction(uint256 auctionId) external nonReentrant {
 		require(auctionActive[auctionId] == true, "auctionActive[auctionId] == true");
 		AuctionListing storage al = auctions[auctionId];
 		require(block.timestamp < al.endTime, "auction expired");
@@ -196,9 +201,9 @@ contract AuctionHouse is Ownable, Pausable {
 		//if bids, refund the money to the highest bidder
 		if (al.bidCount > 0) {
 			if (al.currency == 0) {
-				require(wtc.transfer(al.highBidder, al.currentBid), "transfer failed");
+				lostBidsWTC[al.highBidder] += al.currentBid;
 			} else {
-				require(usdc.transfer(al.highBidder, al.currentBid), "transfer failed");
+				lostBidsUSDC[al.highBidder] += al.currentBid;
 			}
 		}
 
@@ -210,7 +215,7 @@ contract AuctionHouse is Ownable, Pausable {
 
 	/// @notice Claim. Release the goods and send funds to auctioneer. If no bids, item is returned to auctioneer!
 	/// @param auctionId uint. What listing to claim.
-	function claim(uint256 auctionId) public {
+	function claim(uint256 auctionId) external nonReentrant {
 		require(auctionActive[auctionId] == true, "auctionActive[auctionId] == true");
 
 		AuctionListing storage al = auctions[auctionId];
@@ -257,7 +262,7 @@ contract AuctionHouse is Ownable, Pausable {
 		uint256 nftID,
 		uint256 price,
 		uint256 saleDurationInSeconds
-	) public whenNotPaused returns (uint256) {
+	) public whenNotPaused nonReentrant returns (uint256) {
 		require(saleDurationInSeconds >= minSaleTime, "sale time < minSaleTime");
 
 		//transfer the NFT
@@ -295,7 +300,7 @@ contract AuctionHouse is Ownable, Pausable {
 	}
 
 	// buys an NFT from a sale
-	function buyItem(uint256 saleID) public {
+	function buyItem(uint256 saleID) external nonReentrant {
 		SellListing storage sl = sellListings[saleID];
 		require(block.timestamp <= sl.endTime, "sale period expired");
 		require(sl.sold == false, "can't buy a sold item");
@@ -333,7 +338,7 @@ contract AuctionHouse is Ownable, Pausable {
 		return 0xf23a6e61;
 	}
 
-	// withdraw the ETH from this contract (ONLY OWNER). not needed...
+	// withdraw the ETH from this contract (ONLY OWNER)
 	function withdrawETH(uint256 amount) external onlyOwner {
 		(bool success, ) = msg.sender.call{ value: amount }("");
 		require(success, "transfer failed.");
@@ -349,6 +354,21 @@ contract AuctionHouse is Ownable, Pausable {
 	//get NFT back. emergency use only.
 	function reclaimNFT(uint256 _nftID) external onlyOwner {
 		landXNFT.safeTransferFrom(address(this), msg.sender, _nftID, 1, "");
+	}
+
+	//get tokens back. emergency use only.
+	function getBackERC20(IERC20 erc20Token) public onlyOwner {
+		erc20Token.transfer(msg.sender, erc20Token.balanceOf(address(this)));
+	}
+
+	//get NFT back. emergency use only.
+	function getBackERC1155(IERC1155 erc1155Token, uint256 id) public onlyOwner {
+		erc1155Token.safeTransferFrom(address(this), msg.sender, id, 1, "");
+	}
+
+	//get NFT back. emergency use only.
+	function getBackERC721(IERC721 erc721Token, uint256 id) public onlyOwner {
+		erc721Token.safeTransferFrom(address(this), msg.sender, id);
 	}
 
 	// changes the market fee. 50 = 0.5%
@@ -392,5 +412,18 @@ contract AuctionHouse is Ownable, Pausable {
 	//setAuctionPeriod. you should only increase it
 	function setAuctionPeriod(uint256 _newPeriod) public onlyOwner {
 		auctionPeriod = _newPeriod;
+	}
+
+	//refunds for lost bids
+	function withdrawRefunds(uint256 _currency) external {
+		if (_currency == 0) {
+			uint256 refund = lostBidsWTC[msg.sender];
+			lostBidsWTC[msg.sender] = 0;
+			require(wtc.transfer(msg.sender, refund), "transfer failed");
+		} else {
+			uint256 refund = lostBidsWTC[msg.sender];
+			lostBidsWTC[msg.sender] = 0;
+			require(wtc.transfer(msg.sender, refund), "transfer failed");
+		}
 	}
 }

@@ -91,6 +91,9 @@ describe("Auction House 3 (auctioning)", function () {
 
 		await ah.connect(acc2).cancelAuction(0)
 
+		await ah.connect(acc1).withdrawRefunds(0)
+		await ah.connect(acc1).withdrawRefunds(1)
+
 		expect(await wtc.balanceOf(acc1.address)).to.equal(10000)
 	})
 

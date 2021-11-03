@@ -2,6 +2,28 @@
 
 ### Always use the correct contract addresses
 
+## Changelog:
+
+#### Auction house v2:
+
+- added pull payment on AuctionHouse
+
+read user balances on
+
+```
+    mapping(address => uint256) public lostBidsWTC; //lost bid tracker
+    mapping(address => uint256) public lostBidsUSDC; //lost bid tracker
+```
+
+and
+
+show them a claim lost bids button calling
+function withdrawRefunds(uint256 \_currency) with 0 or 1
+
+---
+
+added get back erc20, erc721 and erc1155 lost tokens in the contract
+
 ## WTC
 
 Rinkeby: 0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3
@@ -70,11 +92,11 @@ Rinkeby: 0x37533aFF22a3728a4Cbe94F004EcF1062b3Ef672
 
 https://rinkeby.etherscan.io/address/0x37533aFF22a3728a4Cbe94F004EcF1062b3Ef672#code
 
-## Auction House (v2. with reserved price)
+## Auction House (v3)
 
-Rinkeby: 0x5bf6f639146e4291Aba51B954046C32a74B8eE9e
+Rinkeby: 0x7b126723573b9DD4DAEb63AA6b1342E8396Fd61F
 
-https://rinkeby.etherscan.io/address/0x5bf6f639146e4291Aba51B954046C32a74B8eE9e#code
+https://rinkeby.etherscan.io/address/0x7b126723573b9DD4DAEb63AA6b1342E8396Fd61F#code
 
 ### used on stage
 
@@ -87,7 +109,6 @@ https://rinkeby.etherscan.io/address/0x0CA0909ee9A004d5E3568C1d41C8006F47B92805#
 Rinkeby: 0xF184C0AE661DF32670d5934c8c7E501D3EBf8BA9
 
 https://rinkeby.etherscan.io/address/0xF184C0AE661DF32670d5934c8c7E501D3EBf8BA9#code
-
 
 ## Staking #1 (50% APR)
 
@@ -119,3 +140,7 @@ npm run deploy_v:mainnet
 ```
 
 ### License MIT
+
+```
+
+```

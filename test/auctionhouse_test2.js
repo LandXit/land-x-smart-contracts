@@ -76,6 +76,9 @@ describe("Auction House 2 (auctioning)", function () {
 		//acc2 bid
 		await ah.connect(owner).bid(0, "110")
 
+		await ah.connect(acc1).withdrawRefunds(0)
+		await ah.connect(acc1).withdrawRefunds(1)
+
 		//acc1 should get it's money back
 		expect(await wtc.balanceOf(acc1.address)).to.equal(10000)
 	})
