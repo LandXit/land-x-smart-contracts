@@ -34,7 +34,7 @@ interface ISHARDMANAGER is IERC165 {
 contract AuctionHouse is Ownable, Pausable {
 	uint256 marketFeeWTC = 300; //3%
 
-	uint256 USD_WTC_Rate = 30; // for now it hardcoded
+	uint256 USD_WTC_Rate = 50; // for now it hardcoded
 
 	uint256 WheatPrice = 27;
 	uint256 RicePrice = 70;
@@ -132,7 +132,18 @@ contract AuctionHouse is Ownable, Pausable {
 		require(duration <= maxOfferDuration, "too long duration");
 		require((auctionActive[listingID] == true && auctions[listingID].nftID > 0 && auctions[listingID].nftID == nftID && auctions[listingID].endTime >= block.timestamp) || 
 			(sellListings[listingID].nftID > 0 && sellListings[listingID].startTime <= block.timestamp && sellListings[listingID].removedFromSale == false && sellListings[listingID].sold == false && sellListings[listingID].nftID == nftID), "token has no active listings");
-		require(price >= 1, "price should be >= 1");
+
+		if (sellListings[listingID].nftID > 0 && sellListings[listingID].nftID == nftID) {
+			if (landXNFT.landOwner(nftID) == sellListings[listingID].seller) {
+			     require(price > getAnnualRentAmountInWTC(nftID), "price less then annual rent");
+		    }
+		} else {
+			if (auctions[listingID].nftID > 0 && auctions[listingID].nftID == nftID) {
+				if (landXNFT.landOwner(nftID) == auctions[listingID].auctioneer) {
+			    	require(price > getAnnualRentAmountInWTC(nftID), "price less then annual rent");
+		    	}
+			}
+		}
 		
 		uint256 applyPremium = 0;
 		if (applyOptionPremium == true && landXNFT.optionPremium(nftID) > 0 && optionApplied[nftID] != true)
@@ -161,7 +172,7 @@ contract AuctionHouse is Ownable, Pausable {
 	function cancelOffer(uint256 offerID) public {
 		require(offers[offerID].offerMaker == msg.sender, "only maker can cancel offer");
 		require(offers[offerID].actual == true, "only actual offer can be cancelled");
-		require(wtc.transferFrom(address(this), offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
+		require(wtc.transfer(offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
 		offers[offerID].actual = false;
 		emit OfferCanceled(offerID, offers[offerID].nftID, offers[offerID].offerMaker);
 	}
@@ -172,10 +183,6 @@ contract AuctionHouse is Ownable, Pausable {
 		if (sellListings[offers[offerID].listingID].nftID > 0 && sellListings[offers[offerID].listingID].nftID == offers[offerID].nftID) {
 			SellListing storage sl = sellListings[offers[offerID].listingID];
 			require(sl.sold == false && sl.removedFromSale == false, "listing is not active");
-			
-			if (landXNFT.landOwner(sl.nftID) == sl.seller) {
-			     require(offers[offerID].price > getAnnualRentAmountInWTC(sl.nftID), "price less then annual rent");
-		    }
 
 			landXNFT.safeTransferFrom(address(this), offers[offerID].offerMaker, sl.nftID, 1, "");
 
@@ -183,11 +190,11 @@ contract AuctionHouse is Ownable, Pausable {
 			uint256 _fee = _calcPercentage(offers[offerID].price, marketFeeWTC);
 			uint256 amountToTransfer = offers[offerID].price - _fee;
 			//require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer WTC (fee)");
-			require(wtc.transferFrom(address(this), sl.seller, amountToTransfer), "transfer failed");
+			require(wtc.transfer(sl.seller, amountToTransfer), "transfer failed");
 			
 			if (offers[offerID].optionPremium > 0 && optionApplied[offers[offerID].nftID] != true) {
 				uint256 _fee = _calcPercentage(offers[offerID].optionPremium, marketFeeWTC);
-				require(wtc.transferFrom(address(this), landXNFT.landOwner(offers[offerID].nftID), offers[offerID].optionPremium - _fee), "transfer failed");
+				require(wtc.transfer(landXNFT.landOwner(offers[offerID].nftID), offers[offerID].optionPremium - _fee), "transfer failed");
 				optionApplied[offers[offerID].nftID] = true;
 			}
 
@@ -200,10 +207,6 @@ contract AuctionHouse is Ownable, Pausable {
 			AuctionListing storage auction = auctions[offers[offerID].listingID];
 			require(auctionActive[auction.auctionId] == true, "auction is not active");
 		    require(block.timestamp < auction.endTime, "auction expired");
-
-			if (landXNFT.landOwner(auction.nftID) == auction.auctioneer) {
-			     require(offers[offerID].price > getAnnualRentAmountInWTC(auction.nftID), "price less then annual rent");
-		    }
 			
 			landXNFT.safeTransferFrom(address(this), offers[offerID].offerMaker, auction.nftID, 1, "");
 
@@ -212,11 +215,11 @@ contract AuctionHouse is Ownable, Pausable {
 			uint256 amountToTransfer = offers[offerID].price - _fee;
 			//require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer wtc (fee)");
 			
-			require(wtc.transferFrom(address(this), auction.auctioneer, amountToTransfer), "transfer failed");
+			require(wtc.transfer(auction.auctioneer, amountToTransfer), "transfer failed");
 			
 			if (offers[offerID].optionPremium > 0 && optionApplied[offers[offerID].nftID] != true) {
 				uint256 _fee = _calcPercentage(offers[offerID].optionPremium, marketFeeWTC);
-				require(wtc.transferFrom(address(this), landXNFT.landOwner(offers[offerID].nftID), offers[offerID].optionPremium - _fee), "transfer failed");
+				require(wtc.transfer(landXNFT.landOwner(offers[offerID].nftID), offers[offerID].optionPremium - _fee), "transfer failed");
 				optionApplied[offers[offerID].nftID] = true;
 			}
 			auctionActive[auction.auctionId] = false;
@@ -231,7 +234,7 @@ contract AuctionHouse is Ownable, Pausable {
 		if (sellListings[offers[offerID].listingID].nftID > 0 && sellListings[offers[offerID].listingID].nftID == offers[offerID].nftID) {
 			SellListing storage sl = sellListings[offers[offerID].listingID];
 			require(sl.seller == msg.sender, "only seller can decline offer");
-			require(wtc.transferFrom(address(this), offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
+			require(wtc.transfer(offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
 			offers[offerID].actual = false;
 			emit OfferDeclined(offerID, sl.nftID, sl.seller);
 			return;
@@ -240,7 +243,7 @@ contract AuctionHouse is Ownable, Pausable {
 			offers[offerID].actual = false;
 			AuctionListing storage auction = auctions[offers[offerID].listingID];
 			require(auction.auctioneer == msg.sender, "only seller can decline offer");
-			require(wtc.transferFrom(address(this), offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
+			require(wtc.transfer(offers[offerID].offerMaker,  offers[offerID].price + offers[offerID].optionPremium), "failed to transfer WTC");
 			offers[offerID].actual = false;
 			emit OfferDeclined(offerID, auction.nftID, auction.auctioneer);
 			return;
@@ -497,7 +500,7 @@ contract AuctionHouse is Ownable, Pausable {
 		if (applyPremium > 0 && optionApplied[sl.nftID] != true) {
 			uint256 fee = _calcPercentage(applyPremium, marketFeeWTC);
 			optionApplied[sl.nftID] = true;
-			require(wtc.transferFrom(msg.sender, landXNFT.landOwner(sl.nftID), applyPremium - fee), "failed to transfer WTC (fee)");
+			require(wtc.transferFrom(msg.sender, landXNFT.landOwner(sl.nftID), applyPremium - fee), "failed to transfer WTC");
 			_fee += fee;
 		}
 
@@ -565,7 +568,7 @@ contract AuctionHouse is Ownable, Pausable {
 	function getOptionAmountInWTC(uint256 tokenID) public view returns (uint256) {
 		uint256 optionPremium = landXNFT.optionPremium(tokenID);
 		uint256 area = landXNFT.landArea(tokenID);
-		return (area * optionPremium * USD_WTC_Rate * (10**uint256(18))) / (10000 * 100);
+		return (area * optionPremium * USD_WTC_Rate * (10**uint256(18))) / (10000 * 100 * 100);
 	}
 
 	function getAnnualRentAmountInWTC(uint256 tokenID) public view returns (uint256)
@@ -588,6 +591,6 @@ contract AuctionHouse is Ownable, Pausable {
 			price = WheatPrice;
 		}
 
-		return (price * rent * area * (10**uint256(18))) / 10000;
+		return (price * rent * USD_WTC_Rate * area * (10**uint256(18))) / (10000 * 100 * 100);
 	}
 }
