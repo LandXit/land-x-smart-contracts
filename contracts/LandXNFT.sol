@@ -23,7 +23,6 @@ contract LandXNFT is ERC1155, Ownable {
     mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
     mapping(uint256 => address) public shardManager;
     mapping(uint256 => address) public landOwner;
-    mapping(uint256 => uint256) public optionPremium; // in USD cents
 
     //1 shard = (landArea * rent) /  10000
 
@@ -37,7 +36,6 @@ contract LandXNFT is ERC1155, Ownable {
         uint256 _landArea,
         uint256 _rent,
         address _landOwner,
-        uint256 _optionPremium,
         address _shardManager,
         address _to
     ) public {
@@ -48,7 +46,6 @@ contract LandXNFT is ERC1155, Ownable {
         rent[_index] = _rent;
         shardManager[_index] = _shardManager;
         landOwner[_index] = _landOwner;
-        optionPremium[_index] = _optionPremium;
         totalSupply[_index] = totalSupply[_index] + 1;
         _mint(_to, _index, 1, "0x0000");
     }
