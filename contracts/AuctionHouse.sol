@@ -29,6 +29,15 @@ interface ISHARDMANAGER is IERC165 {
 	function symbol() external view returns (string memory);
 }
 
+interface IRENTFOUNDATION is IERC165 {
+    function initialRentApplied(uint256 tokenID) external view returns(bool);
+	function payInitialRent(address payer, uint256 tokenID, uint256 amount) external;
+}
+
+interface IWTCMINTFOUNDATION is IERC165 {
+    function distributeAfterSell(uint256 tokenID, address to) external;
+}
+
 contract AuctionHouse is Ownable, Pausable {
 	uint256 marketFeeWTC = 300; //3%
 
@@ -50,6 +59,9 @@ contract AuctionHouse is Ownable, Pausable {
 
 	ILANDXNFT public landXNFT; //address for landXNFT
 	IERC20 public wtc; //erc20 WTC
+
+	IRENTFOUNDATION public rentFoundation;
+    IWTCMINTFOUNDATION public wtcMintFoundation;
 
 	mapping(uint256 => SellListing) public sellListings;
 	mapping(uint256 => AuctionListing) public auctions;
@@ -123,19 +135,19 @@ contract AuctionHouse is Ownable, Pausable {
 		auctionCount = 0;
 	}
 
-	function makeOffer(uint256 nftID, uint256 price, uint256 currency, uint256 listingID, uint256 duration, bool applyOptionPremium) public whenNotPaused {
+	function makeOffer(uint256 nftID, uint256 price, uint256 currency, uint256 listingID, uint256 duration) public whenNotPaused {
 		require(duration <= maxOfferDuration, "too long duration");
 		require((auctionActive[listingID] == true && auctions[listingID].nftID > 0 && auctions[listingID].nftID == nftID && auctions[listingID].endTime >= block.timestamp) || 
 			(sellListings[listingID].nftID > 0 && sellListings[listingID].startTime <= block.timestamp && sellListings[listingID].removedFromSale == false && sellListings[listingID].sold == false && sellListings[listingID].nftID == nftID), "token has no active listings");
 
 		if (sellListings[listingID].nftID > 0 && sellListings[listingID].nftID == nftID) {
-			if (landXNFT.landOwner(nftID) == sellListings[listingID].seller) {
-			     require(price > getAnnualRentAmountInWTC(nftID), "price less then annual rent");
+			if (landXNFT.landOwner(nftID) == sellListings[listingID].seller && rentFoundation.initialRentApplied(nftID) == false) {
+			     require(price > getMinimumTokenPrice(nftID), "price less then annual rent");
 		    }
 		} else {
 			if (auctions[listingID].nftID > 0 && auctions[listingID].nftID == nftID) {
-				if (landXNFT.landOwner(nftID) == auctions[listingID].auctioneer) {
-			    	require(price > getAnnualRentAmountInWTC(nftID), "price less then annual rent");
+				if (landXNFT.landOwner(nftID) == auctions[listingID].auctioneer  && rentFoundation.initialRentApplied(nftID) == false) {
+			    	require(price > getMinimumTokenPrice(nftID), "price less then annual rent");
 		    	}
 			}
 		}
@@ -168,15 +180,23 @@ contract AuctionHouse is Ownable, Pausable {
 	function acceptOffer(uint256 offerID) public {
 		require(offers[offerID].actual == true, "only actual offer can be accepted");
 		require(offers[offerID].endTime >= block.timestamp, "offer is expired");
+		uint256 rent = 0;
 		if (sellListings[offers[offerID].listingID].nftID > 0 && sellListings[offers[offerID].listingID].nftID == offers[offerID].nftID) {
 			SellListing storage sl = sellListings[offers[offerID].listingID];
 			require(sl.sold == false && sl.removedFromSale == false, "listing is not active");
+
+			if (landXNFT.landOwner(sl.nftID) == sl.seller && !rentFoundation.initialRentApplied(sl.nftID)) {
+            	rent = getAnnualRentAmount(sl.nftID);
+            	wtcMintFoundation.distributeAfterSell(sl.nftID, offers[offerID].offerMaker);
+                require(wtc.approve(address(rentFoundation), rent), "Approvement failed");
+				rentFoundation.payInitialRent(address(0x0), sl.nftID, rent);
+        	}
 
 			landXNFT.safeTransferFrom(address(this), offers[offerID].offerMaker, sl.nftID, 1, "");
 
 			//transfer funds to old owner
 			uint256 _fee = _calcPercentage(offers[offerID].price, marketFeeWTC);
-			uint256 amountToTransfer = offers[offerID].price - _fee;
+			uint256 amountToTransfer = offers[offerID].price - _fee - rent;
 			//require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer WTC (fee)");
 			require(wtc.transfer(sl.seller, amountToTransfer), "transfer failed");
 
@@ -190,11 +210,17 @@ contract AuctionHouse is Ownable, Pausable {
 			require(auctionActive[auction.auctionId] == true, "auction is not active");
 		    require(block.timestamp < auction.endTime, "auction expired");
 			
+			if (landXNFT.landOwner(auction.nftID) == auction.auctioneer && !rentFoundation.initialRentApplied(auction.nftID)) {
+            	rent = getAnnualRentAmount(auction.nftID);
+            	wtcMintFoundation.distributeAfterSell(auction.nftID, offers[offerID].offerMaker);
+                require(wtc.approve(address(rentFoundation), rent), "Approvement failed");
+				rentFoundation.payInitialRent(address(0x0), auction.nftID, rent);
+        	}
 			landXNFT.safeTransferFrom(address(this), offers[offerID].offerMaker, auction.nftID, 1, "");
 
 			//transfer funds to old owner
 			uint256 _fee = _calcPercentage(offers[offerID].price, marketFeeWTC);
-			uint256 amountToTransfer = offers[offerID].price - _fee;
+			uint256 amountToTransfer = offers[offerID].price - _fee - rent;
 			//require(wtc.transferFrom(offers[offerID].offerMaker, address(this), _fee), "failed to transfer wtc (fee)");
 			
 			require(wtc.transfer(auction.auctioneer, amountToTransfer), "transfer failed");
@@ -240,8 +266,8 @@ contract AuctionHouse is Ownable, Pausable {
 	) public whenNotPaused {
 		require(startPrice >= 1, "startprice should be >= 1");
 		require(reservedPrice > startPrice, "reserve price > start price");
-		if (landXNFT.landOwner(nftID) == msg.sender) {
-			require(reservedPrice > getAnnualRentAmountInWTC(nftID), "reserved price less then annual rent");
+		if (landXNFT.landOwner(nftID) == msg.sender  && rentFoundation.initialRentApplied(nftID) == false) {
+			require(reservedPrice > getMinimumTokenPrice(nftID), "reserved price less then annual rent");
 		}
 
 		//transfer the NFT
@@ -259,8 +285,7 @@ contract AuctionHouse is Ownable, Pausable {
 			0,
 			0,
 			address(0),
-			auctionPeriod,
-			0
+			auctionPeriod
 		);
 
 		al.tick = tickWTC;
@@ -352,6 +377,8 @@ contract AuctionHouse is Ownable, Pausable {
 		require(block.timestamp >= al.endTime, "ongoing auction");
 
 		auctionActive[auctionId] = false;
+		uint256 rent = 0;
+
 
 		if (al.bidCount == 0) {
 			//Release the item back to the auctioneer
@@ -368,10 +395,15 @@ contract AuctionHouse is Ownable, Pausable {
 			//Release the item to highBidder
 			landXNFT.safeTransferFrom(address(this), al.highBidder, al.nftID, 1, "");
 		}
-
+		if (landXNFT.landOwner(al.nftID) == al.auctioneer && !rentFoundation.initialRentApplied(al.nftID)) {
+            rent = getAnnualRentAmount(al.nftID);
+            wtcMintFoundation.distributeAfterSell(al.nftID, al.highBidder);
+            require(wtc.approve(address(rentFoundation), rent), "Approvement failed");
+			rentFoundation.payInitialRent(address(0x0), al.nftID, rent);
+        }
 		//Release the funds to auctioneer
 		uint256 _fee = _calcPercentage(al.currentBid, marketFeeWTC);
-		uint256 amtForAuctioneer = al.currentBid - _fee;
+		uint256 amtForAuctioneer = al.currentBid - _fee - rent;
 		require(wtc.transfer(al.auctioneer, amtForAuctioneer), "transfer failed");
 
 		emit AuctionWon(auctionId, al.currentBid, 0, al.highBidder);
@@ -403,7 +435,7 @@ contract AuctionHouse is Ownable, Pausable {
 		}
 
 		if (landXNFT.landOwner(nftID) == msg.sender) {
-			require(price > getAnnualRentAmountInWTC(nftID), "price less then annual rent");
+			require(price > getMinimumTokenPrice(nftID), "price less then annual rent");
 		}
 
 		//transfer the NFT
@@ -451,9 +483,17 @@ contract AuctionHouse is Ownable, Pausable {
 			require(msg.sender == sl.privacy, "this listing is private");
 		}
 
+		uint256 rent = 0;
+
+		if (landXNFT.landOwner(sl.nftID) == sl.seller && !rentFoundation.initialRentApplied(sl.nftID)) {
+            rent = getAnnualRentAmount(sl.nftID);
+            wtcMintFoundation.distributeAfterSell(sl.nftID, msg.sender);
+			rentFoundation.payInitialRent(msg.sender, sl.nftID, rent);
+        }
+
 			//WTC
 		uint256 _fee = _calcPercentage(sl.price, marketFeeWTC);
-		uint256 amtForSeller = sl.price - _fee;
+		uint256 amtForSeller = sl.price - _fee - rent;
 
 		//transfer all the WTC token to the smart contract
 		require(wtc.transferFrom(msg.sender, address(this), _fee), "failed to transfer WTC (fee)");
@@ -516,7 +556,15 @@ contract AuctionHouse is Ownable, Pausable {
 		tickWTC = _newTick;
 	}
 
-	function getAnnualRentAmountInWTC(uint256 tokenID) public view returns (uint256)
+	function setRentFoundation(address _address) public onlyOwner {
+        rentFoundation = IRENTFOUNDATION(_address);
+    }
+
+    function setWTCMintFoundation(address _address) public onlyOwner {
+        wtcMintFoundation = IWTCMINTFOUNDATION(_address);
+    }
+
+	function getAnnualRentAmount(uint256 tokenID)  internal view returns (uint256)
 	{
 		uint256 rent = landXNFT.rent(tokenID);
 		uint256 area = landXNFT.landArea(tokenID);
@@ -536,6 +584,15 @@ contract AuctionHouse is Ownable, Pausable {
 			price = WheatPrice;
 		}
 
-		return (price * rent * USD_WTC_Rate * area * (10**uint256(18))) / (10000 * 100 * 100);
+		return 2 * (price * rent * USD_WTC_Rate * area * (10**uint256(18))) / (10000 * 100 * 100);
+	}
+
+	function getMinimumTokenPrice(uint256 tokenID) public view returns (uint256)
+	{
+		if (rentFoundation.initialRentApplied(tokenID)) {
+			return 0;
+		}
+		uint256 annualRent = getAnnualRentAmount(tokenID);
+		return 10000 * annualRent / (10000 - marketFeeWTC);
 	}
 }

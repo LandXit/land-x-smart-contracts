@@ -18,6 +18,8 @@ interface ILANDXNFT is IERC165 {
 
     function shardManager(uint256 id) external view returns (address);
 
+    function landOwner(uint256 id) external view returns (address);
+
     function balanceOf(address account, uint256 id)
         external
         view
@@ -37,6 +39,14 @@ interface ILANDXNFT is IERC165 {
     ) external;
 }
 
+interface IRENTFOUNDATION is IERC165 {
+    function initialRentApplied(uint256 tokenID) external view returns(bool);
+}
+
+interface IWTCDistributor is IERC165 {
+    function distributeAfterShard(uint256 tokenID, uint256 excludeAmount) external;
+}
+
 //ShardManager NFT in = shards. Shards in = NFT
 //1 shard = (landArea * rent) /  10000
 contract ShardManager is
@@ -49,6 +59,14 @@ contract ShardManager is
     ILANDXNFT public landXNFT; //address of landXNFT
 
     uint256 public marketFee = 300; //3%
+
+    uint256 USD_WTC_Rate = 50; // for now it hardcoded
+
+	uint256 price = 56; // grain price
+
+    IRENTFOUNDATION public rentFoundation;
+
+    IWTCDistributor public wtcDistributor;
 
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
@@ -84,6 +102,12 @@ contract ShardManager is
         
         uint256 fee = _calcPercentage(shards);
         _transfer(address(this), msg.sender, shards - fee);
+
+        if (landXNFT.landOwner(_id) == msg.sender && !rentFoundation.initialRentApplied(_id)) {
+            uint256 excludeAmount = getAnnualRentAmount(_id);
+            wtcDistributor.distributeAfterShard(_id, excludeAmount);
+        }
+
         emit Sharded(_id, shards, symbol());
     }
 
@@ -114,6 +138,14 @@ contract ShardManager is
         landXNFT = ILANDXNFT(_newAddress);
     }
 
+    function setRentFoundation(address _address) public onlyOwner {
+        rentFoundation = IRENTFOUNDATION(_address);
+    }
+
+    function setWTCDistributor(address _address) public onlyOwner {
+        wtcDistributor = IWTCDistributor(_address);
+    }
+
     // reclaim accidentally sent tokens
     function reclaimToken(IERC20 token) public onlyOwner {
         require(address(token) != address(0));
@@ -139,4 +171,12 @@ contract ShardManager is
         uint256 toBeReceived = shards -fee;
         return (shards, fee, toBeReceived);    
     }
+
+    function getAnnualRentAmount(uint256 tokenID)  internal view returns (uint256)
+	{
+		uint256 rent = landXNFT.rent(tokenID);
+		uint256 area = landXNFT.landArea(tokenID);
+
+		return 2 * (price * rent * USD_WTC_Rate * area * (10**uint256(18))) / (10000 * 100 * 100);
+	}
 }
