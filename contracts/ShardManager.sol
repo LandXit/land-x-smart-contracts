@@ -47,6 +47,14 @@ interface IWTCDistributor is IERC165 {
     function distributeAfterShard(uint256 tokenID, uint256 excludeAmount) external;
 }
 
+interface IGRAINPRICES is IERC165 {
+	function RicePrice() external view returns (uint256);
+	function WheatPrice() external view returns (uint256);
+	function SoyPrice() external view returns (uint256);
+	function MaizePrice() external view returns (uint256);
+	function USD_WTC_Rate() external view returns (uint256);
+}
+
 //ShardManager NFT in = shards. Shards in = NFT
 //1 shard = (landArea * rent) /  10000
 contract ShardManager is
@@ -60,9 +68,7 @@ contract ShardManager is
 
     uint256 public marketFee = 300; //3%
 
-    uint256 USD_WTC_Rate = 50; // for now it hardcoded
-
-	uint256 price = 56; // grain price
+    IGRAINPRICES public grainPrices;
 
     IRENTFOUNDATION public rentFoundation;
 
@@ -162,6 +168,10 @@ contract ShardManager is
 		return (amount * marketFee) / 10000;
 	}
 
+    function setGrainPricesContract(address _address) public onlyOwner {
+		grainPrices = IGRAINPRICES(_address);
+	}
+
    function preview(uint256 id) public view returns(uint256, uint256, uint256) {
         require(landXNFT.landArea(id) > 0, "this NFT has no land area set");
         require(landXNFT.rent(id) > 0, "this NFT has no rent set");
@@ -177,6 +187,22 @@ contract ShardManager is
 		uint256 rent = landXNFT.rent(tokenID);
 		uint256 area = landXNFT.landArea(tokenID);
 
-		return 2 * (price * rent * USD_WTC_Rate * area * (10**uint256(18))) / (10000 * 100 * 100);
+        uint256 price = 0;
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXS"))) {
+			price = grainPrices.SoyPrice();
+		}
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXR"))) {
+			price = grainPrices.RicePrice();
+		}
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXM"))) {
+			price = grainPrices.MaizePrice();
+		}
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXW"))) {
+			price = grainPrices.WheatPrice();
+		}
+
+        uint256 rate = grainPrices.USD_WTC_Rate();
+
+		return 2 * (price * rent * rate * area) / (10000 * 100);
 	}
 }
