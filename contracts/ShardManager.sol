@@ -109,6 +109,10 @@ contract ShardManager is
         uint256 fee = _calcPercentage(shards);
         _transfer(address(this), msg.sender, shards - fee);
 
+        if (landXNFT.landOwner(_id) != msg.sender && !rentFoundation.initialRentApplied(_id)) {
+            revert("Cannot shard token by not landowner without initial rent applied");
+        }
+
         if (landXNFT.landOwner(_id) == msg.sender && !rentFoundation.initialRentApplied(_id)) {
             uint256 excludeAmount = getAnnualRentAmount(_id);
             wtcDistributor.distributeAfterShard(_id, excludeAmount);
