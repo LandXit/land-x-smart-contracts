@@ -82,31 +82,31 @@ Mainnet: -
 
 ### used on stage
 
-LDXS Rinkeby: 0xD62fDABC4BC384378674C9f8E95ae1C46deD992e
-https://rinkeby.etherscan.io/address/0xD62fDABC4BC384378674C9f8E95ae1C46deD992e#code
+LDXS Rinkeby: 0xd408BD7C55367180e15bB3429131686d285CC0Cc
+https://rinkeby.etherscan.io/address/0xd408BD7C55367180e15bB3429131686d285CC0Cc#code
 
-LDXM Rinkeby: 0x6b7F82b1aF083b1679a8Bb364D84b18C27618F65
-https://rinkeby.etherscan.io/address/0x6b7F82b1aF083b1679a8Bb364D84b18C27618F65#code
+LDXM Rinkeby: 0x43f42520cbF870dd1114df5d8432e114afb35eBb
+https://rinkeby.etherscan.io/address/0x43f42520cbF870dd1114df5d8432e114afb35eBb#code
 
-LDXR Rinkeby: 0xBeDFa995BB374A16CE52b9117d90c9e0D74890D9
-https://rinkeby.etherscan.io/address/0xBeDFa995BB374A16CE52b9117d90c9e0D74890D9#code
+LDXR Rinkeby: 0x4e27DC0FaC0e334C1123C39A25B3f5BBE5D3b732
+https://rinkeby.etherscan.io/address/0x4e27DC0FaC0e334C1123C39A25B3f5BBE5D3b732#code
 
-LDXW Rinkeby: LDXW 0x2E5cC1CD55D2B25d23214D13E8D0ffA9B4c52E12
-https://rinkeby.etherscan.io/address/0x2E5cC1CD55D2B25d23214D13E8D0ffA9B4c52E12#code
+LDXW Rinkeby: 0x84093F180CAEc1f88312B56F18cdCbef339f734C
+https://rinkeby.etherscan.io/address/0x84093F180CAEc1f88312B56F18cdCbef339f734C#code
 
 ### used on dev
 
-LDXS Rinkeby: 0x3ac6cDf12426737BDE39B75a73dffA86e989962b
-https://rinkeby.etherscan.io/address/0x3ac6cDf12426737BDE39B75a73dffA86e989962b#code
+LDXS Rinkeby: 0x33DDc84F81164F4F5Eeb9c6A2c0aF44b85fCc81C
+https://rinkeby.etherscan.io/address/0x33DDc84F81164F4F5Eeb9c6A2c0aF44b85fCc81C#code
 
-LDXM Rinkeby: 0x7ae66DEc481DFBb173022eF70CF76984F9EFdB44
-https://rinkeby.etherscan.io/address/0x7ae66DEc481DFBb173022eF70CF76984F9EFdB44#code
+LDXM Rinkeby: 0x2883891BF61724c828a93617C5E6CBcb5e3B4229
+https://rinkeby.etherscan.io/address/0x2883891BF61724c828a93617C5E6CBcb5e3B4229#code
 
-LDXR Rinkeby: 0x585cc85929CE36928eeB865Ed6D866763C8C3395
-https://rinkeby.etherscan.io/address/0x585cc85929CE36928eeB865Ed6D866763C8C3395#code
+LDXR Rinkeby: 0x06a65860Cda7Acf71e1A2DCdCeA4e4948CC361b5
+https://rinkeby.etherscan.io/address/0x06a65860Cda7Acf71e1A2DCdCeA4e4948CC361b5#code
 
-LDXW Rinkeby: 0xC9Bc3e804f80e1b0E7Bb6e5c4D3a63F611Bf7587
-https://rinkeby.etherscan.io/address/0xC9Bc3e804f80e1b0E7Bb6e5c4D3a63F611Bf7587#code
+LDXW Rinkeby: 0xe3669977571620F90b460E5Dcac6ffCBA6996777
+https://rinkeby.etherscan.io/address/0xe3669977571620F90b460E5Dcac6ffCBA6996777#code
 
 ## Auction House
 
@@ -116,15 +116,15 @@ https://rinkeby.etherscan.io/address/0x7b126723573b9DD4DAEb63AA6b1342E8396Fd61F#
 
 ### used on stage
 
-Rinkeby: 0x60950999453A1d8d8dD48874F064eFF8bD627a95
+Rinkeby:0x3Fb8486A7c3CD9ec5B39599024D831758D700865
 
-https://rinkeby.etherscan.io/address/0x60950999453A1d8d8dD48874F064eFF8bD627a95#code
+https://rinkeby.etherscan.io/address/0x3Fb8486A7c3CD9ec5B39599024D831758D700865#code
 
 ### used on dev
 
-Rinkeby: 0xe254acac466938A4550b961D0CCb41bD7a585Da1
+Rinkeby: 0xbfD8CD51E0Ea108985d01C1003b88D9984E52Ff0
 
-https://rinkeby.etherscan.io/address/0xe254acac466938A4550b961D0CCb41bD7a585Da1#code
+https://rinkeby.etherscan.io/address/0xbfD8CD51E0Ea108985d01C1003b88D9984E52Ff0#code
 
 ## WTC Distributor
 
@@ -136,9 +136,9 @@ https://rinkeby.etherscan.io/address/0x43D9bf130013CfD0988850D64Fa55f741B4bCBc8#
 
 ### used on dev
 
-Rinkeby: 0x25EF521e86098906aeda72afFeBd87025B9DFf39
+Rinkeby: 0x9D6EEe708a84BDa3aEb5b8C30Fc9Ee83Edd01929
 
-https://rinkeby.etherscan.io/address/0x25EF521e86098906aeda72afFeBd87025B9DFf39#code
+https://rinkeby.etherscan.io/address/0x9D6EEe708a84BDa3aEb5b8C30Fc9Ee83Edd01929#code
 
 ## Rent Foundation
 
@@ -150,9 +150,9 @@ https://rinkeby.etherscan.io/address/0xB17ffeF6a9F2B2Cf5534C921d3eb36E9853C9A19#
 
 ### used on dev
 
-Rinkeby: 0x491955E543529A3fFBa6f95C6713082e1935b409
+Rinkeby: 0x74B7aBc332c18647511F5525CFccc3008FE7D866
 
-https://rinkeby.etherscan.io/address/0x491955E543529A3fFBa6f95C6713082e1935b409#code
+https://rinkeby.etherscan.io/address/0x74B7aBc332c18647511F5525CFccc3008FE7D866#code
 
 ## Staking #1 (50% APR)
 
