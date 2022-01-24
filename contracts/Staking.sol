@@ -31,6 +31,9 @@ contract Staking is Ownable, Pausable, ReentrancyGuard {
 
 	mapping(address => UserInfo) public userInfo;
 
+	event Staked(address user, uint256 amount);
+	event PaidReward(address user, uint256 amount);
+	event Unstaked(address, uint256 amount);
 	event StakeClaimed(address user, uint256 amount);
 	event RewardAdded(uint256 amount);
 	event EmissionRateChanged(uint256 newEmissionRate);
@@ -64,6 +67,7 @@ contract Staking is Ownable, Pausable, ReentrancyGuard {
 		user.createdAt = block.timestamp;
 
 		totalStakedAmount = totalStakedAmount + _amount;
+		emit Staked(msg.sender, _amount);
 	}
 
 	//get them rewards
@@ -76,6 +80,7 @@ contract Staking is Ownable, Pausable, ReentrancyGuard {
 		user.lastUpdateAt = block.timestamp;
 
 		wtcToken.transfer(msg.sender, amountToTransfer);
+		emit PaidReward(msg.sender, amountToTransfer);
 	}
 
 	function unstake() external {
@@ -90,6 +95,7 @@ contract Staking is Ownable, Pausable, ReentrancyGuard {
 		user.amount = 0;
 
 		wtcToken.transfer(msg.sender, userAmount);
+		emit Unstaked(msg.sender, userAmount);
 	}
 
 	//forces a user to unstake (should be used with care)
