@@ -53,7 +53,7 @@ contract Staking is Ownable, Pausable, ReentrancyGuard {
 	function stake(uint256 _amount) external whenNotPaused nonReentrant {
 		require(_amount >= minimumAmount, "amount below minimumAmount");
 		require(_amount <= maxAmount, "amount greater than maxAmount");
-		require(totalStakedAmount <= maximumTotalAmount, "this contract reached its max limit");
+		require((totalStakedAmount + _amount) <= maximumTotalAmount, "this contract reached its max limit");
 		require(wtcToken.transferFrom(msg.sender, address(this), _amount), "failed to transfer");
 
 		// already deposited before
