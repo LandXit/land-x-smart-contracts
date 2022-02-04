@@ -154,10 +154,25 @@ Rinkeby: 0x74B7aBc332c18647511F5525CFccc3008FE7D866
 
 https://rinkeby.etherscan.io/address/0x74B7aBc332c18647511F5525CFccc3008FE7D866#code
 
-## Staking #1 (50% APR)
+## Staking 
+
+### used on stage
+Rinkeby: 0x631878fcbabb7499b4515ec115d3b2c0b9282a33 https://rinkeby.etherscan.io/address/0x631878fcbabb7499b4515ec115d3b2c0b9282a33#code 
+
+Rinkeby: 0x02EfDeE67245883c0E26cfCC14C3b08027fbA6ba https://rinkeby.etherscan.io/address/0x02EfDeE67245883c0E26cfCC14C3b08027fbA6ba#code
+
+Rinkeby: 0x44872904589b79a9e8cd17457692a7a92fb7083f https://rinkeby.etherscan.io/address/0x44872904589b79a9e8cd17457692a7a92fb7083f#code  
+
+### used on dev
+Rinkeby: 0x2bAe7496a0A1d9667cA6f824d028d0E1669a84c9 https://rinkeby.etherscan.io/address/0x2bAe7496a0A1d9667cA6f824d028d0E1669a84c9#code
+
+Rinkeby: 0x7e9424a97ceca372464b077181260f7106ea9b62 https://rinkeby.etherscan.io/address/0x7e9424a97ceca372464b077181260f7106ea9b62#code
+
+Rinkeby: 0x13bc3790d6b8c620196315ba319afd16c5108a7b https://rinkeby.etherscan.io/address/0x13bc3790d6b8c620196315ba319afd16c5108a7b#code
+
+### Staking #1 (50% APR)
 
 Rinkeby: 0xa4245c472eCcaD3e55311E1D7f1B414F1671a6D9
-
 https://rinkeby.etherscan.io/address/0xa4245c472eCcaD3e55311E1D7f1B414F1671a6D9#code
 
 ### Build and test
