@@ -14,8 +14,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const ShardManagerC = await hre.ethers.getContractFactory("ShardManager")
-	console.log("Deploying Shard Manager...")
+	const USDCContract = await hre.ethers.getContractFactory("USDC")
+	console.log("Deploying USDC...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 
@@ -32,21 +32,18 @@ async function main() {
 		"ETH"
 	)
 
-	let nftAddress = "" //mainnet
-	if (network === "rinkeby") {
-		nftAddress = "0x194e9a314410A73fEF5CeD84c9397b50509D7fb5" //rinkeby
-	}
-
-	const deployed = await ShardManagerC.deploy(nftAddress)
+	//deployerAddress is minter
+	const deployed = await USDCContract.deploy(deployerAddress)
 
 	let dep = await deployed.deployed()
 
 	console.log("Contract deployed to:", dep.address)
 
-	await sleep(70000) //40 seconds sleep
+	await sleep(60000) //30 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nftAddress],
+		constructorArguments: [deployerAddress],
+		contract: "contracts/USDC.sol:USDC"
 	})
 }
 

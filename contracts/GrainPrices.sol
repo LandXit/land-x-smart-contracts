@@ -16,7 +16,7 @@ contract GrainPrices is
 	uint256 public MaizePrice = 29;
 	uint256 public SoyPrice = 56;
 
-    uint256 public USD_WTC_Rate = 500000000000000000; // for now it hardcoded
+    uint256 public USD_USDC_Rate = 1000000; // for now it hardcoded
 
     constructor(address _address)
     {
@@ -32,9 +32,9 @@ contract GrainPrices is
         SoyPrice = soyPrice;
     }
 
-    function setUSDWTCRate(uint256 rate) public {
+    function setUSDUSDCRate(uint256 rate) public {
         require(hasRole(PRICE_SETTER_ROLE, msg.sender), "not price setter");
         require(rate > 0, "Invalid values");
-        USD_WTC_Rate = rate;
+        USD_USDC_Rate = rate;
     }
 }

@@ -12,7 +12,7 @@ contract RentFoundation is
     Ownable,
     AccessControlEnumerable
 {
-    IERC20 public wtc;
+    IERC20 public usdc;
    
     event rentPaid(uint256 tokenID, uint256 amount);
     event withdrawn(address to, uint256 amount, uint256 nonce);
@@ -26,17 +26,16 @@ contract RentFoundation is
     mapping(uint256 => bool) public initialRentApplied;
 
     bytes32 public constant INITIAL_RENT_PAYER_ROLE = keccak256("INITIAL_RENT_PAYER_ROLE");
-    bytes32 public constant INITIAL_RENT_PAYER_SHARD_ROLE = keccak256("INITIAL_RENT_PAYER_SHARD_ROLE");
 
-    constructor(address _wtc, address _address)
+    constructor(address _usdc, address _address)
     {
-		wtc = IERC20(_wtc);
+		usdc = IERC20(_usdc);
         _setupRole(DEFAULT_ADMIN_ROLE, _address);
 	}
 
     function payRent(uint256 tokenID, uint256 amount) external {
         require(initialRentApplied[tokenID], "Initial rent was not applied");
-        require(wtc.transferFrom(msg.sender, address(this), amount), "transfer failed");
+        require(usdc.transferFrom(msg.sender, address(this), amount), "transfer failed");
         rentPaidAmount += amount;
         emit rentPaid(tokenID, amount);
     }
@@ -48,30 +47,17 @@ contract RentFoundation is
 
         require(recoverSigner(message, sig) == owner());
 
-        require(wtc.transfer(msg.sender, amount), "Withdraw fiailed");
+        require(usdc.transfer(msg.sender, amount), "Withdraw fiailed");
         rentWithdrawnAmount += amount;
         usedNonces[nonce] = true;
 
         emit withdrawn(msg.sender, amount, nonce);
     }
 
-    function payInitialRent(address payer, uint256 tokenID, uint256 amount) external {
+    function payInitialRent(uint256 tokenID, uint256 amount) external {
         require(!initialRentApplied[tokenID], "Initial Paymant already applied");
         require(hasRole(INITIAL_RENT_PAYER_ROLE, msg.sender), "not initial payer");
-        if (payer == address(0x0)) {
-            require(wtc.transferFrom(msg.sender, address(this), amount), "Initial payment failed");
-        } else {
-            require(wtc.transferFrom(payer, address(this), amount), "Initial payment failed");
-        }
-        initialRentApplied[tokenID] = true;
-        rentPaidAmount += amount;
-        emit initialRentPaid(tokenID, amount);
-    }
-
-    function payInitialRentShards(uint256 tokenID, uint256 amount) external {
-        require(!initialRentApplied[tokenID], "Initial Paymant already applied");
-        require(hasRole(INITIAL_RENT_PAYER_SHARD_ROLE, msg.sender), "not initial payer");
-        require(wtc.transferFrom(msg.sender, address(this), amount), "Initial payment failed");
+        require(usdc.transferFrom(tx.origin, address(this), amount), "Initial payment failed");
         initialRentApplied[tokenID] = true;
         rentPaidAmount += amount;
         emit initialRentPaid(tokenID, amount);

@@ -27,7 +27,8 @@
 		"deploy_wtc_f:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_wtc_f.js",
 		"deploy_wtc_f:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_wtc_f.js",
 		"deploy_gp:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_gp.js",
-		"deploy_gp:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_gp.js"
+		"deploy_gp:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_gp.js",
+		"deploy_usdc:rinkeby": "NETWORK=rinkeby npx hardhat run --network rinkeby scripts/deploy_usdc.js"
 	},
 	"author": "LandX",
 	"license": "MIT",

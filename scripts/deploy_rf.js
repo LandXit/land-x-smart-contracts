@@ -28,10 +28,10 @@ async function main() {
 	const account = await web3.utils.toChecksumAddress(deployerAddress)
 	const balance = await web3.eth.getBalance(account)
 
-	let wtcTokenAddress = "0x......" //mainnet
+	let usdcTokenAddress = "0x......" //mainnet
 	if (network === "rinkeby") {
-		wtcTokenAddress = "0xfb3EF7FA8f5f90ea7EA63b84D98E063002Bc2233" //rinkeby
-		console.log(">-> WTC ADDRESS " + wtcTokenAddress)
+		usdcTokenAddress = "0xE3A2763c0437B622077761697BC22782d59DbE19" //rinkeby
+		console.log(">-> USDC ADDRESS " + usdcTokenAddress)
 	}
 
 	console.log(
@@ -39,13 +39,13 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await RentFoundation.deploy(wtcTokenAddress, deployerAddress)
+	let deployed = await RentFoundation.deploy(usdcTokenAddress, deployerAddress)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [wtcTokenAddress, deployerAddress],
+		constructorArguments: [usdcTokenAddress, deployerAddress],
 	})
 
 }

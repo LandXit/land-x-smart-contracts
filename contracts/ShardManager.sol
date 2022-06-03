@@ -41,10 +41,7 @@ interface ILANDXNFT is IERC165 {
 
 interface IRENTFOUNDATION is IERC165 {
     function initialRentApplied(uint256 tokenID) external view returns(bool);
-}
-
-interface IWTCDistributor is IERC165 {
-    function distributeAfterShard(uint256 tokenID, uint256 excludeAmount) external;
+    function payInitialRent(uint256 tokenID, uint256 amount) external;
 }
 
 interface IGRAINPRICES is IERC165 {
@@ -52,7 +49,7 @@ interface IGRAINPRICES is IERC165 {
 	function WheatPrice() external view returns (uint256);
 	function SoyPrice() external view returns (uint256);
 	function MaizePrice() external view returns (uint256);
-	function USD_WTC_Rate() external view returns (uint256);
+	function USD_USDC_Rate() external view returns (uint256);
 }
 
 //ShardManager NFT in = shards. Shards in = NFT
@@ -72,8 +69,6 @@ contract ShardManager is
 
     IRENTFOUNDATION public rentFoundation;
 
-    IWTCDistributor public wtcDistributor;
-
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
 
@@ -81,8 +76,8 @@ contract ShardManager is
     event BuyOut(uint256 nftID, uint256 amount, string name);
 
     constructor(address _landXNFT)
-        ERC20Permit("LDXS")
-        ERC20("LandX Shard", "LDXS")
+        ERC20Permit("xWHEAT")
+        ERC20("LandX Shard", "xWHEAT")
     {
         landXNFT = ILANDXNFT(_landXNFT);
     }
@@ -113,11 +108,10 @@ contract ShardManager is
             revert("Cannot shard token by not landowner without initial rent applied");
         }
 
-        if (landXNFT.landOwner(_id) == msg.sender && !rentFoundation.initialRentApplied(_id)) {
-            uint256 excludeAmount = getAnnualRentAmount(_id);
-            wtcDistributor.distributeAfterShard(_id, excludeAmount);
+        if (!rentFoundation.initialRentApplied(_id)) {
+            rentFoundation.payInitialRent(_id, getAnnualRentAmount(_id));
         }
-
+        
         emit Sharded(_id, shards, symbol());
     }
 
@@ -150,10 +144,6 @@ contract ShardManager is
 
     function setRentFoundation(address _address) public onlyOwner {
         rentFoundation = IRENTFOUNDATION(_address);
-    }
-
-    function setWTCDistributor(address _address) public onlyOwner {
-        wtcDistributor = IWTCDistributor(_address);
     }
 
     // reclaim accidentally sent tokens
@@ -192,20 +182,20 @@ contract ShardManager is
 		uint256 area = landXNFT.landArea(tokenID);
 
         uint256 price = 0;
-		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXS"))) {
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("xSOY"))) {
 			price = grainPrices.SoyPrice();
 		}
-		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXR"))) {
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("xRICE"))) {
 			price = grainPrices.RicePrice();
 		}
-		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXM"))) {
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("xMAIZE"))) {
 			price = grainPrices.MaizePrice();
 		}
-		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("LDXW"))) {
+		if (keccak256(abi.encodePacked(symbol())) == keccak256(abi.encodePacked("xWHEAT"))) {
 			price = grainPrices.WheatPrice();
 		}
 
-        uint256 rate = grainPrices.USD_WTC_Rate();
+        uint256 rate = grainPrices.USD_USDC_Rate();
 
 		return 2 * (price * rent * rate * area) / (10000 * 100);
 	}
