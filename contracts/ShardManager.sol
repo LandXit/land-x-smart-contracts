@@ -176,7 +176,7 @@ contract ShardManager is
         return (shards, fee, toBeReceived);    
     }
 
-    function getAnnualRentAmount(uint256 tokenID)  internal view returns (uint256)
+    function getAnnualRentAmount(uint256 tokenID) public view returns (uint256)
 	{
 		uint256 rent = landXNFT.rent(tokenID);
 		uint256 area = landXNFT.landArea(tokenID);
