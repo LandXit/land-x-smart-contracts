@@ -39,13 +39,13 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await RentFoundation.deploy(usdcTokenAddress, deployerAddress)
+	let deployed = await RentFoundation.deploy(usdcTokenAddress)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [usdcTokenAddress, deployerAddress],
+		constructorArguments: [usdcTokenAddress],
 	})
 
 }

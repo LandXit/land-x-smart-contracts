@@ -2,8 +2,6 @@ const hre = require("hardhat")
 require("@nomiclabs/hardhat-web3")
 const fs = require("fs-extra")
 
-const ERC20_ABI = require("../utils/erc20_abi.js")
-const VESTING_ABI = require("../utils/vesting_abi.js")
 const { time } = require("@openzeppelin/test-helpers")
 
 function sleep(ms) {
@@ -18,8 +16,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const StakingC = await hre.ethers.getContractFactory("Staking")
-	console.log("Deploying Staking Contract...")
+	const GrainPrices = await hre.ethers.getContractFactory("xBasket")
+	console.log("Deploying XBasket Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 	console.log(">-> Network is set to " + network)
@@ -30,27 +28,33 @@ async function main() {
 	const account = await web3.utils.toChecksumAddress(deployerAddress)
 	const balance = await web3.eth.getBalance(account)
 
+	let xSoy = "" //mainnet
+	let xWheat = ""
+	let xCorn = ""
+	let xRice = ""
+	let xTokenRouter = ""
+	if (network === "rinkeby") {
+		xSoy = "0x71da31eA7F788E8039915289789Bde99bdF3371d" //rinkeby
+		xWheat = "0x191Fd8C5821B0587b471C8103B93517F2c605DA0"
+		xCorn = "0x8ee44D1e14b7fae5257876594ccccc848B9680c9"
+		xRice = "0xF7EeF6fDed5b69778569CC2513a58B8D790e1010"
+		xTokenRouter = "0xAAB1c7e0a5bb297F837419E86E93B82bdCBC7c74"
+	}
+
 	console.log(
 		"Deployer Account " + deployerAddress + " has balance: " + web3.utils.fromWei(balance, "ether"),
 		"ETH"
 	)
 
-	let emissionRate = 48767800000
-	let wtcTokenAddress = "0x......" //mainnet
-	if (network === "rinkeby") {
-		wtcTokenAddress = "0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3" //rinkeby
-	}
-
-	let deployed = await StakingC.deploy(wtcTokenAddress, emissionRate) //50% APR
+	let deployed = await GrainPrices.deploy(xWheat, xSoy, xCorn, xRice, xTokenRouter)
 	let dep = await deployed.deployed()
 
-	await sleep(45000)
+	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [wtcTokenAddress, emissionRate],
+		constructorArguments: [xWheat, xSoy, xCorn, xRice, xTokenRouter],
 	})
 
-	//change ownership to: 0x9b1a411a5b82a65f5f50aa603514935c7c9bf35a
 }
 
 // We recommend this pattern to be able to use async/await everywhere

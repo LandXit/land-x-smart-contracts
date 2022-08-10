@@ -14,7 +14,7 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const ShardManagerC = await hre.ethers.getContractFactory("ShardManager")
+	const ShardManagerC = await hre.ethers.getContractFactory("XToken")
 	console.log("Deploying Shard Manager...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
@@ -33,11 +33,15 @@ async function main() {
 	)
 
 	let nftAddress = "" //mainnet
+	let xTokenRouter = "" 
+	let rentFoundation = ""
 	if (network === "rinkeby") {
-		nftAddress = "0x194e9a314410A73fEF5CeD84c9397b50509D7fb5" //rinkeby
+		nftAddress = "0xc6591e208b5B3FC2CB01644bbF3a8fFd1D56fD70" //rinkeby
+		xTokenRouter = "0xAAB1c7e0a5bb297F837419E86E93B82bdCBC7c74" //rinkeby
+		rentFoundation = "0x28890cA5acB1aFB6F993e73ea270eB53215fccBA"
 	}
 
-	const deployed = await ShardManagerC.deploy(nftAddress)
+	const deployed = await ShardManagerC.deploy(nftAddress, rentFoundation, xTokenRouter)
 
 	let dep = await deployed.deployed()
 
@@ -46,7 +50,7 @@ async function main() {
 	await sleep(70000) //40 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nftAddress],
+		constructorArguments: [nftAddress, rentFoundation, xTokenRouter],
 	})
 }
 

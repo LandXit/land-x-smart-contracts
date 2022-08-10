@@ -5,11 +5,15 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+
+interface IXTOKENROUTER {
+    function getXToken(string memory _name) external view returns(address); 
+}
+
 contract LandXNFT is ERC1155, Ownable {
     using Strings for string;
 
-    //detailsSetter can set details of an NFT
-    address public detailsSetter;
+    IXTOKENROUTER public xTokenRouter;
 
     // other parameters
     string private _baseTokenURI =
@@ -20,30 +24,29 @@ contract LandXNFT is ERC1155, Ownable {
     mapping(uint256 => uint256) public totalSupply;
     mapping(uint256 => uint256) public landArea; // in square-meters
     mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
-    mapping(uint256 => address) public shardManager;
+    mapping(uint256 => string)  public crop; // ["SOY", "RICE" ....]
     mapping(uint256 => address) public landOwner;
 
     //1 shard = (landArea * rent) /  10000
 
     constructor() ERC1155(_baseTokenURI) {
-        detailsSetter = msg.sender;
+        
     }
 
     /**@dev sets the token details. price is in *wei* */
     function setDetailsAndMint(
-        uint256 _index,
+        uint256 _index, 
         uint256 _landArea,
         uint256 _rent,
         address _landOwner,
-        address _shardManager,
+        string memory _crop,
         address _to
-    ) public {
-        require(msg.sender == detailsSetter, "not detailsSetter");
+    ) public onlyOwner{
         require(totalSupply[_index] == 0, "tokenID already minted");
-        require(_shardManager != address(0), "shardManager is not defined");
+        require(xTokenRouter.getXToken(_crop) != address(0), "xToken is not defined");
         landArea[_index] = _landArea;
         rent[_index] = _rent;
-        shardManager[_index] = _shardManager;
+        crop[_index] = _crop;
         landOwner[_index] = _landOwner;
         totalSupply[_index] = totalSupply[_index] + 1;
         _mint(_to, _index, 1, "0x0000");
@@ -79,9 +82,8 @@ contract LandXNFT is ERC1155, Ownable {
         return string(abi.encodePacked(_baseTokenURI, uint2str(tokenId)));
     }
 
-    // sets the setDetailsSetter address.
-    function setDetailsSetter(address _newDetailsSetter) public onlyOwner {
-        detailsSetter = _newDetailsSetter;
+    function setXTokenRouter(address _router) public onlyOwner {
+        xTokenRouter = IXTOKENROUTER(_router);
     }
 
     //**
@@ -124,16 +126,5 @@ contract LandXNFT is ERC1155, Ownable {
         require(address(token) != address(0));
         uint256 balance = token.balanceOf(address(this));
         token.transfer(msg.sender, balance);
-    }
-
-    //TODO: needed ?
-    //1 = 0.01%, 300 = 3%,...
-    function _calcPercentage(uint256 amount, uint256 basisPoints)
-        internal
-        pure
-        returns (uint256)
-    {
-        require(basisPoints >= 0);
-        return (amount * basisPoints) / 10000;
     }
 }
