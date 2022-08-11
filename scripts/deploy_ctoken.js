@@ -2,8 +2,7 @@ const hre = require("hardhat")
 require("@nomiclabs/hardhat-web3")
 const fs = require("fs-extra")
 
-const ERC20_ABI = require("../utils/erc20_abi.js")
-const VESTING_ABI = require("../utils/vesting_abi.js")
+const { time } = require("@openzeppelin/test-helpers")
 
 function sleep(ms) {
 	return new Promise((resolve) => {
@@ -17,8 +16,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const AH = await hre.ethers.getContractFactory("AuctionHouse")
-	console.log("Deploying Auction House Contract...")
+	const cToken = await hre.ethers.getContractFactory("CToken")
+	console.log("Deploying CToken Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 	console.log(">-> Network is set to " + network)
@@ -34,22 +33,20 @@ async function main() {
 		"ETH"
 	)
 
-	let nft = "0x....." //mainnet
-	let wtcTokenAddress = "0x......" //mainnet
-	let usdcTokenAddress = "0x...." //mainnet
+	let xTokenRouter = "" //mainnet
+	let rentFoundation = ""
 	if (network === "rinkeby") {
-		nft = "0x1071B8DAF7f95014fE2013F15Ae717Ce3D5d5506" //rinkeby
-		wtcTokenAddress = "0xFBb4273D7629096f1f3aF01B6BEaeB9A668b43e3" //rinkeby
+		xTokenRouter = "0xAAB1c7e0a5bb297F837419E86E93B82bdCBC7c74" //rinkeby
+		rentFoundation = "0x28890cA5acB1aFB6F993e73ea270eB53215fccBA"
 	}
 
-	//address _landxNFT, address _wtc, address _usdc
-	let deployed = await AH.deploy(nft, wtcTokenAddress)
+	let deployed = await cToken.deploy(rentFoundation, xTokenRouter)
 	let dep = await deployed.deployed()
 
-	await sleep(45000)
+	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nft, wtcTokenAddress],
+		constructorArguments: [rentFoundation, xTokenRouter]
 	})
 }
 
