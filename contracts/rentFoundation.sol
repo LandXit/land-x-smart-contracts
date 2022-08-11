@@ -41,6 +41,8 @@ contract RentFoundation is
     event rentPaid(uint256 tokenID, uint256 amount);
     event initialRentPaid(uint256 tokenID, uint256 amount);
 
+    uint256 public marketFee = 150; //1.5%
+
     struct deposit {
         uint256 timestamp;
         uint256 amount; // in kg
@@ -60,7 +62,8 @@ contract RentFoundation is
     function payRent(uint256 tokenID, uint256 amount) public {
         require(initialRentApplied[tokenID], "Initial rent was not applied");
         require(usdc.transferFrom(msg.sender, address(this), amount), "transfer failed");
-        uint256 grainAmount = amount / grainPrices.prices(landXNFT.crop(tokenID));
+        uint256 fee = _calcPercentage(amount);
+        uint256 grainAmount = (amount - fee) / grainPrices.prices(landXNFT.crop(tokenID));
         deposits[tokenID].amount += grainAmount;
         emit rentPaid(tokenID, grainAmount);
     }
@@ -96,11 +99,20 @@ contract RentFoundation is
     function setGrainPrices(address _grainPrices) public onlyOwner {
         grainPrices = IGRAINPRICES(_grainPrices);
     }
+
+    function changeMarketFee(uint256 _marketFee) public onlyOwner {
+		require(_marketFee < 500, "anti greed protection");
+		marketFee = _marketFee;
+	}
     
     // change the address of landxNFT.
     function changeLandXNFTAddress(address _newAddress) public onlyOwner {
         landXNFT = ILANDXNFT(_newAddress);
     }
+
+     function _calcPercentage(uint256 amount) internal view returns (uint256) {
+		return (amount * marketFee) / 10000;
+	}
     
     //owner can withdraw any token sent here. should be used with care
 	function reclaimToken(IERC20 token, uint256 _amount) external onlyOwner {
