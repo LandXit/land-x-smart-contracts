@@ -16,8 +16,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const WTCMintingFoundation = await hre.ethers.getContractFactory("WTCMintingFoundation")
-	console.log("Deploying WTC Distributor Contract...")
+	const cToken = await hre.ethers.getContractFactory("CToken")
+	console.log("Deploying CToken Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 	console.log(">-> Network is set to " + network)
@@ -28,26 +28,26 @@ async function main() {
 	const account = await web3.utils.toChecksumAddress(deployerAddress)
 	const balance = await web3.eth.getBalance(account)
 
-	let wtcTokenAddress = "0x......" //mainnet
-	if (network === "rinkeby") {
-		wtcTokenAddress = "0xfb3EF7FA8f5f90ea7EA63b84D98E063002Bc2233" //rinkeby
-		console.log(">-> WTC ADDRESS " + wtcTokenAddress)
-	}
-
 	console.log(
 		"Deployer Account " + deployerAddress + " has balance: " + web3.utils.fromWei(balance, "ether"),
 		"ETH"
 	)
 
-	let deployed = await WTCMintingFoundation.deploy(wtcTokenAddress, deployerAddress)
+	let xTokenRouter = "" //mainnet
+	let rentFoundation = ""
+	if (network === "rinkeby") {
+		xTokenRouter = "0xAAB1c7e0a5bb297F837419E86E93B82bdCBC7c74" //rinkeby
+		rentFoundation = "0x28890cA5acB1aFB6F993e73ea270eB53215fccBA"
+	}
+
+	let deployed = await cToken.deploy(rentFoundation, xTokenRouter)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [wtcTokenAddress, deployerAddress],
+		constructorArguments: [rentFoundation, xTokenRouter]
 	})
-
 }
 
 // We recommend this pattern to be able to use async/await everywhere
