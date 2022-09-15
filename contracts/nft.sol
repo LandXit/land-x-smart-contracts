@@ -10,10 +10,15 @@ interface IXTOKENROUTER {
     function getXToken(string memory _name) external view returns(address); 
 }
 
+interface IKEYPROTOKOLVALUES {
+    function maxAllowableCropShare(string memory grain) external pure returns(uint256);
+}
+
 contract LandXNFT is ERC1155, Ownable {
     using Strings for string;
 
     IXTOKENROUTER public xTokenRouter;
+    IKEYPROTOKOLVALUES public keyProtocolValues;
 
     // other parameters
     string private _baseTokenURI =
@@ -25,30 +30,32 @@ contract LandXNFT is ERC1155, Ownable {
     mapping(uint256 => uint256) public landArea; // in square-meters
     mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
     mapping(uint256 => string)  public crop; // ["SOY", "RICE" ....]
-    mapping(uint256 => address) public landOwner;
+    mapping(uint256 => address) public validator; // validator or landowner
+    mapping(uint256 => address) public initialOwner;
 
     //1 shard = (landArea * rent) /  10000
 
-    constructor() ERC1155(_baseTokenURI) {
-        
+    constructor(address _keyProtocolValues) ERC1155(_baseTokenURI) {
+        keyProtocolValues = IKEYPROTOKOLVALUES(_keyProtocolValues);
     }
 
     /**@dev sets the token details. price is in *wei* */
     function setDetailsAndMint(
         uint256 _index, 
         uint256 _landArea,
-        uint256 _rent,
-        address _landOwner,
+        uint256 _yield,
+        address _validator,
         string memory _crop,
         address _to
     ) public onlyOwner{
         require(totalSupply[_index] == 0, "tokenID already minted");
         require(xTokenRouter.getXToken(_crop) != address(0), "xToken is not defined");
         landArea[_index] = _landArea;
-        rent[_index] = _rent;
+        rent[_index] = _yield * keyProtocolValues.maxAllowableCropShare(_crop) / 10000;
         crop[_index] = _crop;
-        landOwner[_index] = _landOwner;
+        validator[_index] = _validator;
         totalSupply[_index] = totalSupply[_index] + 1;
+        initialOwner[_index] = _to;
         _mint(_to, _index, 1, "0x0000");
     }
 
@@ -114,17 +121,5 @@ contract LandXNFT is ERC1155, Ownable {
             _i /= 10;
         }
         return string(bstr);
-    }
-
-    // reclaim accidentally sent eth
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-
-    // reclaim accidentally sent tokens
-    function reclaimToken(IERC20 token) public onlyOwner {
-        require(address(token) != address(0));
-        uint256 balance = token.balanceOf(address(this));
-        token.transfer(msg.sender, balance);
     }
 }
