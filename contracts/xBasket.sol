@@ -4,134 +4,246 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 
-interface IXToken {
-    function xBasketTransfer(address _from, uint256 amount) external;
-    function crop() external pure returns(string memory);
-}
-
-interface IXTOKENROUTER{
+interface IxTokenRouter {
     function getCToken(string memory _name) external view returns(address);
+    function getXToken(string memory _name) external view returns(address);
 }
 
-interface ICTOKEN {
-    function mint(address account, uint256 amount) external;
+interface IOraclePrices  {
+    function getXTokenPrice(address xToken) external view returns(uint256);
+    function prices(string memory) external view returns(uint256);
+    function usdc() external view returns(address);
+}
+
+
+
+interface IXToken is IERC20 {
+    function stake(uint256 amount) external;
+    function unstake(uint256 amount) external;
+    function xBasketTransfer(address _from, uint256 amount) external;
+    function Staked(address) external view returns(uint256 amount, uint256 startTime); // Not
+    function availableToClaim(address account) external view returns(uint256);
+    function claim() external;
 }
 
 contract xBasket is ERC20, Ownable {
-    address public xWheat; // 0xfEFb9F639327E39BECBDeFd7d76fFAFE8ed778F2
-    address public xSoy; // 0x50E5867D42f876ED75628940684ad510e9f40a5B
-    address public xCorn; // 0x192Ad77D703968026621e112D0c3576859340d69
-    address public xRice; // 0xFB5E2A1884FE0496554e643A3760846BC3858384
+    IxTokenRouter public xTokenRouter;
+    IOraclePrices public oraclePrices;
+    address public xWheat;
+    address public xSoy;
+    address public xCorn;
+    address public xRice;
+    address public cWheat;
+    address public cSoy;
+    address public cCorn;
+    address public cRice;
+    address public usdc;
 
-    IXTOKENROUTER public xTokenRouter;
-
-     struct Stake {
-        uint256 amount;
-        uint256 startTime;
-    }
-
-    mapping(address => Stake) public Staked;
-    mapping(address => uint256) public Yield;
+    ISwapRouter public constant uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     
-    constructor(address _xWheat, address _xSoy, address _xCorn, address _xRice, address _xTokenRouter) ERC20("xBasket LandX Index Fund", "xBASKET") {
-        xWheat = _xWheat;
-        xSoy = _xSoy;
-        xCorn = _xCorn;
-        xRice = _xRice;
-        xTokenRouter = IXTOKENROUTER(_xTokenRouter);
+    constructor(address _xTokenRouter, address _oraclePrices) ERC20("xBasket LandX Index Fund", "xBASKET") {
+        xTokenRouter = IxTokenRouter(_xTokenRouter);
+        oraclePrices = IOraclePrices(_oraclePrices);
+        xWheat = xTokenRouter.getXToken("WHEAT");
+        xSoy = xTokenRouter.getXToken("SOY");
+        xRice = xTokenRouter.getXToken("RICE");
+        xCorn = xTokenRouter.getXToken("CORN");
+        cWheat = xTokenRouter.getCToken("WHEAT");
+        cSoy = xTokenRouter.getCToken("SOY");
+        cRice = xTokenRouter.getCToken("RICE");
+        cCorn = xTokenRouter.getCToken("CORN");
+        usdc = oraclePrices.usdc();
     }
 
     // Deposit xTokens to mint xBasket
-    function mint(uint256 amount) external {
-        require(amount > 1e10, "Amount too low to mint");
-        uint256 depositAmount = amount / 4;
-        IXToken(xWheat).xBasketTransfer(msg.sender,depositAmount);
-        IXToken(xSoy).xBasketTransfer(msg.sender,depositAmount);
-        IXToken(xCorn).xBasketTransfer(msg.sender,depositAmount);
-        IXToken(xRice).xBasketTransfer(msg.sender,depositAmount);
-        _mint(msg.sender, amount);
+    function mint(uint256 _amount) external {
+        IXToken(xWheat).xBasketTransfer(msg.sender,_amount);
+        IXToken(xSoy).xBasketTransfer(msg.sender,_amount);
+        IXToken(xRice).xBasketTransfer(msg.sender,_amount);
+        IXToken(xCorn).xBasketTransfer(msg.sender,_amount);
+        IXToken(xWheat).stake(_amount);
+        IXToken(xSoy).stake(_amount);
+        IXToken(xRice).stake(_amount);
+        IXToken(xCorn).stake(_amount);
+        uint256 usdVaultValuation = calculateTVL();
+        uint256 circulatingSupply = totalSupply();
+        // This maths needs testing. From https://solidity-by-example.org/defi/vault/
+        uint256 shares;
+        if (circulatingSupply == 0) {
+            shares = _amount; // initially 1 xBasket = 0.25 of all 4 xTokens
+        } else {
+            shares = _amount * circulatingSupply / usdVaultValuation;
+        }
+        _mint(msg.sender, shares);
+    }
+
+    function mintPreview(uint256 _amount) public view returns (uint256) {
+        uint256 usdVaultValuation = calculateTVL();
+        uint256 circulatingSupply = totalSupply();
+        uint256 shares;
+        if (circulatingSupply == 0) {
+            shares = _amount; // initially 1 xBasket = 0.25 of all 4 xTokens
+        } else {
+            shares = _amount * circulatingSupply / usdVaultValuation;
+        }
+        return shares;
     }
 
     // Burn xBasket to redeem xTokens
-    function redeem(uint256 amount) external {
-        require(amount > 1e10, "Amount too low to burn");
-        uint256 redeemAmount = amount / 4;
-        require(balanceOf(msg.sender) >= amount, "Your xBasket balance is too low");
-        _burn(msg.sender,amount);
-        IERC20(xWheat).transfer(msg.sender,redeemAmount);
-        IERC20(xSoy).transfer(msg.sender,redeemAmount);
-        IERC20(xCorn).transfer(msg.sender,redeemAmount);
-        IERC20(xRice).transfer(msg.sender,redeemAmount);
+    function redeem(uint256 _amount) external {
+        require(balanceOf(msg.sender) >= _amount, "Your xBasket balance is too low");
+        uint256 usdVaultValuation = calculateTVL();
+        _burn(msg.sender, _amount);
+        autoCompoundRewards(); // make sure we just have xTokens in the vault on redemption.
+        uint256 circulatingSupply = totalSupply();
+        // This maths needs testing. From https://solidity-by-example.org/defi/vault/
+        uint256 redeemAmount;
+        if (circulatingSupply == 0) { 
+            redeemAmount = _amount;
+        } else {
+            redeemAmount = (_amount * usdVaultValuation) / circulatingSupply;
+        }
+        IXToken(xWheat).unstake(redeemAmount);
+        IXToken(xSoy).unstake(redeemAmount);
+        IXToken(xRice).unstake(redeemAmount);
+        IXToken(xCorn).unstake(redeemAmount);
+        IXToken(xWheat).transfer(msg.sender,redeemAmount);
+        IXToken(xSoy).transfer(msg.sender,redeemAmount);
+        IXToken(xRice).transfer(msg.sender,redeemAmount);
+        IXToken(xCorn).transfer(msg.sender,redeemAmount);
     }
 
-     function stake(uint256 amount) public {
-        _transfer(msg.sender, address(this), amount);
-        uint256 yield = calculateYield(Staked[msg.sender]);
-        Yield[msg.sender] += yield;
-        Staked[msg.sender].startTime = block.timestamp;
-        Staked[msg.sender].amount = amount;
+    function redeemPreview(uint256 _amount) public view returns (uint256) {
+        uint256 usdVaultValuation = calculateTVL();
+        uint256 circulatingSupply = totalSupply();
+        if (circulatingSupply == 0) {
+            return _amount;
+        }
+        uint256 redeemAmount = (_amount * usdVaultValuation) / circulatingSupply;
+        return redeemAmount;
     }
 
-    function unstake(uint256 amount) public {
-        _transfer(address(this), msg.sender, amount);
-        uint256 yield = calculateYield(Staked[msg.sender]);
-        Yield[msg.sender] += yield;
-        Staked[msg.sender].startTime = block.timestamp;
-        Staked[msg.sender].amount -= amount;
+    // calculate the value of the contracts xToken holdings in USDC
+    function calculateCollateral() public view returns(uint256) {
+        // xTokens Balances
+        uint256 xWheatBalance = IXToken(xWheat).balanceOf(address(this));
+        uint256 xSoyBalance = IXToken(xSoy).balanceOf(address(this));
+        uint256 xRiceBalance = IXToken(xRice).balanceOf(address(this));
+        uint256 xCornBalance = IXToken(xCorn).balanceOf(address(this));
+
+        (uint256 xWheatStaked,) = IXToken(xWheat).Staked(address(this));
+        (uint256 xSoyStaked,) = IXToken(xSoy).Staked(address(this));
+        (uint256 xRiceStaked,) = IXToken(xRice).Staked(address(this));
+        (uint256 xCornStaked,) = IXToken(xCorn).Staked(address(this));
+
+        // USDC Prices - Note this assumes prices are stored in USDC with 6 decimals
+        uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
+        uint256 xSoyPrice = oraclePrices.getXTokenPrice(xSoy);
+        uint256 xRicePrice = oraclePrices.getXTokenPrice(xRice);
+        uint256 xCornPrice = oraclePrices.getXTokenPrice(xCorn);
+        
+        // Valutations
+        uint256 collateral;
+        collateral += (xWheatBalance + xWheatStaked) * xWheatPrice;
+        collateral += (xSoyBalance + xSoyStaked) * xSoyPrice;
+        collateral += (xRiceBalance + xRiceStaked) * xRicePrice;
+        collateral += (xCornBalance + xCornStaked) * xCornPrice;
+        return collateral;        
     }
 
-    function claim() public {
-        uint256 yield = calculateYield(Staked[msg.sender]) + Yield[msg.sender];
-        address cToken;
+    // calculate the value of the contracts cToken holdings in USDC
+    function calculateYield() public view returns(uint256) {
+         // cTokens Balnces  
+        uint256 cWheatBalance = IERC20(cWheat).balanceOf(address(this));
+        uint256 cSoyBalance = IERC20(cSoy).balanceOf(address(this));
+        uint256 cRiceBalance = IERC20(cRice).balanceOf(address(this));
+        uint256 cCornBalance = IERC20(cCorn).balanceOf(address(this));
 
-        cToken = xTokenRouter.getCToken("SOY");
-        ICTOKEN(cToken).mint(msg.sender,  yield / 4);
+        // Rewards Pending & USDC balance
+        uint256 cWheatPending = IXToken(xWheat).availableToClaim(address(this));
+        uint256 cSoyPending = IXToken(xSoy).availableToClaim(address(this));
+        uint256 cRicePending = IXToken(xRice).availableToClaim(address(this));
+        uint256 cCornPending = IXToken(xCorn).availableToClaim(address(this));      
+        uint256 usdcBalance = IERC20(usdc).balanceOf(address(this));
 
-        cToken = xTokenRouter.getCToken("RICE");
-        ICTOKEN(cToken).mint(msg.sender,  yield / 4);
+        // USDC Prices - Note this assumes prices are stored in USDC with 6 decimals
+        uint256 cWheatPrice = oraclePrices.prices("WHEAT");
+        uint256 cSoyPrice = oraclePrices.prices("SOY");
+        uint256 cRicePrice = oraclePrices.prices("RICE");
+        uint256 cCornPrice = oraclePrices.prices("CORN");
 
-        cToken = xTokenRouter.getCToken("WHEAT");
-        ICTOKEN(cToken).mint(msg.sender,  yield / 4);
-
-        cToken = xTokenRouter.getCToken("CORN");
-        ICTOKEN(cToken).mint(msg.sender,  yield / 4);
-
-        Yield[msg.sender] = 0;
+        // Valutations
+        uint256 totalYield = usdcBalance;
+        totalYield += (cWheatBalance + cWheatPending) * cWheatPrice;
+        totalYield += (cSoyBalance + cSoyPending) * cSoyPrice;
+        totalYield += (cRiceBalance + cRicePending) * cRicePrice;
+        totalYield += (cCornBalance + cCornPending) * cCornPrice;
+        return totalYield;    
     }
 
-    // calculate cTokanes amount generated since amount was staked
-    function calculateYield(Stake storage s) view internal returns (uint256)
-    {
-        uint256 elapsedSeconds = block.timestamp - s.startTime;
-        uint256 delimeter = 365 * 1 days;
-        return (s.amount * elapsedSeconds) / delimeter; 
+    // calculate the value of the contracts holdings in USDC
+    function calculateTVL() public view returns(uint256) {
+        uint256 totalCollateral = calculateCollateral();
+        uint256 totalYield = calculateYield();
+        uint256 tvl = totalCollateral + totalYield;
+        return tvl;        
     }
 
-    function updatexWheat(address _address) external onlyOwner {
-        xWheat = _address;
-    }
-    function updatexSoy(address _address) external onlyOwner {
-        xSoy = _address;
-    }
-    function updatexCorn(address _address) external onlyOwner {
-        xCorn = _address;
-    }
-    function updatexRice(address _address) external onlyOwner {
-        xRice = _address;
+    // calculate price per token
+    function pricePerToken() public view returns(uint256) {
+        uint256 tvl = calculateTVL();
+        uint256 circulatingSupply = totalSupply();
+        uint256 xBasketPrice = tvl * 1e18 / circulatingSupply; // price is usdc (6 decimals) for 1 xBasket
+        return xBasketPrice;
     }
 
-     function setXTokenRouter(address _router) public onlyOwner {
-        xTokenRouter = IXTOKENROUTER(_router);
+    // claim rewards, sell cTokens, buy xTokens, stake new xTokens
+    function autoCompoundRewards() public {
+        IXToken(xWheat).claim();
+        IXToken(xSoy).claim();
+        IXToken(xRice).claim();
+        IXToken(xCorn).claim();
+        uint256 cWheatBalance = IERC20(cWheat).balanceOf(address(this));
+        uint256 cSoyBalance = IERC20(cSoy).balanceOf(address(this));
+        uint256 cRiceBalance = IERC20(cRice).balanceOf(address(this));
+        uint256 cCornBalance = IERC20(cCorn).balanceOf(address(this));
+       
+        ERC20Burnable(cWheat).burn(cWheatBalance);  //Sell cWheat
+        convertToXToken(xWheat); //Buy xWheat
+       
+        ERC20Burnable(cSoy).burn(cSoyBalance);  //Sell cSoy
+        convertToXToken(xSoy); //Buy xSoy
+       
+        ERC20Burnable(cRice).burn(cRiceBalance);  //Sell cRice
+        convertToXToken(xRice); //Buy xRice
+        
+        ERC20Burnable(cCorn).burn(cCornBalance); //Sell cCorn
+        convertToXToken(xCorn); //Buy xCorn
+
+        uint256 xWheatBalance = IXToken(xWheat).balanceOf(address(this));
+        uint256 xSoyBalance = IXToken(xSoy).balanceOf(address(this));
+        uint256 xRiceBalance = IXToken(xRice).balanceOf(address(this));
+        uint256 xCornBalance = IXToken(xCorn).balanceOf(address(this));
+        IXToken(xWheat).stake(xWheatBalance);
+        IXToken(xSoy).stake(xSoyBalance);
+        IXToken(xRice).stake(xRiceBalance);
+        IXToken(xCorn).stake(xCornBalance);
     }
 
-    // reclaim accidentally sent eth
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-    // reclaim accidentally sent tokens
-    function reclaimToken(address token) public onlyOwner {
-        uint256 balance = IERC20(token).balanceOf(address(this));
-        IERC20(token).transfer(msg.sender, balance);
+     function convertToXToken(address xToken) internal returns(uint256) {
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams(
+            usdc,
+            xToken,
+            3000,
+            address(this),
+            block.timestamp + 15,
+            IERC20(usdc).balanceOf(address(this)),
+            1,
+            0
+        );
+        return uniswapRouter.exactInputSingle(params);
     }
 }

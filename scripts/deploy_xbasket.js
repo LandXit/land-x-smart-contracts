@@ -28,17 +28,11 @@ async function main() {
 	const account = await web3.utils.toChecksumAddress(deployerAddress)
 	const balance = await web3.eth.getBalance(account)
 
-	let xSoy = "" //mainnet
-	let xWheat = ""
-	let xCorn = ""
-	let xRice = ""
+	let oraclePrices = "" //mainnet
 	let xTokenRouter = ""
-	if (network === "rinkeby") {
-		xSoy = "0x71da31eA7F788E8039915289789Bde99bdF3371d" //rinkeby
-		xWheat = "0x191Fd8C5821B0587b471C8103B93517F2c605DA0"
-		xCorn = "0x8ee44D1e14b7fae5257876594ccccc848B9680c9"
-		xRice = "0xF7EeF6fDed5b69778569CC2513a58B8D790e1010"
-		xTokenRouter = "0xAAB1c7e0a5bb297F837419E86E93B82bdCBC7c74"
+	if (network === "goerli") {
+		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99"
+		oraclePrices = "0x9D6EEe708a84BDa3aEb5b8C30Fc9Ee83Edd01929"
 	}
 
 	console.log(
@@ -46,13 +40,13 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await GrainPrices.deploy(xWheat, xSoy, xCorn, xRice, xTokenRouter)
+	let deployed = await GrainPrices.deploy(xTokenRouter, oraclePrices)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [xWheat, xSoy, xCorn, xRice, xTokenRouter],
+		constructorArguments: [xTokenRouter, oraclePrices],
 	})
 
 }

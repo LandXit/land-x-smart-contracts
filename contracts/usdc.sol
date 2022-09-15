@@ -64,15 +64,4 @@ contract USDC is
 		require(!blacklist[from], "sender is blacklisted");
 		super._beforeTokenTransfer(from, to, amount);
 	}
-
-	function withdraw() public onlyOwner {
-		uint256 balance = address(this).balance;
-		payable(msg.sender).transfer(balance);
-	}
-
-	function reclaimToken(IERC20 token) public onlyOwner {
-		require(address(token) != address(0));
-		uint256 balance = token.balanceOf(address(this));
-		token.transfer(msg.sender, balance);
-	}
 }
