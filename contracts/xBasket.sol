@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
+import "@openzeppelin/contracts/interfaces/IERC4626.sol";
 
 interface IxTokenRouter {
     function getCToken(string memory _name) external view returns(address);
@@ -18,8 +20,6 @@ interface IOraclePrices  {
     function usdc() external view returns(address);
 }
 
-
-
 interface IXToken is IERC20 {
     function stake(uint256 amount) external;
     function unstake(uint256 amount) external;
@@ -29,7 +29,7 @@ interface IXToken is IERC20 {
     function claim() external;
 }
 
-contract xBasket is ERC20, Ownable {
+contract xBasket is ERC20, IERC4626, Ownable {
     IxTokenRouter public xTokenRouter;
     IOraclePrices public oraclePrices;
     address public xWheat;
@@ -58,72 +58,158 @@ contract xBasket is ERC20, Ownable {
         usdc = oraclePrices.usdc();
     }
 
-    // Deposit xTokens to mint xBasket
-    function mint(uint256 _amount) external {
-        IXToken(xWheat).xBasketTransfer(msg.sender,_amount);
-        IXToken(xSoy).xBasketTransfer(msg.sender,_amount);
-        IXToken(xRice).xBasketTransfer(msg.sender,_amount);
-        IXToken(xCorn).xBasketTransfer(msg.sender,_amount);
-        IXToken(xWheat).stake(_amount);
-        IXToken(xSoy).stake(_amount);
-        IXToken(xRice).stake(_amount);
-        IXToken(xCorn).stake(_amount);
-        uint256 usdVaultValuation = calculateTVL();
-        uint256 circulatingSupply = totalSupply();
-        // This maths needs testing. From https://solidity-by-example.org/defi/vault/
-        uint256 shares;
-        if (circulatingSupply == 0) {
-            shares = _amount; // initially 1 xBasket = 0.25 of all 4 xTokens
-        } else {
-            shares = _amount * circulatingSupply / usdVaultValuation;
-        }
-        _mint(msg.sender, shares);
+     // We have 4 underlying tokens
+    function asset() public view override returns (address) {
+        return usdc;
     }
 
-    function mintPreview(uint256 _amount) public view returns (uint256) {
+    // return underlying assets amount in USDC
+    function totalAssets() public view override returns (uint256) {
+        return calculateCollateral();
+    }
+
+    function convertToShares(uint256 assets) public view override returns (uint256) {
+        return _convertToShares(assets);
+    }
+
+    function _convertToShares(uint256 assets) internal view returns (uint256 shares) {
         uint256 usdVaultValuation = calculateTVL();
         uint256 circulatingSupply = totalSupply();
-        uint256 shares;
         if (circulatingSupply == 0) {
-            shares = _amount; // initially 1 xBasket = 0.25 of all 4 xTokens
+            shares = assets; // initially 1 xBasket = 0.25 of all 4 xTokens
         } else {
-            shares = _amount * circulatingSupply / usdVaultValuation;
+            shares = assets * circulatingSupply / usdVaultValuation;
         }
         return shares;
     }
 
-    // Burn xBasket to redeem xTokens
-    function redeem(uint256 _amount) external {
-        require(balanceOf(msg.sender) >= _amount, "Your xBasket balance is too low");
-        uint256 usdVaultValuation = calculateTVL();
-        _burn(msg.sender, _amount);
-        autoCompoundRewards(); // make sure we just have xTokens in the vault on redemption.
-        uint256 circulatingSupply = totalSupply();
-        // This maths needs testing. From https://solidity-by-example.org/defi/vault/
-        uint256 redeemAmount;
-        if (circulatingSupply == 0) { 
-            redeemAmount = _amount;
-        } else {
-            redeemAmount = (_amount * usdVaultValuation) / circulatingSupply;
-        }
-        IXToken(xWheat).unstake(redeemAmount);
-        IXToken(xSoy).unstake(redeemAmount);
-        IXToken(xRice).unstake(redeemAmount);
-        IXToken(xCorn).unstake(redeemAmount);
-        IXToken(xWheat).transfer(msg.sender,redeemAmount);
-        IXToken(xSoy).transfer(msg.sender,redeemAmount);
-        IXToken(xRice).transfer(msg.sender,redeemAmount);
-        IXToken(xCorn).transfer(msg.sender,redeemAmount);
+    function convertToAssets(uint256 shares) public view override returns (uint256) {
+        return _convertToAssets(shares);
     }
 
-    function redeemPreview(uint256 _amount) public view returns (uint256) {
+    function _convertToAssets(uint256 shares) internal view  returns (uint256) {
         uint256 usdVaultValuation = calculateTVL();
         uint256 circulatingSupply = totalSupply();
         if (circulatingSupply == 0) {
-            return _amount;
+            return shares;
         }
-        uint256 redeemAmount = (_amount * usdVaultValuation) / circulatingSupply;
+        uint256 redeemAmount = (shares * usdVaultValuation) / circulatingSupply;
         return redeemAmount;
+    }
+
+    function maxDeposit(address receiver) public view virtual override returns (uint256) {
+        return _findMinAssetBalanceValue(receiver);
+    }
+
+    function maxMint(address receiver) public view virtual override returns (uint256) {
+        return _convertToShares(_findMinAssetBalanceValue(receiver));
+    }
+
+    function maxWithdraw(address owner) public view virtual override returns (uint256) {
+        return _convertToAssets(balanceOf(owner));
+    }
+
+    function maxRedeem(address owner) public view virtual override returns (uint256) {
+        return balanceOf(owner);
+    }
+
+    function previewDeposit(uint256 assets) public view virtual override returns (uint256) {
+        return _convertToShares(assets);
+    }
+
+    function previewMint(uint256 shares) public view virtual override returns (uint256) {
+        return _convertToAssets(shares);
+    }
+
+    function previewWithdraw(uint256 assets) public view virtual override returns (uint256) {
+        return _convertToShares(assets);
+    }
+
+    function previewRedeem(uint256 shares) public view virtual override returns (uint256) {
+        return _convertToAssets(shares);
+    }
+
+    function deposit(uint256 assets, address receiver) public virtual override returns (uint256) {
+        require(assets <= maxDeposit(receiver), "ERC4626: deposit more than max");
+
+        uint256 shares = previewDeposit(assets);
+        _deposit(_msgSender(), receiver, assets, shares);
+
+        return shares;
+    }
+
+    function mint(uint256 shares, address receiver) public virtual override returns (uint256) {
+        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+
+        uint256 assets = previewMint(shares);
+        _deposit(_msgSender(), receiver, assets, shares);
+
+        return assets;
+    }
+
+    function withdraw(uint256 assets, address receiver, address owner) public virtual override returns (uint256) {
+        require(assets <= maxWithdraw(owner), "ERC4626: withdraw more than max");
+
+        uint256 shares = previewWithdraw(assets);
+        _withdraw(_msgSender(), receiver, owner, assets, shares);
+
+        return shares;
+    }
+
+    function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256) {
+        require(shares <= maxRedeem(owner), "ERC4626: redeem more than max");
+
+        uint256 assets = previewRedeem(shares);
+        _withdraw(_msgSender(), receiver, owner, assets, shares);
+
+        return assets;
+    }
+
+    function _findMinAssetBalanceValue(address owner) internal view returns(uint256) {
+        uint256 xWheatBalance = IXToken(xWheat).balanceOf(owner);
+        uint256 xSoyBalance = IXToken(xSoy).balanceOf(owner);
+        uint256 xRiceBalance = IXToken(xRice).balanceOf(owner);
+        uint256 xCornBalance = IXToken(xCorn).balanceOf(owner);
+        uint256[4] memory balances = [xWheatBalance, xSoyBalance, xRiceBalance, xCornBalance];
+        uint256 smallest = xWheatBalance; 
+        uint256 i;
+        for(i = 0; i < balances.length; i++){
+            if(balances[i] < smallest) {
+                smallest = balances[i]; 
+            } 
+        }
+        return smallest;
+    }
+
+    function _deposit(address caller, address receiver, uint256 assets, uint256 shares) internal {       
+        IXToken(xWheat).xBasketTransfer(caller, assets);
+        IXToken(xSoy).xBasketTransfer(caller,  assets);
+        IXToken(xRice).xBasketTransfer(caller, assets);
+        IXToken(xCorn).xBasketTransfer(caller, assets);
+        IXToken(xWheat).stake(assets);
+        IXToken(xSoy).stake(assets);
+        IXToken(xRice).stake(assets);
+        IXToken(xCorn).stake(assets);
+        _mint(msg.sender, shares);
+        emit Deposit(caller, receiver, assets, shares);
+    }
+
+    function _withdraw(address caller, address receiver, address owner, uint256 assets, uint256 shares) internal {
+        if (caller != owner) {
+            _spendAllowance(owner, caller, shares);
+        }
+        autoCompoundRewards(); 
+        
+        _burn(owner, shares);
+        IXToken(xWheat).unstake(assets);
+        IXToken(xSoy).unstake(assets);
+        IXToken(xRice).unstake(assets);
+        IXToken(xCorn).unstake(assets);
+        IXToken(xWheat).transfer(receiver, assets);
+        IXToken(xSoy).transfer(receiver, assets);
+        IXToken(xRice).transfer(receiver, assets);
+        IXToken(xCorn).transfer(receiver, assets);
+        emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
     // calculate the value of the contracts xToken holdings in USDC
@@ -147,21 +233,15 @@ contract xBasket is ERC20, Ownable {
         
         // Valutations
         uint256 collateral;
-        collateral += (xWheatBalance + xWheatStaked) * xWheatPrice;
-        collateral += (xSoyBalance + xSoyStaked) * xSoyPrice;
-        collateral += (xRiceBalance + xRiceStaked) * xRicePrice;
-        collateral += (xCornBalance + xCornStaked) * xCornPrice;
+        collateral += (xWheatBalance + xWheatStaked) * xWheatPrice / 1e6;
+        collateral += (xSoyBalance + xSoyStaked) * xSoyPrice / 1e6;
+        collateral += (xRiceBalance + xRiceStaked) * xRicePrice / 1e6;
+        collateral += (xCornBalance + xCornStaked) * xCornPrice / 1e6;
         return collateral;        
     }
 
     // calculate the value of the contracts cToken holdings in USDC
     function calculateYield() public view returns(uint256) {
-         // cTokens Balnces  
-        uint256 cWheatBalance = IERC20(cWheat).balanceOf(address(this));
-        uint256 cSoyBalance = IERC20(cSoy).balanceOf(address(this));
-        uint256 cRiceBalance = IERC20(cRice).balanceOf(address(this));
-        uint256 cCornBalance = IERC20(cCorn).balanceOf(address(this));
-
         // Rewards Pending & USDC balance
         uint256 cWheatPending = IXToken(xWheat).availableToClaim(address(this));
         uint256 cSoyPending = IXToken(xSoy).availableToClaim(address(this));
@@ -177,10 +257,10 @@ contract xBasket is ERC20, Ownable {
 
         // Valutations
         uint256 totalYield = usdcBalance;
-        totalYield += (cWheatBalance + cWheatPending) * cWheatPrice;
-        totalYield += (cSoyBalance + cSoyPending) * cSoyPrice;
-        totalYield += (cRiceBalance + cRicePending) * cRicePrice;
-        totalYield += (cCornBalance + cCornPending) * cCornPrice;
+        totalYield += (IERC20(cWheat).balanceOf(address(this)) + cWheatPending) * cWheatPrice / 1e9;
+        totalYield += (IERC20(cSoy).balanceOf(address(this)) + cSoyPending) * cSoyPrice / 1e9;
+        totalYield += (IERC20(cRice).balanceOf(address(this)) + cRicePending) * cRicePrice / 1e9;
+        totalYield += (IERC20(cCorn).balanceOf(address(this)) + cCornPending) * cCornPrice / 1e9;
         return totalYield;    
     }
 
@@ -196,7 +276,7 @@ contract xBasket is ERC20, Ownable {
     function pricePerToken() public view returns(uint256) {
         uint256 tvl = calculateTVL();
         uint256 circulatingSupply = totalSupply();
-        uint256 xBasketPrice = tvl * 1e18 / circulatingSupply; // price is usdc (6 decimals) for 1 xBasket
+        uint256 xBasketPrice = tvl * 1e6 / circulatingSupply; // price is usdc (6 decimals) for 1 xBasket
         return xBasketPrice;
     }
 
@@ -233,17 +313,23 @@ contract xBasket is ERC20, Ownable {
         IXToken(xCorn).stake(xCornBalance);
     }
 
-     function convertToXToken(address xToken) internal returns(uint256) {
+    function convertToXToken(address xToken) internal returns(uint256) {
+        uint256 amountIn = IERC20(usdc).balanceOf(address(this));
+        TransferHelper.safeApprove(usdc, address(uniswapRouter), amountIn);
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams(
             usdc,
             xToken,
             3000,
             address(this),
             block.timestamp + 15,
-            IERC20(usdc).balanceOf(address(this)),
+            amountIn,
             1,
             0
         );
         return uniswapRouter.exactInputSingle(params);
     }
+
+    function decimals() public view virtual override(ERC20, IERC20Metadata) returns (uint8) {
+        return 6;
+	}
 }
