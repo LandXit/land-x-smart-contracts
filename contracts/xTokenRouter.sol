@@ -31,15 +31,4 @@ contract xTokenRouter is Ownable {
     {
         return tokens[crop].cToken;
     }
-
-    // reclaim accidentally sent eth
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-    
-    // reclaim accidentally sent tokens
-    function reclaimToken(address token) public onlyOwner {
-        uint256 balance = IERC20(token).balanceOf(address(this));
-        IERC20(token).transfer(msg.sender, balance);
-    }
 }

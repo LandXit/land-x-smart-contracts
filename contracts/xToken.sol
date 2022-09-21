@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
 interface ILANDXNFT {
@@ -280,6 +281,7 @@ contract XToken is
 	}
 
     function convertToUsdc(uint256 amount) internal returns(uint256) {
+        TransferHelper.safeApprove(address(this), address(uniswapRouter), amount);
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams(
             address(this),
             usdc,

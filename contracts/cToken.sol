@@ -41,19 +41,6 @@ contract CToken is
         _burn(msg.sender, amount);
     }
 
-    // reclaim accidentally sent eth
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-
-
-    // reclaim accidentally sent tokens
-    function reclaimToken(IERC20 token) public onlyOwner {
-        require(address(token) != address(0));
-        uint256 balance = token.balanceOf(address(this));
-        token.transfer(msg.sender, balance);
-    }
-
     function setRentFoundation(address _address) public onlyOwner {
         rentFoundation = IRENTFOUNDATION(_address);
     }
