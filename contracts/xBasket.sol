@@ -42,9 +42,9 @@ contract xBasket is ERC20, IERC4626, Ownable {
     address public cRice;
     address public usdc;
 
-    ISwapRouter public constant uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    ISwapRouter public uniswapRouter;
     
-    constructor(address _xTokenRouter, address _oraclePrices) ERC20("xBasket LandX Index Fund", "xBASKET") {
+    constructor(address _xTokenRouter, address _oraclePrices, address _uniswapRouter) ERC20("xBasket LandX Index Fund", "xBASKET") {
         xTokenRouter = IxTokenRouter(_xTokenRouter);
         oraclePrices = IOraclePrices(_oraclePrices);
         xWheat = xTokenRouter.getXToken("WHEAT");
@@ -56,6 +56,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         cRice = xTokenRouter.getCToken("RICE");
         cCorn = xTokenRouter.getCToken("CORN");
         usdc = oraclePrices.usdc();
+        uniswapRouter = ISwapRouter(_uniswapRouter);
     }
 
      // We have 4 underlying tokens

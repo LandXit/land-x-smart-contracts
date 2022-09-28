@@ -32,10 +32,10 @@ contract OraclePrices is
 
     IKeyProtocolValues public keyProtocolValues;
 
-    address public uniswapFactory = address(0x1F98431c8aD98523631AE4a59f267346ea31F984);
+    IUniswapV3Factory public uniswapFactory;
     address public usdc = address(0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841); // to be changed for mainnet
 
-    constructor(address _address, address _xWheat, address _xSoy, address _xCorn, address _xRice, address _keyProtocolValue)
+    constructor(address _address, address _xWheat, address _xSoy, address _xCorn, address _xRice, address _keyProtocolValue, address _uniswapFactory)
     {
         _setupRole(DEFAULT_ADMIN_ROLE, _address);
 
@@ -49,6 +49,7 @@ contract OraclePrices is
         xTokenPrices[_xSoy] = 8140000;
         xTokenPrices[_xRice] = 6000000;
         keyProtocolValues = IKeyProtocolValues(_keyProtocolValue);
+        uniswapFactory = IUniswapV3Factory(_uniswapFactory);
 	}
 
     function setGrainPrice(string memory grain, uint256 price) public {

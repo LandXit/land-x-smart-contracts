@@ -32,7 +32,8 @@ async function main() {
 		"ETH"
 	)
 
-	const deployed = await LandXNFTContract.deploy()
+	kv = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
+	const deployed = await LandXNFTContract.deploy(kv)
 
 	let dep = await deployed.deployed()
 
@@ -41,7 +42,7 @@ async function main() {
 	await sleep(70000) //30 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [],
+		constructorArguments: [kv],
 	})
 }
 

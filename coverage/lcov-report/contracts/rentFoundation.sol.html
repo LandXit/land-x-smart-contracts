@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/rentFoundation.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> rentFoundation.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/9</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/38</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.6;
+&nbsp;
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+&nbsp;
+interface ILANDXNFT{
+    function landArea(uint256 id) external view returns (uint256);
+&nbsp;
+    function rent(uint256 id) external view returns (uint256);
+&nbsp;
+    function crop(uint256 id) external view returns (string memory);
+}
+&nbsp;
+interface IXTOKENROUTER{
+        function getXToken(string memory _name) external view returns(address);
+        function getCToken(string memory _name) external view returns(address);
+    } 
+&nbsp;
+interface IGRAINPRICES {
+	    function prices(string memory grain) external pure returns(uint256);
+    }
+&nbsp;
+interface ICrop {
+        function crop() external pure returns(string memory);
+    }
+&nbsp;
+interface IKEYPROTOCOLVALUES {
+    function landxOperationalWallet() external pure returns(address);
+    function landxChoiceWallet() external pure returns(address);
+    function landXOpertationsPercentage() external pure returns(uint256);
+    function landXChoicePercentage() external pure returns(uint256);
+    function lndxHoldersPercentage() external pure returns(uint256);
+    function hedgeFundAllocation() external pure returns(uint256);
+    function hedgeFundWallet() external pure returns (address);
+    function cTokenSellFee() external pure returns (uint256);
+    function validatorCommission() external pure returns(uint256);
+    function validatorCommisionWallet() external pure returns(address);
+    function payRentFee() external pure returns(uint256);
+}
+&nbsp;
+contract RentFoundation is 
+    Context,
+    Ownable
+{
+    IERC20 public usdc;
+&nbsp;
+    address public lndx;
+&nbsp;
+    ILANDXNFT public landXNFT; //address of landXNFT
+&nbsp;
+    IGRAINPRICES public grainPrices;
+    
+    IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
+    IKEYPROTOCOLVALUES public keyProtocolValues;
+&nbsp;
+    event rentPaid(uint256 tokenID, uint256 amount);
+    event initialRentPaid(uint256 tokenID, uint256 amount);
+&nbsp;
+    struct deposit {
+        uint256 timestamp;
+        uint256 amount; // in kg
+        int256 depositBalance; //in kg
+    }
+&nbsp;
+    mapping (uint256 =&gt; deposit) public deposits;
+&nbsp;
+    mapping(uint256 =&gt; bool) public initialRentApplied;
+&nbsp;
+<span class="fstat-no" title="function not covered" >    constructor(address _usdc, address _lndx, address _keyProtokolValues)</span>
+    {
+		usdc = IERC20(_usdc);
+        lndx = _lndx;
+        keyProtocolValues = IKEYPROTOCOLVALUES(_keyProtokolValues);
+	}
+&nbsp;
+    // deposit rent for token ID, in USDC
+<span class="fstat-no" title="function not covered" >    function payRent(uint256 tokenID, uint256 amount) public {</span>
+<span class="cstat-no" title="statement not covered" >        require(initialRentApplied[tokenID], "Initial rent was not applied")</span>;
+<span class="cstat-no" title="statement not covered" >        require(usdc.transferFrom(msg.sender, address(this), amount), "transfer failed")</span>;
+<span class="cstat-no" title="statement not covered" >        uint256 platformFee = amount * keyProtocolValues.payRentFee() / 10000;</span>
+<span class="cstat-no" title="statement not covered" >        uint256 validatorFee = amount * keyProtocolValues.validatorCommission() / 10000;</span>
+<span class="cstat-no" title="statement not covered" >        usdc.transfer(keyProtocolValues.hedgeFundWallet(),(amount - platformFee - validatorFee) * keyProtocolValues.hedgeFundAllocation() / 10000)</span>;
+<span class="cstat-no" title="statement not covered" >        usdc.transfer(keyProtocolValues.validatorCommisionWallet(), validatorFee)</span>;
+<span class="cstat-no" title="statement not covered" >        uint256 grainAmount = (amount - platformFee - validatorFee) / grainPrices.prices(landXNFT.crop(tokenID));</span>
+<span class="cstat-no" title="statement not covered" >        feeDistributor(platformFee)</span>;
+        deposits[tokenID].amount += grainAmount;
+<span class="cstat-no" title="statement not covered" >        emit rentPaid(tokenID, grainAmount);</span>
+    }
+&nbsp;
+    // prepay initial rent after sharding in kg
+<span class="fstat-no" title="function not covered" >   function payInitialRent(uint256 tokenID, uint256 amount) external {</span>
+<span class="cstat-no" title="statement not covered" >        string memory crop = ICrop(msg.sender).crop();</span>
+<span class="cstat-no" title="statement not covered" >        require(!initialRentApplied[tokenID], "Initial Paymant already applied")</span>;
+<span class="cstat-no" title="statement not covered" >        require(xTokenRouter.getXToken(crop) == msg.sender, "not initial payer")</span>;
+        deposits[tokenID].timestamp = block.timestamp;
+        deposits[tokenID].amount = amount;
+        initialRentApplied[tokenID] = true;
+<span class="cstat-no" title="statement not covered" >        emit initialRentPaid(tokenID, amount);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function getDepositBalance(uint256 tokenID) public view returns(int256) {</span>
+<span class="cstat-no" title="statement not covered" >        uint256 elapsedSeconds = block.timestamp - deposits[tokenID].timestamp;</span>
+<span class="cstat-no" title="statement not covered" >        uint256 delimeter = 365 * 1 days;</span>
+<span class="cstat-no" title="statement not covered" >        uint256 rentPerSecond = landXNFT.rent(tokenID) * landXNFT.landArea(tokenID) / (10000 * delimeter);</span>
+<span class="cstat-no" title="statement not covered" >        return int256(deposits[tokenID].amount) - int256(rentPerSecond * elapsedSeconds);</span>
+    }
+    
+<span class="fstat-no" title="function not covered" >    function sellCToken(address account, uint256 amount) public {</span>
+<span class="cstat-no" title="statement not covered" >        string memory crop = ICrop(msg.sender).crop();</span>
+<span class="cstat-no" title="statement not covered" >        require(xTokenRouter.getCToken(crop) == msg.sender, "no valid cToken")</span>;
+<span class="cstat-no" title="statement not covered" >        uint256 usdcAmount = amount * grainPrices.prices(crop) / (10 ** 9);</span>
+<span class="cstat-no" title="statement not covered" >        uint256 cellTokenFee = usdcAmount * keyProtocolValues.cTokenSellFee() / 10000;</span>
+<span class="cstat-no" title="statement not covered" >        usdc.transfer(account, usdcAmount - cellTokenFee)</span>;
+<span class="cstat-no" title="statement not covered" >        feeDistributor(cellTokenFee)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >     function feeDistributor(uint256 _fee) internal {</span>
+<span class="cstat-no" title="statement not covered" >        uint256 lndxFee = _fee * keyProtocolValues.lndxHoldersPercentage() / 10000;</span>
+<span class="cstat-no" title="statement not covered" >        uint256 operationalFee = _fee * keyProtocolValues.landXOpertationsPercentage() / 10000;</span>
+<span class="cstat-no" title="statement not covered" >        usdc.transfer(lndx, lndxFee)</span>;
+<span class="cstat-no" title="statement not covered" >        usdc.transfer(keyProtocolValues.landxOperationalWallet(), operationalFee)</span>;
+<span class="cstat-no" title="statement not covered" >        usdc.transfer(keyProtocolValues.landxChoiceWallet(),_fee - lndxFee -operationalFee)</span>;
+    } 
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setXTokenRouter(address _router) public onlyOwner {</span>
+        xTokenRouter = IXTOKENROUTER(_router);
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function setGrainPrices(address _grainPrices) public onlyOwner {</span>
+        grainPrices = IGRAINPRICES(_grainPrices);
+    }
+    
+    // change the address of landxNFT.
+<span class="fstat-no" title="function not covered" >    function changeLandXNFTAddress(address _newAddress) public onlyOwner {</span>
+        landXNFT = ILANDXNFT(_newAddress);
+    }
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Sep 28 2022 13:24:24 GMT+0300 (Moscow Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

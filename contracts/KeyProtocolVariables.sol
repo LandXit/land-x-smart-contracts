@@ -15,7 +15,7 @@ contract KeyProtocolVariables is Ownable{
     uint256 public cTokenSellFee = 1000; // 10%
     uint256 public payRentFee = 150; // 1.5%
 
-    uint256 public validatorCommission = 25; // 2.5%
+    uint256 public validatorCommission = 25; // 0.25%
     
     mapping(string => uint256) public maxAllowableCropShare;
 

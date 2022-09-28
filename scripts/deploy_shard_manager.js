@@ -35,13 +35,17 @@ async function main() {
 	let nftAddress = "" //mainnet
 	let xTokenRouter = "" 
 	let rentFoundation = ""
-	if (network === "rinkeby") {
-		nftAddress = "0xc6591e208b5B3FC2CB01644bbF3a8fFd1D56fD70" //rinkeby
-		xTokenRouter = "0xAAB1c7e0a5bb297F837419E86E93B82bdCBC7c74" //rinkeby
-		rentFoundation = "0x28890cA5acB1aFB6F993e73ea270eB53215fccBA"
+	let uniswapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+	if (network === "goerli") {
+		nftAddress = "0xAd968fcB7874c7502a51E5A5EFb4e96937425A72" //rinkeby
+		lndx = "0x3931C703BEdB4f00f602f3F5F7838801F0b5BEb0"
+		usdc = "0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841"
+		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99" //rinkeby
+		rentFoundation = "0x1D9aeA41741999e665A20391848EB86F0958b7F7"
+		kv ="0x84E7CaB66182791864C411E7dF16584FC1400A5a"
 	}
 
-	const deployed = await ShardManagerC.deploy(nftAddress, rentFoundation, xTokenRouter)
+	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, kv, uniswapRouter)
 
 	let dep = await deployed.deployed()
 
@@ -50,7 +54,7 @@ async function main() {
 	await sleep(70000) //40 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nftAddress, rentFoundation, xTokenRouter],
+		constructorArguments: [nftAddress, lndx, usdc, rentFoundation, xTokenRouter, kv, uniswapRouter],
 	})
 }
 

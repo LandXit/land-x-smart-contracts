@@ -35,8 +35,9 @@ contract LandXNFT is ERC1155, Ownable {
 
     //1 shard = (landArea * rent) /  10000
 
-    constructor(address _keyProtocolValues) ERC1155(_baseTokenURI) {
+    constructor(address _keyProtocolValues, address _xTokenRouter) ERC1155(_baseTokenURI) {
         keyProtocolValues = IKEYPROTOKOLVALUES(_keyProtocolValues);
+        xTokenRouter = IXTOKENROUTER(_xTokenRouter);
     }
 
     /**@dev sets the token details. price is in *wei* */

@@ -81,7 +81,7 @@ contract XToken is
     IGRAINPRICES public grainPrices;
     IKEYPROTOKOLVALUES public keyProtocolValues;
 
-    ISwapRouter public constant uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
+    ISwapRouter public uniswapRouter;
 
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
@@ -102,7 +102,7 @@ contract XToken is
     event Sharded(uint256 nftID, uint256 amount, string name);
     event BuyOut(uint256 nftID, uint256 amount, string name);
 
-    constructor(address _landXNFT, address _lndx, address _usdc, address _rentFoundation, address _xTokenRouter, address _keyProtocolValues)
+    constructor(address _landXNFT, address _lndx, address _usdc, address _rentFoundation, address _xTokenRouter, address _keyProtocolValues, address _uniswapRouter)
         ERC20Permit("xCORN")
         ERC20("LandX xToken", "xCORN")
     {
@@ -112,6 +112,7 @@ contract XToken is
         rentFoundation = IRENTFOUNDATION(_rentFoundation);
         xTokenRouter = IXTOKENROUTER(_xTokenRouter);
         keyProtocolValues = IKEYPROTOKOLVALUES(_keyProtocolValues);
+        uniswapRouter = ISwapRouter(_uniswapRouter);
     }
 
     //deposits an NFT to get shards equivalence
@@ -126,6 +127,8 @@ contract XToken is
             "you must own this NFT"
         );
 
+        require(rentFoundation.initialRentApplied(_id) == false, "rent was already applied");
+
         initialOwner[_id] = msg.sender; //set the initial owner
 
         //transfers the nft. must have setApprovalForAll
@@ -137,8 +140,8 @@ contract XToken is
         uint256 fee = _calcFee(shards);
 
         uint256 annualRent = getAnnualRentAmount(_id);
-        uint256 xTokensAnnualRent = annualRent * grainPrices.prices(crop) * grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) / (1e6 * 1e9);
-        uint256 toSecurityDepositsAmount = (annualRent / 12  * keyProtocolValues.securityDepositMonths()) * grainPrices.prices(crop) * grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) / (1e6 * 1e9);
+        uint256 xTokensAnnualRent = annualRent * grainPrices.prices(crop) / grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) * 1e3;
+        uint256 toSecurityDepositsAmount = xTokensAnnualRent / 12 * keyProtocolValues.securityDepositMonths();
       
         if (keyProtocolValues.preLaunch()) {
             _transfer(address(this), keyProtocolValues.landxOperationalWallet(), xTokensAnnualRent);
@@ -155,11 +158,6 @@ contract XToken is
          _transfer(address(this), keyProtocolValues.xTokensSecurityWallet(), toSecurityDepositsAmount);
          _transfer(address(this), msg.sender, shards - fee - xTokensAnnualRent - toSecurityDepositsAmount);
          rentFoundation.payInitialRent(_id, annualRent);
-
-        if (landXNFT.initialOwner(_id) != msg.sender && !rentFoundation.initialRentApplied(_id)) {
-            revert("Cannot shard token by not landowner without initial rent applied");
-        }
-        
         emit Sharded(_id, shards, symbol());
     }
 
@@ -301,11 +299,11 @@ contract XToken is
         require(xTokenRouter.getXToken(landXNFT.crop(id)) == address(this), "Unable to shard this NFT");
         uint256 shards = (landXNFT.landArea(id) * landXNFT.rent(id) * 1e6) / 10000;
         uint256 annualRent = getAnnualRentAmount(id);
-        uint256 toSecurityDepositsAmount = (annualRent / 12  * keyProtocolValues.securityDepositMonths()) * grainPrices.prices(crop) * grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) / (1e6 * 1e9);
+        uint256 xTokensAnnualRent = annualRent * grainPrices.prices(crop) / grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) * 1e3;
+        uint256 toSecurityDepositsAmount = xTokensAnnualRent / 12 * keyProtocolValues.securityDepositMonths();
         uint256 fee = _calcFee(shards);
-        uint256 xTokensToInitialDeposit = annualRent * grainPrices.prices(crop) * grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) / (1e6 * 1e9);
-        uint256 toBeReceived = shards - fee - xTokensToInitialDeposit - toSecurityDepositsAmount;
-        return (shards, fee, xTokensToInitialDeposit + toSecurityDepositsAmount, toBeReceived);    
+        uint256 toBeReceived = shards - fee - xTokensAnnualRent - toSecurityDepositsAmount;
+        return (shards, fee, xTokensAnnualRent + toSecurityDepositsAmount, toBeReceived);    
     }
 
     function decimals() public pure override returns (uint8) {
