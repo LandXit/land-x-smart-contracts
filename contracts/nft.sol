@@ -10,51 +10,48 @@ interface IXTOKENROUTER {
     function getXToken(string memory _name) external view returns(address); 
 }
 
-interface IKEYPROTOKOLVALUES {
-    function maxAllowableCropShare(string memory grain) external pure returns(uint256);
-}
-
 contract LandXNFT is ERC1155, Ownable {
     using Strings for string;
 
     IXTOKENROUTER public xTokenRouter;
-    IKEYPROTOKOLVALUES public keyProtocolValues;
 
     // other parameters
     string private _baseTokenURI =
         "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/";
-    string private _contractURI =
-        "https://raw.githubusercontent.com/AndreiD/Playground/master/nfts_sample/contract_uri";
 
     mapping(uint256 => uint256) public totalSupply;
-    mapping(uint256 => uint256) public landArea; // in square-meters
-    mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
+    mapping(uint256 => uint256) public landArea; // total area in square-meters
+    mapping(uint256 => uint256) public tillableArea; // tillable area in square-meters
+    mapping(uint256 => uint256) public cropShare; //crop share
     mapping(uint256 => string)  public crop; // ["SOY", "RICE" ....]
     mapping(uint256 => address) public validator; // validator or landowner
+    mapping(uint256 => bytes32) public lienAgreementHash; //sha256 hash of lien documents
     mapping(uint256 => address) public initialOwner;
 
-    //1 shard = (landArea * rent) /  10000
-
-    constructor(address _keyProtocolValues, address _xTokenRouter) ERC1155(_baseTokenURI) {
-        keyProtocolValues = IKEYPROTOKOLVALUES(_keyProtocolValues);
+    constructor(address _xTokenRouter, string memory _uri) ERC1155(_baseTokenURI) {
         xTokenRouter = IXTOKENROUTER(_xTokenRouter);
+        _baseTokenURI = _uri;
     }
 
     /**@dev sets the token details. price is in *wei* */
     function setDetailsAndMint(
         uint256 _index, 
         uint256 _landArea,
-        uint256 _yield,
+        uint256 _tillableArea,
+        uint256 _cropShare,
         address _validator,
+        bytes32 _lienAgreementHash,
         string memory _crop,
         address _to
     ) public onlyOwner{
         require(totalSupply[_index] == 0, "tokenID already minted");
         require(xTokenRouter.getXToken(_crop) != address(0), "xToken is not defined");
         landArea[_index] = _landArea;
-        rent[_index] = _yield * keyProtocolValues.maxAllowableCropShare(_crop) / 10000;
+        tillableArea[_index] = _tillableArea;
+        cropShare[_index] = _cropShare;
         crop[_index] = _crop;
         validator[_index] = _validator;
+        lienAgreementHash[_index] = _lienAgreementHash;
         totalSupply[_index] = totalSupply[_index] + 1;
         initialOwner[_index] = _to;
         _mint(_to, _index, 1, "0x0000");
@@ -76,14 +73,6 @@ contract LandXNFT is ERC1155, Ownable {
 
     function setBaseURI(string memory newuri) public onlyOwner {
         _baseTokenURI = newuri;
-    }
-
-    function setContractURI(string memory newuri) public onlyOwner {
-        _contractURI = newuri;
-    }
-
-    function contractURI() public view returns (string memory) {
-        return _contractURI;
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {

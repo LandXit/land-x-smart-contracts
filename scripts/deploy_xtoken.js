@@ -32,20 +32,25 @@ async function main() {
 		"ETH"
 	)
 
-	let nftAddress = "" //mainnet
+	//mainnet
+	let nftAddress = "" 
 	let xTokenRouter = "" 
 	let rentFoundation = ""
 	let uniswapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+	let keyProtocalValues = ""
+	let name = "xCORN"
+	let oraclePrices = ""
 	if (network === "goerli") {
-		nftAddress = "0xAd968fcB7874c7502a51E5A5EFb4e96937425A72" //rinkeby
+		nftAddress = "0xAd968fcB7874c7502a51E5A5EFb4e96937425A72"
 		lndx = "0x3931C703BEdB4f00f602f3F5F7838801F0b5BEb0"
 		usdc = "0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841"
-		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99" //rinkeby
+		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99" 
 		rentFoundation = "0x1D9aeA41741999e665A20391848EB86F0958b7F7"
-		kv ="0x84E7CaB66182791864C411E7dF16584FC1400A5a"
+		keyProtocalValues ="0x84E7CaB66182791864C411E7dF16584FC1400A5a"
+		oraclePrices = "x84E7CaB66182791864C411E7dF16584FC1400A5a"
 	}
 
-	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, kv, uniswapRouter)
+	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, uniswapRouter, oraclePrices, name)
 
 	let dep = await deployed.deployed()
 
@@ -54,7 +59,7 @@ async function main() {
 	await sleep(70000) //40 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nftAddress, lndx, usdc, rentFoundation, xTokenRouter, kv, uniswapRouter],
+		constructorArguments: [nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, uniswapRouter, oraclePrices, name],
 	})
 }
 

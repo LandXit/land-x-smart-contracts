@@ -10,9 +10,9 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import '@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol';
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 
-interface ILANDXNFT {
-    function landArea(uint256 id) external view returns (uint256);
-    function rent(uint256 id) external view returns (uint256);
+interface ILandxNFT {
+    function tillableArea(uint256 id) external view returns (uint256);
+    function cropShare(uint256 id) external view returns (uint256);
     function crop(uint256 id) external view returns (string memory);
     function initialOwner(uint256 id) external view returns (address);
     function balanceOf(address account, uint256 id)
@@ -28,26 +28,26 @@ interface ILANDXNFT {
     ) external;
 }
 
-interface IXTOKENROUTER {
+interface IXTokenRouter {
     function getXToken(string memory _name) external view returns(address);
     function getCToken(string memory _name) external view returns(address);
 }
 
-interface IRENTFOUNDATION {
+interface IRentFoundation {
     function initialRentApplied(uint256 tokenID) external view returns(bool);
     function payInitialRent(uint256 tokenID, uint256 amount) external;
 }
 
-interface ICTOKEN {
+interface ICToken {
     function mint(address account, uint256 amount) external;
 }
 
-interface IGRAINPRICES {
+interface IOraclePrices {
 	function prices(string memory grain) external pure returns(uint256);
     function getXTokenPrice(address xToken) external view returns(uint256);
 }
 
-interface IKEYPROTOKOLVALUES {
+interface IKeyProtocolValues {
     function xTokenMintFee() external pure returns(uint256);
     function securityDepositMonths() external pure returns(uint8);
     function xTokensSecurityWallet() external pure returns(address);
@@ -62,7 +62,7 @@ interface IKEYPROTOKOLVALUES {
 }
 
 //xToken NFT in = shards. xToken in = NFT
-//1 xToken = (landArea * rent) /  10000
+//1 xToken = (tillableArea * cropShare) /  10000
 contract XToken is
     Context,
     ERC20Permit,
@@ -75,11 +75,11 @@ contract XToken is
     address public lndx;
     address public usdc;
 
-    ILANDXNFT public landXNFT; //address of landXNFT
-    IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
-    IRENTFOUNDATION public rentFoundation;
-    IGRAINPRICES public grainPrices;
-    IKEYPROTOKOLVALUES public keyProtocolValues;
+    ILandxNFT public landXNFT; //address of landXNFT
+    IXTokenRouter public xTokenRouter; // address of xTokenRouter
+    IRentFoundation public rentFoundation;
+    IOraclePrices public oraclePrices;
+    IKeyProtocolValues public keyProtocolValues;
 
     ISwapRouter public uniswapRouter;
 
@@ -102,23 +102,34 @@ contract XToken is
     event Sharded(uint256 nftID, uint256 amount, string name);
     event BuyOut(uint256 nftID, uint256 amount, string name);
 
-    constructor(address _landXNFT, address _lndx, address _usdc, address _rentFoundation, address _xTokenRouter, address _keyProtocolValues, address _uniswapRouter)
-        ERC20Permit("xCORN")
-        ERC20("LandX xToken", "xCORN")
+    constructor(
+        address _landXNFT, 
+        address _lndx, 
+        address _usdc, 
+        address _rentFoundation, 
+        address _xTokenRouter, 
+        address _keyProtocolValues, 
+        address _uniswapRouter,
+        address _oraclePrices,
+        string memory _name // "xSOY, xCORN etc"
+        ) 
+        ERC20Permit(_name) 
+        ERC20("LandX xToken", _name)
     {
-        landXNFT = ILANDXNFT(_landXNFT);
+        landXNFT = ILandxNFT(_landXNFT);
         lndx = _lndx;
         usdc = _usdc;
-        rentFoundation = IRENTFOUNDATION(_rentFoundation);
-        xTokenRouter = IXTOKENROUTER(_xTokenRouter);
-        keyProtocolValues = IKEYPROTOKOLVALUES(_keyProtocolValues);
+        rentFoundation = IRentFoundation(_rentFoundation);
+        xTokenRouter = IXTokenRouter(_xTokenRouter);
+        keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
         uniswapRouter = ISwapRouter(_uniswapRouter);
+        oraclePrices = IOraclePrices(_oraclePrices);
     }
 
     //deposits an NFT to get shards equivalence
     function getShards(uint256 _id) external {
-        require(landXNFT.landArea(_id) > 0, "this NFT has no land area set");
-        require(landXNFT.rent(_id) > 0, "this NFT has no rent set");
+        require(landXNFT.tillableArea(_id) > 0, "this NFT has no land area set");
+        require(landXNFT.cropShare(_id) > 0, "this NFT has no crop share set");
         require(landXNFT.initialOwner(_id) == msg.sender, "only initial owner can shard");
         require(keccak256(abi.encodePacked(landXNFT.crop(_id))) == keccak256(abi.encodePacked(crop)), "wrong crop");
         require(xTokenRouter.getXToken(crop) == address(this), "tokens are not set for this crop");
@@ -134,13 +145,13 @@ contract XToken is
         //transfers the nft. must have setApprovalForAll
         landXNFT.safeTransferFrom(msg.sender, address(this), _id, 1, "");
 
-        uint256 shards = landXNFT.landArea(_id) * (landXNFT.rent(_id)) * (10**uint256(6)) / 10000;
+        uint256 shards = landXNFT.tillableArea(_id) * (landXNFT.cropShare(_id)) * (10**uint256(6)) / 10000;
         _mint(address(this), shards);
 
         uint256 fee = _calcFee(shards);
 
         uint256 annualRent = getAnnualRentAmount(_id);
-        uint256 xTokensAnnualRent = annualRent * grainPrices.prices(crop) / grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) * 1e3;
+        uint256 xTokensAnnualRent = annualRent * oraclePrices.prices(crop) / oraclePrices.getXTokenPrice(xTokenRouter.getXToken(crop)) * 1e3;
         uint256 toSecurityDepositsAmount = xTokensAnnualRent / 12 * keyProtocolValues.securityDepositMonths();
       
         if (keyProtocolValues.preLaunch()) {
@@ -168,7 +179,7 @@ contract XToken is
             "only initial owner can redeem the NFT"
         );
 
-        uint256 shards = landXNFT.landArea(_id) * landXNFT.rent(_id)  * (10**uint256(6)) / 10000;
+        uint256 shards = landXNFT.tillableArea(_id) * landXNFT.cropShare(_id)  * (10**uint256(6)) / 10000;
 
         //burns shards!
         burn(shards);
@@ -201,7 +212,7 @@ contract XToken is
         address cToken = xTokenRouter.getCToken(crop);
         uint256 yield = calculateYield(Staked[msg.sender]);
         TotalYield = TotalYield + calculateTotalYield() - (Yield[msg.sender] + yield);
-        ICTOKEN(cToken).mint(msg.sender,  (Yield[msg.sender] + yield));
+        ICToken(cToken).mint(msg.sender,  (Yield[msg.sender] + yield));
         Claimed[msg.sender] += (Yield[msg.sender] + yield);
         Staked[msg.sender].startTime = block.timestamp;
         TotalStaked.startTime = block.timestamp;
@@ -244,7 +255,7 @@ contract XToken is
 
     // change the address of landxNFT.
     function changeLandXNFTAddress(address _newAddress) public onlyOwner {
-        landXNFT = ILANDXNFT(_newAddress);
+        landXNFT = ILandxNFT(_newAddress);
     }
 
     // change the address of xBasket.
@@ -253,11 +264,11 @@ contract XToken is
     }
 
     function setRentFoundation(address _address) public onlyOwner {
-        rentFoundation = IRENTFOUNDATION(_address);
+        rentFoundation = IRentFoundation(_address);
     }
 
-    function setGrainPrices(address _grainPrices) public onlyOwner {
-        grainPrices = IGRAINPRICES(_grainPrices);
+    function setOraclePrices(address _oraclePrices) public onlyOwner {
+        oraclePrices = IOraclePrices(_oraclePrices);
     }
 
     function _calcFee(uint256 amount) internal view returns (uint256) {
@@ -266,14 +277,14 @@ contract XToken is
 	}
 
     function setXTokenRouter(address _router) public onlyOwner {
-        xTokenRouter = IXTOKENROUTER(_router);
+        xTokenRouter = IXTokenRouter(_router);
     }
 
     // return annual rent amount in kg
     function getAnnualRentAmount(uint256 tokenID) public view returns (uint256)
 	{
-		uint256 rent = landXNFT.rent(tokenID);
-		uint256 area = landXNFT.landArea(tokenID);
+		uint256 rent = landXNFT.cropShare(tokenID);
+		uint256 area = landXNFT.tillableArea(tokenID);
 
 		return (rent * area) / 10000;
 	}
@@ -294,12 +305,12 @@ contract XToken is
     }
 
     function preview(uint256 id) public view returns(uint256, uint256, uint256, uint256) {
-        require(landXNFT.landArea(id) > 0, "this NFT has no land area set");
-        require(landXNFT.rent(id) > 0, "this NFT has no rent set");
+        require(landXNFT.tillableArea(id) > 0, "this NFT has no land area set");
+        require(landXNFT.cropShare(id) > 0, "this NFT has no crop share set");
         require(xTokenRouter.getXToken(landXNFT.crop(id)) == address(this), "Unable to shard this NFT");
-        uint256 shards = (landXNFT.landArea(id) * landXNFT.rent(id) * 1e6) / 10000;
+        uint256 shards = (landXNFT.tillableArea(id) * landXNFT.cropShare(id) * 1e6) / 10000;
         uint256 annualRent = getAnnualRentAmount(id);
-        uint256 xTokensAnnualRent = annualRent * grainPrices.prices(crop) / grainPrices.getXTokenPrice(xTokenRouter.getXToken(crop)) * 1e3;
+        uint256 xTokensAnnualRent = annualRent * oraclePrices.prices(crop) / oraclePrices.getXTokenPrice(xTokenRouter.getXToken(crop)) * 1e3;
         uint256 toSecurityDepositsAmount = xTokensAnnualRent / 12 * keyProtocolValues.securityDepositMonths();
         uint256 fee = _calcFee(shards);
         uint256 toBeReceived = shards - fee - xTokensAnnualRent - toSecurityDepositsAmount;
