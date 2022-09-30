@@ -1,0 +1,2493 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="description" content="None" />
+      <link rel="shortcut icon" href="img/favicon.ico" />
+    <title>LandX Smart Contract Documentation</title>
+    <link rel="stylesheet" href="css/theme.css" />
+    <link rel="stylesheet" href="css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "LandX Smart Contracts Documentation";
+        var mkdocs_page_input_path = "index.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="." class="icon icon-home"> LandX Smart Contract Documentation
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href=".">LandX Smart Contracts Documentation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#landx-smart-contract-interaction-overview">Landx Smart contract interaction overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#deployment-steps">Deployment steps</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#build-and-test">Build and test</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#contracts-under-review">Contracts Under Review</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsnftsol">contracts/nft.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsxtokensol">contracts/xToken.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsctokensol">contracts/cToken.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsxbasketsol">contracts/xBasket.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsrentfoundationsol">contracts/rentFoundation.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsoraclepricessol">contracts/OraclePrices.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsxtokenroutersol">contracts/xTokenRouter.sol</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractskeyprotocolvariablessol">contracts/KeyProtocolVariables.sol</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#contracts-functions-description">Contracts functions description</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#contractsnftsol_1">contracts/nft.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#setdetailsandmint">setDetailsAndMint</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractxtokensol">contract/xToken.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#getshards">getShards</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#getthenft">getTheNFT</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#stake">stake</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#unstake">unstake</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#claim">claim</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#availabletoclaim">availableToClaim</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#totalavailabletoclaim">totalAvailableToClaim</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#preview">preview</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#xbaskettransfer">xBasketTransfer</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#changelandxnftaddress">changeLandXNFTAddress</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#changexbasketaddress">changeXBasketAddress</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setrentfoundation">setRentFoundation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setgrainprices">setGrainPrices</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setxtokenrouter">setXTokenRouter</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractctokensol">contract/cToken.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#mint">mint</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#burn">burn</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setrentfoundation_1">setRentFoundation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setxtokenrouter_1">setXTokenRouter</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractxbasketsol">contract/xBasket.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#asset">asset</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#totalassets">totalAssets</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#converttoshares">convertToShares</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#converttoassets">convertToAssets</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#maxdeposit">maxDeposit</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#maxmint">maxMint</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#maxwithdraw">maxWithdraw</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#maxredeem">maxRedeem</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#previewdeposit">previewDeposit</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#previewmint">previewMint</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#previewwithdarw">previewWithdarw</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#previewredeem">previewRedeem</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#deposit">deposit</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#mint_1">mint</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#withdraw">withdraw</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#redeem">redeem</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#calculateyield">calculateYield</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#calculatetvl">calculateTVL</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#pricepertoken">pricePerToken</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#autocompoundrewards">autoCompoundRewards</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractoraclepricessol">contract/OraclePrices.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#setgrainprice">setGrainPrice</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setxtokenprice">setXTokenPrice</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#getxtokenprice">getXTokenPrice</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractrentfoundationsol">contract/rentFoundation.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#payrent">payRent</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#payinitialrent">payInitialRent</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#getdepositbalance">getDepositBalance</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#sellctoken">sellCToken</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setgrainprices_1">setGrainPrices</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#setxtokenrouter_2">setXTokenRouter</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#changelandxnftaddress_1">changeLandXNFTAddress</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractkeyprotocolvariablessol">contract/KeyProtocolVariables.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#updatextokenmintfee">updateXTokenMintFee</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatectokensellfee">updateCTokenSellFee</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatepayrentfee">updatePayRentFee</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatemaxallowablecropshare">updateMaxAllowableCropShare</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatehedgefundallocation">updateHedgeFundAllocation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatesecuritydepositmonths">updateSecurityDepositMonths</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatefeedistributionpercentage">updateFeeDistributionPercentage</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatehedgefundwallet">updateHedgeFundWallet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatelandxoperationalwallet">updateLandxOperationalWallet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatelandxchoicewallet">updateLandxChoiceWallet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatextokenssecuritywallet">updateXTokensSecurityWallet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#updatevalidatorcommisionwallet">updateValidatorCommisionWallet</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#launch">launch</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contractxtokenrotertsol">contract/xTokenRotert.sol</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#settoken">setToken</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#getxtoken">getXtoken</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#getctoken">getCtoken</a>
+    </li>
+        </ul>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href=".">LandX Smart Contract Documentation</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+      <li>LandX Smart Contracts Documentation</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="landx-smart-contracts-documentation">LandX Smart Contracts Documentation</h1>
+<div class="toc">
+<ul>
+<li><a href="#landx-smart-contracts-documentation">LandX Smart Contracts Documentation</a><ul>
+<li><a href="#landx-smart-contract-interaction-overview">Landx Smart contract interaction overview</a></li>
+<li><a href="#deployment-steps">Deployment steps</a></li>
+<li><a href="#build-and-test">Build and test</a></li>
+<li><a href="#contracts-under-review">Contracts Under Review</a><ul>
+<li><a href="#contractsnftsol">contracts/nft.sol</a></li>
+<li><a href="#contractsxtokensol">contracts/xToken.sol</a></li>
+<li><a href="#contractsctokensol">contracts/cToken.sol</a></li>
+<li><a href="#contractsxbasketsol">contracts/xBasket.sol</a></li>
+<li><a href="#contractsrentfoundationsol">contracts/rentFoundation.sol</a></li>
+<li><a href="#contractsoraclepricessol">contracts/OraclePrices.sol</a></li>
+<li><a href="#contractsxtokenroutersol">contracts/xTokenRouter.sol</a></li>
+<li><a href="#contractskeyprotocolvariablessol">contracts/KeyProtocolVariables.sol</a></li>
+</ul>
+</li>
+<li><a href="#contracts-functions-description">Contracts functions description</a><ul>
+<li><a href="#contractsnftsol_1">contracts/nft.sol</a><ul>
+<li><a href="#setdetailsandmint">setDetailsAndMint</a></li>
+</ul>
+</li>
+<li><a href="#contractxtokensol">contract/xToken.sol</a><ul>
+<li><a href="#getshards">getShards</a></li>
+<li><a href="#getthenft">getTheNFT</a></li>
+<li><a href="#stake">stake</a></li>
+<li><a href="#unstake">unstake</a></li>
+<li><a href="#claim">claim</a></li>
+<li><a href="#availabletoclaim">availableToClaim</a></li>
+<li><a href="#totalavailabletoclaim">totalAvailableToClaim</a></li>
+<li><a href="#preview">preview</a></li>
+<li><a href="#xbaskettransfer">xBasketTransfer</a></li>
+<li><a href="#changelandxnftaddress">changeLandXNFTAddress</a></li>
+<li><a href="#changexbasketaddress">changeXBasketAddress</a></li>
+<li><a href="#setrentfoundation">setRentFoundation</a></li>
+<li><a href="#setgrainprices">setGrainPrices</a></li>
+<li><a href="#setxtokenrouter">setXTokenRouter</a></li>
+</ul>
+</li>
+<li><a href="#contractctokensol">contract/cToken.sol</a><ul>
+<li><a href="#mint">mint</a></li>
+<li><a href="#burn">burn</a></li>
+<li><a href="#setrentfoundation_1">setRentFoundation</a></li>
+<li><a href="#setxtokenrouter_1">setXTokenRouter</a></li>
+</ul>
+</li>
+<li><a href="#contractxbasketsol">contract/xBasket.sol</a><ul>
+<li><a href="#asset">asset</a></li>
+<li><a href="#totalassets">totalAssets</a></li>
+<li><a href="#converttoshares">convertToShares</a></li>
+<li><a href="#converttoassets">convertToAssets</a></li>
+<li><a href="#maxdeposit">maxDeposit</a></li>
+<li><a href="#maxmint">maxMint</a></li>
+<li><a href="#maxwithdraw">maxWithdraw</a></li>
+<li><a href="#maxredeem">maxRedeem</a></li>
+<li><a href="#previewdeposit">previewDeposit</a></li>
+<li><a href="#previewmint">previewMint</a></li>
+<li><a href="#previewwithdarw">previewWithdarw</a></li>
+<li><a href="#previewredeem">previewRedeem</a></li>
+<li><a href="#deposit">deposit</a></li>
+<li><a href="#mint_1">mint</a></li>
+<li><a href="#withdraw">withdraw</a></li>
+<li><a href="#redeem">redeem</a></li>
+<li><a href="#calculateyield">calculateYield</a></li>
+<li><a href="#calculatetvl">calculateTVL</a></li>
+<li><a href="#pricepertoken">pricePerToken</a></li>
+<li><a href="#autocompoundrewards">autoCompoundRewards</a></li>
+</ul>
+</li>
+<li><a href="#contractoraclepricessol">contract/OraclePrices.sol</a><ul>
+<li><a href="#setgrainprice">setGrainPrice</a></li>
+<li><a href="#setxtokenprice">setXTokenPrice</a></li>
+<li><a href="#getxtokenprice">getXTokenPrice</a></li>
+</ul>
+</li>
+<li><a href="#contractrentfoundationsol">contract/rentFoundation.sol</a><ul>
+<li><a href="#payrent">payRent</a></li>
+<li><a href="#payinitialrent">payInitialRent</a></li>
+<li><a href="#getdepositbalance">getDepositBalance</a></li>
+<li><a href="#sellctoken">sellCToken</a></li>
+<li><a href="#setgrainprices_1">setGrainPrices</a></li>
+<li><a href="#setxtokenrouter_2">setXTokenRouter</a></li>
+<li><a href="#changelandxnftaddress_1">changeLandXNFTAddress</a></li>
+</ul>
+</li>
+<li><a href="#contractkeyprotocolvariablessol">contract/KeyProtocolVariables.sol</a><ul>
+<li><a href="#updatextokenmintfee">updateXTokenMintFee</a></li>
+<li><a href="#updatectokensellfee">updateCTokenSellFee</a></li>
+<li><a href="#updatepayrentfee">updatePayRentFee</a></li>
+<li><a href="#updatemaxallowablecropshare">updateMaxAllowableCropShare</a></li>
+<li><a href="#updatehedgefundallocation">updateHedgeFundAllocation</a></li>
+<li><a href="#updatesecuritydepositmonths">updateSecurityDepositMonths</a></li>
+<li><a href="#updatefeedistributionpercentage">updateFeeDistributionPercentage</a></li>
+<li><a href="#updatehedgefundwallet">updateHedgeFundWallet</a></li>
+<li><a href="#updatelandxoperationalwallet">updateLandxOperationalWallet</a></li>
+<li><a href="#updatelandxchoicewallet">updateLandxChoiceWallet</a></li>
+<li><a href="#updatextokenssecuritywallet">updateXTokensSecurityWallet</a></li>
+<li><a href="#updatevalidatorcommisionwallet">updateValidatorCommisionWallet</a></li>
+<li><a href="#launch">launch</a></li>
+</ul>
+</li>
+<li><a href="#contractxtokenrotertsol">contract/xTokenRotert.sol</a><ul>
+<li><a href="#settoken">setToken</a></li>
+<li><a href="#getxtoken">getXtoken</a></li>
+<li><a href="#getctoken">getCtoken</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<h2 id="landx-smart-contract-interaction-overview">Landx Smart contract interaction overview</h2>
+<p><img alt="alt_text" src="images/image1.png" title="image_tooltip" /></p>
+<h2 id="deployment-steps">Deployment steps</h2>
+<ol>
+<li>Deploy KeyProtocolVariables.sol</li>
+<li>Deploy nft.sol and set gnosis safe address as contract owner</li>
+<li>Deploy lndx.sol</li>
+<li>Deploy rentFoundation.sol. Use USDC contract address, LNDX deployed contract address and Key Protocol Variables deployed contract address as  constructor parameters</li>
+<li>Deploy xTokenRouter.sol</li>
+<li>Deploy cToken.sol for each crop type(SOY, WHEAT, RICE, CORN). Use xTokenRouter and rentFoundation contract addresses as constructor parameters</li>
+<li>Deploy xToken.sol for each crop type(SOY, WHEAT, RICE, CORN). Use NFT, lndx, USDC, xTokenRouter, rentFoundation and  Key Protocol Variables contract addresses as constructor parameters</li>
+<li>Deploy OraclePrices.sol. Use xTokens and  Key Protocol Variables contract addresses as constructor parameters</li>
+<li>On OraclePrices contract grant <code>PRICE_SETTER_ROLE</code>for contract who will be allowed to update commodities prices</li>
+<li>Set xToken/cToken pairs in xTokenRouterContract by using<code>setToken</code> function</li>
+<li>Deploy xBasket.sol. Use xTokenRouter and Oracle Prices contract addresses as constructor parameters</li>
+<li>For each xToken set xBasketContract address using<code>changeXBasketAddress</code>function</li>
+<li>For NFT contract set xTokenRouter contract address using<code>setXTokenRouter</code>function</li>
+<li>For rentFoundation contract set xTokenRouter, oraclePrices and NFT contract addresses using<code>setXTokenRouter, setGrainPrices, changeLandXNFTAddress</code>functions </li>
+<li>For each deployed xToken contract set oraclePrices using<code>setGrainPrices</code>function</li>
+</ol>
+<h2 id="build-and-test">Build and test</h2>
+<p>Copy-paste the env-sample to .env and replace the private keys &amp; api keys accordingly.</p>
+<p>Run: </p>
+<pre><code>npm install
+</code></pre>
+<p>Start ganache. check the RPC server that it uses (usually HTTP://127.0.0.1:7545)</p>
+<p>Run: </p>
+<pre><code>npm run test
+</code></pre>
+<p>All test should pass</p>
+<p>Publish on some blockchain (check package.json scripts):</p>
+<pre><code>npm run deploy_t:rinkeby
+npm run deploy_v:mainnet
+</code></pre>
+<h2 id="contracts-under-review">Contracts Under Review</h2>
+<h3 id="contractsnftsol">contracts/nft.sol</h3>
+<p>LandXNFT is an ERC1155 compatible contract and presents landowner’s land as non-fungible tokens. Each NFT contains info how much of each xToken the NFT is allowed to mint based on Maximum Allowable Crop Share (MACS)</p>
+<h3 id="contractsxtokensol">contracts/xToken.sol</h3>
+<p>XToken is an ERC20 compatible contract. It presents perpetual commodity bond payout 1 cToken per year accept landxNFT and mint xTokens, provides logic for stake/unstake functionality. A user stakes xTokens to receive cTokens.</p>
+<h3 id="contractsctokensol">contracts/cToken.sol</h3>
+<p>CToken is an ERC20 compatible contract, 1 cToken represents 1 KG of crop. It can always be exchanged to USDC for prices to be updated via a 3rd party oracle that uses futures pricing data from traditional finance exchanges. CTokens can be only minted by xToken contracts</p>
+<h3 id="contractsxbasketsol">contracts/xBasket.sol</h3>
+<p>XBasket is an ERC20 and ERC4626 compatible contract. xBasket contract accepts deposits of all four xTokens and then mint another ERC20 which acts as an index fund of them. It stakes all deposited xToken and receives cTokens. </p>
+<h3 id="contractsrentfoundationsol">contracts/rentFoundation.sol</h3>
+<p>This contract is responsible for accepting rent payments. Contains logic for accounting rent payments and exchange cTokens for USDC</p>
+<h3 id="contractsoraclepricessol">contracts/OraclePrices.sol</h3>
+<p>It provides current commodities and xTokens prices. It is deployed with initial prices. Provide a smart contract function which allows an authorized oracle address to update these values</p>
+<h3 id="contractsxtokenroutersol">contracts/xTokenRouter.sol</h3>
+<p>This contract is used for getting correct xToken/cTokens contract addresses by others contracts.</p>
+<h3 id="contractskeyprotocolvariablessol">contracts/KeyProtocolVariables.sol</h3>
+<p>It contains key Landx Protocol values like fees and commission rates, max allowable cropshare and other parameters. It is supposed these values can only be changed by DAO.</p>
+<h2 id="contracts-functions-description">Contracts functions description</h2>
+<h3 id="contractsnftsol_1">contracts/nft.sol</h3>
+<h4 id="setdetailsandmint">setDetailsAndMint</h4>
+<pre><code>function setDetailsAndMint(
+       uint256 _index,
+       uint256 _landArea,
+       uint256 _yield,
+       address _validator,
+       string memory _crop,
+       address _to
+   ) public onlyOwner
+</code></pre>
+<p>Mint new NFT and set NFT details.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_index
+   </td>
+   <td>uint256
+   </td>
+   <td>NFT’s ID
+   </td>
+  </tr>
+  <tr>
+   <td>_landArea
+   </td>
+   <td>uint256
+   </td>
+   <td>Land area, m<sup>2</sup>
+   </td>
+  </tr>
+  <tr>
+   <td>_yield
+   </td>
+   <td>uint256
+   </td>
+   <td>Land yield, kg/Ha
+   </td>
+  </tr>
+  <tr>
+   <td>_validator
+   </td>
+   <td>address
+   </td>
+   <td>Validator wallet address
+   </td>
+  </tr>
+  <tr>
+   <td>_crop
+   </td>
+   <td>string
+   </td>
+   <td>Crop type (WHEAT, SOY etc)
+   </td>
+  </tr>
+  <tr>
+   <td>_to
+   </td>
+   <td>address
+   </td>
+   <td>Receiver’s wallet address
+   </td>
+  </tr>
+</table>
+
+<h3 id="contractxtokensol">contract/xToken.sol</h3>
+<h4 id="getshards">getShards</h4>
+<pre><code>function getShards(uint256 _id) external
+</code></pre>
+<p>Deposit NFT, mint and distribute xTokens. Requires allowance to use NFT. Amount of xTokens is calculated by formula:</p>
+<p>xTokens = landXNFT.landArea(_id) * (landXNFT.rent(_id)) / 10000</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_id
+   </td>
+   <td>uint256
+   </td>
+   <td>NFT’s ID
+   </td>
+  </tr>
+</table>
+
+<p>The function emit event:</p>
+<pre><code>event Sharded(uint256 nftID, uint256 amount, string name);
+</code></pre>
+<h4 id="getthenft">getTheNFT</h4>
+<pre><code>function getTheNFT(uint256 _id) external
+</code></pre>
+<p>Redeem the NFT. A caller should be a depositor of the NFT and has to have a full xTokens amount. xTokens will be burned. </p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_id
+   </td>
+   <td>uint256
+   </td>
+   <td>NFT’s ID
+   </td>
+  </tr>
+</table>
+
+<p>The function emit event:</p>
+<pre><code>event BuyOut(uint256 nftID, uint256 amount, string name);
+</code></pre>
+<h4 id="stake">stake</h4>
+<pre><code>function stake(uint256 amount) public
+</code></pre>
+<p>Stake xTokens. Staked xTokens generate cTokens.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>xToken amount  to satke
+   </td>
+  </tr>
+</table>
+
+<h4 id="unstake">unstake</h4>
+<pre><code>function unstake(uint256 amount) public
+</code></pre>
+<p>Unstake xTokens. This function also call claim() function so a caller also get all cTokens that were generated by this time.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>xToken amount  to unstake
+   </td>
+  </tr>
+</table>
+
+<h4 id="claim">claim</h4>
+<pre><code>function claim() public
+</code></pre>
+<p>Send all generated cTokens to a caller.</p>
+<h4 id="availabletoclaim">availableToClaim</h4>
+<pre><code>function availableToClaim(address account) public view returns(uint256)
+</code></pre>
+<p>Returns cTokens amount available to claim by a staker.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>account
+   </td>
+   <td>address
+   </td>
+   <td>Staker’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>cTokens amount
+   </td>
+  </tr>
+</table>
+
+<h4 id="totalavailabletoclaim">totalAvailableToClaim</h4>
+<pre><code>function totalAvailableToClaim() public view returns(uint256)
+</code></pre>
+<p>Returns all cTokens amount available to claim</p>
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>cTokens amount
+   </td>
+  </tr>
+</table>
+
+<h4 id="preview">preview</h4>
+<pre><code>function preview(uint256 id) public view returns(uint256, uint256, uint256, uint256)
+</code></pre>
+<p>Returns xTokens amount will be minted and how they will be distributed</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>id
+   </td>
+   <td>uint256
+   </td>
+   <td>NFT’s ID
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Values:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>total xTokens amount will be minted
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>xTokens amount to pay fee
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>xTokens amount to security deposit and to prepay annual rent 
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>xTokens amount will be sent to NFT depositor
+   </td>
+  </tr>
+</table>
+
+<h4 id="xbaskettransfer">xBasketTransfer</h4>
+<pre><code>function xBasketTransfer(address _from, uint256 amount) external
+</code></pre>
+<p>Service method that can be used only by xBasket contract. Implemented to avoid extra allowances during xBasket mining</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_from
+   </td>
+   <td>address
+   </td>
+   <td>xBasket minter address
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>xToken amount
+   </td>
+  </tr>
+</table>
+
+<h4 id="changelandxnftaddress">changeLandXNFTAddress</h4>
+<pre><code>function changeLandXNFTAddress(address _newAddress) public onlyOwner
+</code></pre>
+<p>Service method to change LandX NFT contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_newAddress
+   </td>
+   <td>address
+   </td>
+   <td>LandX NFT contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="changexbasketaddress">changeXBasketAddress</h4>
+<pre><code>function changeXBasketAddress(address _newAddress) public onlyOwner
+</code></pre>
+<p>Service method to change xBasket contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_newAddress
+   </td>
+   <td>address
+   </td>
+   <td>xBasket contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="setrentfoundation">setRentFoundation</h4>
+<pre><code>function setRentFoundation(address _address) public onlyOwner
+</code></pre>
+<p>Service method to change RentFoundation contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_address
+   </td>
+   <td>address
+   </td>
+   <td>Rent foundation contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="setgrainprices">setGrainPrices</h4>
+<pre><code>function setGrainPrices(address _grainPrices) public onlyOwner
+</code></pre>
+<p>Service method to change OraclePrices contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_grainPrices
+   </td>
+   <td>address
+   </td>
+   <td>Oracle Prices contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="setxtokenrouter">setXTokenRouter</h4>
+<pre><code>function setXTokenRouter(address _router) public onlyOwner
+</code></pre>
+<p>Service method to change xTokenRouter contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_router
+   </td>
+   <td>address
+   </td>
+   <td>xTokenRouter contract address
+   </td>
+  </tr>
+</table>
+
+<h3 id="contractctokensol">contract/cToken.sol</h3>
+<h4 id="mint">mint</h4>
+<pre><code>function mint(address account, uint256 amount) public
+</code></pre>
+<p>Mints cTokens. Only xToken contract can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>address
+   </td>
+   <td>address
+   </td>
+   <td>Receiver of cTokens
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>cTokens amount to mint
+   </td>
+  </tr>
+</table>
+
+<h4 id="burn">burn</h4>
+<pre><code>function burn(uint256 amount) public override
+</code></pre>
+<p>Send USDC equivalent to caller and burn cTokens (Implemented selling for USDC logic). </p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>cTokens amount to burn
+   </td>
+  </tr>
+</table>
+
+<h4 id="setrentfoundation_1">setRentFoundation</h4>
+<pre><code>function setRentFoundation(address _address) public onlyOwner
+</code></pre>
+<p>Service method to change RentFoundation contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_address
+   </td>
+   <td>address
+   </td>
+   <td>Rent foundation contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="setxtokenrouter_1">setXTokenRouter</h4>
+<pre><code>function setXTokenRouter(address _router) public onlyOwner
+</code></pre>
+<p>Service method to change xTokenRouter contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_router
+   </td>
+   <td>address
+   </td>
+   <td>xTokenRouter contract address
+   </td>
+  </tr>
+</table>
+
+<h3 id="contractxbasketsol">contract/xBasket.sol</h3>
+<h4 id="asset">asset</h4>
+<pre><code>function asset() public view override returns (address)
+</code></pre>
+<p>Returns underlying asset contract address. As xBasket has 4 underlying assets and total assets amount can be represented in USDC it returns USDC contract address</p>
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>address
+   </td>
+   <td>USDC contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="totalassets">totalAssets</h4>
+<pre><code>function totalAssets() public view override returns (uint256)
+</code></pre>
+<p>Returns total assets amount represented in USDC</p>
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Total assets amount represented in USDC
+   </td>
+  </tr>
+</table>
+
+<h4 id="converttoshares">convertToShares</h4>
+<pre><code>function convertToShares(uint256 assets) public view override returns (uint256)
+</code></pre>
+<p>Returns amount of xBasket that can be minted with provided amount of each xTokens</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>assets
+   </td>
+   <td>uint256
+   </td>
+   <td>Amount of each xToken
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Total xBasket amount
+   </td>
+  </tr>
+</table>
+
+<h4 id="converttoassets">convertToAssets</h4>
+<pre><code>function convertToAssets(uint256 shares) public view override returns (uint256)
+</code></pre>
+<p>Returns amount of each xTokens amount xBaskets will be converted to</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>shares
+   </td>
+   <td>uint256
+   </td>
+   <td>Amount of xBasket
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Amount of each xTokens will be converted to
+   </td>
+  </tr>
+</table>
+
+<h4 id="maxdeposit">maxDeposit</h4>
+<pre><code>function maxDeposit(address receiver) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns max amount of each xTokens that can be deposited</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>receiver
+   </td>
+   <td>address
+   </td>
+   <td>xToken owner’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Max amount of each xTokens that can be deposited
+   </td>
+  </tr>
+</table>
+
+<h4 id="maxmint">maxMint</h4>
+<pre><code>function maxMint(address receiver) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns max amount of xBasket that can be minted</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>receiver
+   </td>
+   <td>address
+   </td>
+   <td>xToken owner’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Max amount of xbasket that can be minted
+   </td>
+  </tr>
+</table>
+
+<h4 id="maxwithdraw">maxWithdraw</h4>
+<pre><code>function maxWithdraw(address owner) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns max amount of each xToken that xBaskets owner can receive</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>owner
+   </td>
+   <td>address
+   </td>
+   <td>xBasket  owner’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Max amount of each xToken that can be withdrawn
+   </td>
+  </tr>
+</table>
+
+<h4 id="maxredeem">maxRedeem</h4>
+<pre><code>function maxRedeem(address owner) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns max amount of xBasket available to redeem (balanceOf)</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>owner
+   </td>
+   <td>address
+   </td>
+   <td>xBasket  owner’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>max amount of xBasket available to redeem (balanceOf)
+   </td>
+  </tr>
+</table>
+
+<h4 id="previewdeposit">previewDeposit</h4>
+<pre><code>function previewDeposit(uint256 assets) public view virtual override returns (uint256)
+</code></pre>
+<p>Calculate xBasket amount that can be received for provided amount of each xToken</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>assets
+   </td>
+   <td>uint256
+   </td>
+   <td>amount of each xTokens to deposit
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>xBasket amount that can be received for provided amount of each xToken
+   </td>
+  </tr>
+</table>
+
+<h4 id="previewmint">previewMint</h4>
+<pre><code>function previewMint(uint256 shares) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns required amount of each xToken for minting provided amount of xBaskets</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>shares
+   </td>
+   <td>uint256
+   </td>
+   <td>amount of xBasket to mint
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>Required amount of each xToken
+   </td>
+  </tr>
+</table>
+
+<h4 id="previewwithdarw">previewWithdarw</h4>
+<pre><code>function previewWithdraw(uint256 assets) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns required amount of xBasket to receive provided amount of each xTokens</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>assets
+   </td>
+   <td>uint256
+   </td>
+   <td>amount of each xToken
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>required amount of xBasket 
+   </td>
+  </tr>
+</table>
+
+<h4 id="previewredeem">previewRedeem</h4>
+<pre><code>function previewRedeem(uint256 shares) public view virtual override returns (uint256)
+</code></pre>
+<p>Returns amount of each xTokens that can be received for redeem provided amount of xBasket</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>shares
+   </td>
+   <td>uint256
+   </td>
+   <td>amount of xBasket
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>amount of each xToken to receive
+   </td>
+  </tr>
+</table>
+
+<h4 id="deposit">deposit</h4>
+<pre><code>function deposit(uint256 assets, address receiver) public virtual override returns (uint256)
+</code></pre>
+<p>Deposit each xToken, mint xBasket and send them to received address</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>assets
+   </td>
+   <td>uint256
+   </td>
+   <td>amount of each xTokens
+   </td>
+  </tr>
+  <tr>
+   <td>receiver
+   </td>
+   <td>address
+   </td>
+   <td>xBasket receiver’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>amount of minted xBaskets
+   </td>
+  </tr>
+</table>
+
+<h4 id="mint_1">mint</h4>
+<pre><code>function mint(uint256 shares, address receiver) public virtual override returns (uint256)
+</code></pre>
+<p>Deposit required amount of each xToken, mint provided amount of xBasket and send them to received address</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>shares
+   </td>
+   <td>uint256
+   </td>
+   <td>required amount xBasket
+   </td>
+  </tr>
+  <tr>
+   <td>receiver
+   </td>
+   <td>address
+   </td>
+   <td>xBasket receiver’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>amount of each  deposited xTokens
+   </td>
+  </tr>
+</table>
+
+<h4 id="withdraw">withdraw</h4>
+<pre><code>function withdraw(uint256 assets, address receiver, address owner) public virtual override returns (uint256)
+</code></pre>
+<p>Withdraw provided amount of each xTokens and send them to receiver address</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>assets
+   </td>
+   <td>uint256
+   </td>
+   <td>required amount of each xTokens
+   </td>
+  </tr>
+  <tr>
+   <td>receiver
+   </td>
+   <td>address
+   </td>
+   <td>xToken receiver’s address
+   </td>
+  </tr>
+  <tr>
+   <td>owner
+   </td>
+   <td>address
+   </td>
+   <td>Xbasket owner’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>amount of xBasket to redeem
+   </td>
+  </tr>
+</table>
+
+<h4 id="redeem">redeem</h4>
+<pre><code>function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256)
+</code></pre>
+<p>Redeem provided amount of xBasket  and send xTokens them to receiver address</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>shares
+   </td>
+   <td>uint256
+   </td>
+   <td>xBasket amount to redeem
+   </td>
+  </tr>
+  <tr>
+   <td>receiver
+   </td>
+   <td>address
+   </td>
+   <td>xToken receiver’s address
+   </td>
+  </tr>
+  <tr>
+   <td>owner
+   </td>
+   <td>address
+   </td>
+   <td>Xbasket owner’s address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>amount of each xTokens to send receiver
+   </td>
+  </tr>
+</table>
+
+<h4 id="calculateyield">calculateYield</h4>
+<pre><code>function calculateYield() public view returns(uint256)
+</code></pre>
+<p>Calculate the value of the contracts cToken holdings in USDC</p>
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>amount of cTokens presented in USDC available for xBasket  contract
+   </td>
+  </tr>
+</table>
+
+<h4 id="calculatetvl">calculateTVL</h4>
+<pre><code>function calculateTVL() public view returns(uint256)
+</code></pre>
+<p>Calculate the value of the contracts holdings in USDC</p>
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>value of the contracts holdings (sum of deposited xTokens and available cTokens) in USDC
+   </td>
+  </tr>
+</table>
+
+<h4 id="pricepertoken">pricePerToken</h4>
+<pre><code>function pricePerToken() public view returns(uint256)
+</code></pre>
+<p>Calculate xBasket price in USDC</p>
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>xBasket  token price
+   </td>
+  </tr>
+</table>
+
+<h4 id="autocompoundrewards">autoCompoundRewards</h4>
+<pre><code>function autoCompoundRewards() public
+</code></pre>
+<p>Claims cTokens, sell them for USDC, buy xTokens and stakes them.</p>
+<h3 id="contractoraclepricessol">contract/OraclePrices.sol</h3>
+<h4 id="setgrainprice">setGrainPrice</h4>
+<pre><code>function setGrainPrice(string memory grain, uint256 price) public
+</code></pre>
+<p>Set commodity price in USDC (per megatone). Used by ChainLink oracle. Only setter with PRICE_SETTER_ROLE can set prices</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>grain
+   </td>
+   <td>string
+   </td>
+   <td>commodity name (SOY, RICE etc)
+   </td>
+  </tr>
+  <tr>
+   <td>price
+   </td>
+   <td>uint256
+   </td>
+   <td>commodity price
+   </td>
+  </tr>
+</table>
+
+<h4 id="setxtokenprice">setXTokenPrice</h4>
+<pre><code>function setXTokenPrice(address xToken, uint256 price) public
+</code></pre>
+<p>Set xToken price in USDC. This price is used when there are no Uniswap pools. Only setter with PRICE_SETTER_ROLE can set prices</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>xToken
+   </td>
+   <td>address
+   </td>
+   <td>xTokem contract address
+   </td>
+  </tr>
+  <tr>
+   <td>price
+   </td>
+   <td>uint256
+   </td>
+   <td>xToken price
+   </td>
+  </tr>
+</table>
+
+<h4 id="getxtokenprice">getXTokenPrice</h4>
+<pre><code>function getXTokenPrice(address xToken) public view returns(uint256)
+</code></pre>
+<p>get xToken price in USDC. If there isUniswap pool it returns the spot price from Uniswap pool. If no, xToken price was set in this contract is returned</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>xToken
+   </td>
+   <td>address
+   </td>
+   <td>xToken contract address
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>uint256
+   </td>
+   <td>xToken price
+   </td>
+  </tr>
+</table>
+
+<h3 id="contractrentfoundationsol">contract/rentFoundation.sol</h3>
+<h4 id="payrent">payRent</h4>
+<pre><code>function payRent(uint256 tokenID, uint256 amount) public
+</code></pre>
+<p>It is used to pay rent for the nft. Rent can be paid only for sharded NFT. </p>
+<p>The function emit event:</p>
+<pre><code>event rentPaid(uint256 tokenID, uint256 amount);
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>tokenID
+   </td>
+   <td>uint256
+   </td>
+   <td>LandX NFT id
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>Rent amount in USDC
+   </td>
+  </tr>
+</table>
+
+<h4 id="payinitialrent">payInitialRent</h4>
+<pre><code>function payInitialRent(uint256 tokenID, uint256 amount) external
+</code></pre>
+<p>It is used only by the xToken contract to apply annual rent during getting depositing NFT and getting xTokens. </p>
+<p>The function emit event:</p>
+<pre><code>event initialRentPaid(uint256 tokenID, uint256 amount);
+</code></pre>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>tokenID
+   </td>
+   <td>uint256
+   </td>
+   <td>LandX NFT id
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>Rent amount in USDC
+   </td>
+  </tr>
+</table>
+
+<h4 id="getdepositbalance">getDepositBalance</h4>
+<pre><code>function getDepositBalance(uint256 tokenID) public view returns(int256)
+</code></pre>
+<p>Returns paid rent balance for NFT by its ID, can be a negative value. Negative value means there is a debt</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>tokenID
+   </td>
+   <td>uint256
+   </td>
+   <td>LandX NFT id
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>int256
+   </td>
+   <td>Paid rent balance
+   </td>
+  </tr>
+</table>
+
+<h4 id="sellctoken">sellCToken</h4>
+<pre><code>function sellCToken(address account, uint256 amount) public
+</code></pre>
+<p>Used only by cToken contracts. Convert burning cToken amount to USDC and send USDC to account</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>account
+   </td>
+   <td>address
+   </td>
+   <td>USDC receiver’s address
+   </td>
+  </tr>
+  <tr>
+   <td>amount
+   </td>
+   <td>uint256
+   </td>
+   <td>burning amount of cToken
+   </td>
+  </tr>
+</table>
+
+<h4 id="setgrainprices_1">setGrainPrices</h4>
+<pre><code>function setGrainPrices(address _grainPrices) public onlyOwner
+</code></pre>
+<p>Service method to change OraclePrices contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_grainPrices
+   </td>
+   <td>address
+   </td>
+   <td>Oracle Prices contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="setxtokenrouter_2">setXTokenRouter</h4>
+<pre><code>function setXTokenRouter(address _router) public onlyOwner
+</code></pre>
+<p>Service method to change xTokenRouter contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_router
+   </td>
+   <td>address
+   </td>
+   <td>xTokenRouter contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="changelandxnftaddress_1">changeLandXNFTAddress</h4>
+<pre><code>function changeLandXNFTAddress(address _newAddress) public onlyOwner
+</code></pre>
+<p>Service method to change LandX NFT contract address. Only contract owner can use it</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_newAddress
+   </td>
+   <td>address
+   </td>
+   <td>LandX NFT contract address
+   </td>
+  </tr>
+</table>
+
+<h3 id="contractkeyprotocolvariablessol">contract/KeyProtocolVariables.sol</h3>
+<h4 id="updatextokenmintfee">updateXTokenMintFee</h4>
+<pre><code>function updateXTokenMintFee(uint256 _fee) public
+</code></pre>
+<p>Updates xToken mint fee. Default value 300(3%)</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_fee
+   </td>
+   <td>uint256
+   </td>
+   <td>xToken mint fee percentage 
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatectokensellfee">updateCTokenSellFee</h4>
+<pre><code>function updateCTokenSellFee(uint256 _fee) public
+</code></pre>
+<p>Updates cToken sell fee. Default value 1000(10%)</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_fee
+   </td>
+   <td>uint256
+   </td>
+   <td>cToken sell fee percentage 
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatepayrentfee">updatePayRentFee</h4>
+<pre><code>function updatePayRentFee(uint256 _fee)public
+</code></pre>
+<p>Updates pay rent fee. Default value 150(1.5%)</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_fee
+   </td>
+   <td>uint256
+   </td>
+   <td>pay rent fee percentage
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatemaxallowablecropshare">updateMaxAllowableCropShare</h4>
+<pre><code>function updateMaxAllowableCropShare(string memory _crop, uint256 _macs) public
+</code></pre>
+<p>Updates max allowable crop share for crop. Default value 1200(12%)</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>crop
+   </td>
+   <td>string
+   </td>
+   <td>crop type (SOY, RICE etc)
+   </td>
+  </tr>
+  <tr>
+   <td>_macs
+   </td>
+   <td>uint256
+   </td>
+   <td>max allowable crop share percentage
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatehedgefundallocation">updateHedgeFundAllocation</h4>
+<pre><code>function updateHedgeFundAllocation(uint256 _allocation) public
+</code></pre>
+<p>Updates hedge fund allocation percentage. Default value 1500(15%). This parameter define which part of rent payments send to hedge fund wallet</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_allocation
+   </td>
+   <td>uint256
+   </td>
+   <td>Hedge fund allocation percentage
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatesecuritydepositmonths">updateSecurityDepositMonths</h4>
+<pre><code>function updateSecurityDepositMonths(uint8 _months) public
+</code></pre>
+<p>Updates securityDepositMonth parameter. Id defines payment of how many month rent goes to the security deposit wallet during deposit NFT to mint xTokens. Default value is 12 months</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_months
+   </td>
+   <td>uint8
+   </td>
+   <td>months count
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatefeedistributionpercentage">updateFeeDistributionPercentage</h4>
+<pre><code>function updateFeeDistributionPercentage(uint256 _lndxHoldersPercentage, uint256 _landxOperationPercentage) public
+</code></pre>
+<p>Updates fee distribution percentage. </p>
+<p>lndxHoldersPercentage defines what part of fees will be shared between LNDX stakers. Default value is 6500 (65%)</p>
+<p>landXOpertationsPercentage what part of fee sends to Landx Operational wallet.  Default value is 3000 (30%)</p>
+<p>landXChoicePercentage = 10000 - landXOpertationsPercentage - lndxHoldersPercentage. Default value is 500 (5%)</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_lndxHoldersPercentage
+   </td>
+   <td>uint256
+   </td>
+   <td>LNDX holders percentage
+   </td>
+  </tr>
+  <tr>
+   <td>landxOperationPercentage
+   </td>
+   <td>uint256
+   </td>
+   <td>landX operation percentage
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatehedgefundwallet">updateHedgeFundWallet</h4>
+<pre><code>function updateHedgeFundWallet(address _wallet) public
+</code></pre>
+<p>Updates hedge fund wallet address.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_wallet
+   </td>
+   <td>address
+   </td>
+   <td>hedge fund wallet address
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatelandxoperationalwallet">updateLandxOperationalWallet</h4>
+<pre><code>function updateLandxOperationalWallet(address _wallet) public
+</code></pre>
+<p>Updates Landx opertainal wallet address.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_wallet
+   </td>
+   <td>address
+   </td>
+   <td>landx operational  wallet address
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatelandxchoicewallet">updateLandxChoiceWallet</h4>
+<pre><code>function updateLandxChoiceWallet(address _wallet) public
+</code></pre>
+<p>Updates landx choice wallet address.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_wallet
+   </td>
+   <td>address
+   </td>
+   <td>landx choice wallet address
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatextokenssecuritywallet">updateXTokensSecurityWallet</h4>
+<pre><code>function updateXTokensSecurityWallet(address _wallet) public
+</code></pre>
+<p>Updates xTokens security wallet address.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_wallet
+   </td>
+   <td>address
+   </td>
+   <td>xTokens security wallet address
+   </td>
+  </tr>
+</table>
+
+<h4 id="updatevalidatorcommisionwallet">updateValidatorCommisionWallet</h4>
+<pre><code>function updateValidatorCommisionWallet(address _wallet) public
+</code></pre>
+<p>Updates validator commission wallet address.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>_wallet
+   </td>
+   <td>address
+   </td>
+   <td>validators commissions wallet address
+   </td>
+  </tr>
+</table>
+
+<h4 id="launch">launch</h4>
+<pre><code>function launch() public
+</code></pre>
+<p>Disables pre-launch mode. It can be done only once and pre-launch mode can’t be switched on again.</p>
+<h3 id="contractxtokenrotertsol">contract/xTokenRotert.sol</h3>
+<h4 id="settoken">setToken</h4>
+<pre><code>function setToken(string memory crop, address xToken, address cToken) public onlyOwner
+</code></pre>
+<p>Set xToken/cToken pair for given crop type.</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>crop
+   </td>
+   <td>string
+   </td>
+   <td>crop type (SOY, RICE etc)
+   </td>
+  </tr>
+  <tr>
+   <td>xToken
+   </td>
+   <td>address
+   </td>
+   <td>xToken contract address
+   </td>
+  </tr>
+  <tr>
+   <td>cToken
+   </td>
+   <td>address
+   </td>
+   <td>cToken contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="getxtoken">getXtoken</h4>
+<pre><code>function getXToken(string memory crop) external view returns(address)
+</code></pre>
+<p>Returns xToken contract address by crop type</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>crop
+   </td>
+   <td>string
+   </td>
+   <td>crop type (SOY, RICE etc)
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>address
+   </td>
+   <td>xToken contract address
+   </td>
+  </tr>
+</table>
+
+<h4 id="getctoken">getCtoken</h4>
+<pre><code>function getCToken(string memory crop) external view returns(address)
+</code></pre>
+<p>Returns cToken contract address by crop type</p>
+<p><strong>Parameters:</strong></p>
+<table>
+  <tr>
+   <td><strong>Name</strong>
+   </td>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>crop
+   </td>
+   <td>string
+   </td>
+   <td>crop type (SOY, RICE etc)
+   </td>
+  </tr>
+</table>
+
+<p><strong>Return Value:</strong></p>
+<table>
+  <tr>
+   <td><strong>Type</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>address
+   </td>
+   <td>cToken contract address
+   </td>
+  </tr>
+</table>
+              
+            </div>
+          </div><footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+    
+  </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme_extra.js" defer></script>
+    <script src="js/theme.js" defer></script>
+      <script src="search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.4.0
+Build Date UTC : 2022-10-03 07:32:46.534627+00:00
+-->
