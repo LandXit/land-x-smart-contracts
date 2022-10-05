@@ -22,3 +22,5 @@ npm run deploy_v:mainnet
 ```
 
 ### License MIT
+
+See [full documentation](https://landxit.github.io/land-x-smart-contracts/)

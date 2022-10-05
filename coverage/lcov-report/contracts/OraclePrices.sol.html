@@ -20,24 +20,24 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">81.25% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>16/16</span>
+        <span class='fraction'>13/16</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">71.43% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>14/14</span>
+        <span class='fraction'>10/14</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">80% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>5/5</span>
+        <span class='fraction'>4/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">93.1% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>29/29</span>
+        <span class='fraction'>27/29</span>
       </div>
     </div>
   </div>
@@ -176,50 +176,50 @@
 <span class="cline-any cline-yes">33×</span>
 <span class="cline-any cline-yes">33×</span>
 <span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-yes">3×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
@@ -283,7 +283,7 @@ contract OraclePrices is
 &nbsp;
     function setXTokenPrice(address xToken, uint256 price) public {
         require(hasRole(PRICE_SETTER_ROLE, msg.sender), "not price setter");
-        require(price &gt; 0 &amp;&amp; price &lt; 9999999999, "Invalid values");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(price &gt; 0 &amp;&amp; price &lt; 9999999999, "Invalid values");
         xTokenPrices[xToken] = price;
     }
 &nbsp;
@@ -301,14 +301,14 @@ contract OraclePrices is
         uint160 sqrtPriceX96;
 &nbsp;
         (sqrtPriceX96,,,,,,) =  IUniswapPool(pool).slot0();
-        if (poolToken0 == usdc) {
-           return 1e12 / ((uint(sqrtPriceX96) * uint(sqrtPriceX96) * 1e6) &gt;&gt; (96 * 2));
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (poolToken0 == usdc) {
+<span class="cstat-no" title="statement not covered" >           return 1e12 / ((uint(sqrtPriceX96) * uint(sqrtPriceX96) * 1e6) &gt;&gt; (96 * 2));</span>
         }
-        return ((uint(sqrtPriceX96) * uint(sqrtPriceX96) * 1e6) &gt;&gt; (96 * 2));
+<span class="cstat-no" title="statement not covered" >        return ((uint(sqrtPriceX96) * uint(sqrtPriceX96) * 1e6) &gt;&gt; (96 * 2));</span>
     }
 &nbsp;
-    function getXtokenPool(address xToken) public view returns(address) {
-        return IUniswapV3Factory(uniswapFactory).getPool(usdc, xToken, 3000);
+<span class="fstat-no" title="function not covered" >    function getXtokenPool(address xToken) public view returns(address) {</span>
+<span class="cstat-no" title="statement not covered" >        return IUniswapV3Factory(uniswapFactory).getPool(usdc, xToken, 3000);</span>
     }
 }</pre></td></tr>
 </table></pre>
@@ -316,7 +316,7 @@ contract OraclePrices is
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Sep 28 2022 13:24:24 GMT+0300 (Moscow Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 04 2022 11:43:57 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>

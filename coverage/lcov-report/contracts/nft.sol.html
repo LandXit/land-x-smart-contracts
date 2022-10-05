@@ -22,17 +22,17 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>18/18</span>
+        <span class='fraction'>17/17</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">94.44% </span>
+        <span class="strong">93.75% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>17/18</span>
+        <span class='fraction'>15/16</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>9/9</span>
+        <span class='fraction'>7/7</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
@@ -158,18 +158,7 @@
 113
 114
 115
-116
-117
-118
-119
-120
-121
-122
-123
-124
-125
-126
-127</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+116</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,15 +189,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">126×</span>
+<span class="cline-any cline-yes">126×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">129×</span>
-<span class="cline-any cline-yes">129×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -220,15 +204,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">41×</span>
+<span class="cline-any cline-yes">40×</span>
 <span class="cline-any cline-yes">39×</span>
-<span class="cline-any cline-yes">38×</span>
-<span class="cline-any cline-yes">37×</span>
-<span class="cline-any cline-yes">37×</span>
-<span class="cline-any cline-yes">37×</span>
-<span class="cline-any cline-yes">37×</span>
-<span class="cline-any cline-yes">37×</span>
-<span class="cline-any cline-yes">37×</span>
-<span class="cline-any cline-yes">37×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
+<span class="cline-any cline-yes">39×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -247,14 +233,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">3×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">2×</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -307,51 +285,48 @@ interface IXTOKENROUTER {
     function getXToken(string memory _name) external view returns(address); 
 }
 &nbsp;
-interface IKEYPROTOKOLVALUES {
-    function maxAllowableCropShare(string memory grain) external pure returns(uint256);
-}
-&nbsp;
 contract LandXNFT is ERC1155, Ownable {
     using Strings for string;
 &nbsp;
     IXTOKENROUTER public xTokenRouter;
-    IKEYPROTOKOLVALUES public keyProtocolValues;
 &nbsp;
     // other parameters
     string private _baseTokenURI =
         "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/";
-    string private _contractURI =
-        "https://raw.githubusercontent.com/AndreiD/Playground/master/nfts_sample/contract_uri";
 &nbsp;
     mapping(uint256 =&gt; uint256) public totalSupply;
-    mapping(uint256 =&gt; uint256) public landArea; // in square-meters
-    mapping(uint256 =&gt; uint256) public rent; //rentInKgOfWheatPerYear
+    mapping(uint256 =&gt; uint256) public landArea; // total area in square-meters
+    mapping(uint256 =&gt; uint256) public tillableArea; // tillable area in square-meters
+    mapping(uint256 =&gt; uint256) public cropShare; //crop share
     mapping(uint256 =&gt; string)  public crop; // ["SOY", "RICE" ....]
     mapping(uint256 =&gt; address) public validator; // validator or landowner
+    mapping(uint256 =&gt; bytes32) public lienAgreementHash; //sha256 hash of lien documents
     mapping(uint256 =&gt; address) public initialOwner;
 &nbsp;
-    //1 shard = (landArea * rent) /  10000
-&nbsp;
-    constructor(address _keyProtocolValues, address _xTokenRouter) ERC1155(_baseTokenURI) {
-        keyProtocolValues = IKEYPROTOKOLVALUES(_keyProtocolValues);
+    constructor(address _xTokenRouter, string memory _uri) ERC1155(_baseTokenURI) {
         xTokenRouter = IXTOKENROUTER(_xTokenRouter);
+        _baseTokenURI = _uri;
     }
 &nbsp;
     /**@dev sets the token details. price is in *wei* */
     function setDetailsAndMint(
         uint256 _index, 
         uint256 _landArea,
-        uint256 _yield,
+        uint256 _tillableArea,
+        uint256 _cropShare,
         address _validator,
+        bytes32 _lienAgreementHash,
         string memory _crop,
         address _to
     ) public <span class="missing-if-branch" title="else path not taken" >E</span>onlyOwner{
         require(totalSupply[_index] == 0, "tokenID already minted");
         require(xTokenRouter.getXToken(_crop) != address(0), "xToken is not defined");
         landArea[_index] = _landArea;
-        rent[_index] = _yield * keyProtocolValues.maxAllowableCropShare(_crop) / 10000;
+        tillableArea[_index] = _tillableArea;
+        cropShare[_index] = _cropShare;
         crop[_index] = _crop;
         validator[_index] = _validator;
+        lienAgreementHash[_index] = _lienAgreementHash;
         totalSupply[_index] = totalSupply[_index] + 1;
         initialOwner[_index] = _to;
         _mint(_to, _index, 1, "0x0000");
@@ -373,14 +348,6 @@ contract LandXNFT is ERC1155, Ownable {
 &nbsp;
     function setBaseURI(string memory newuri) public onlyOwner {
         _baseTokenURI = newuri;
-    }
-&nbsp;
-    function setContractURI(string memory newuri) public onlyOwner {
-        _contractURI = newuri;
-    }
-&nbsp;
-    function contractURI() public view returns (string memory) {
-        return _contractURI;
     }
 &nbsp;
     function uri(uint256 tokenId) public view override returns (string memory) {
@@ -427,7 +394,7 @@ contract LandXNFT is ERC1155, Ownable {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Wed Sep 28 2022 13:24:24 GMT+0300 (Moscow Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 04 2022 11:43:57 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>
