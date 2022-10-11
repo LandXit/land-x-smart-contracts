@@ -20,28 +20,28 @@
     </h1>
     <div class='clearfix'>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>5/5</span>
+        <span class='fraction'>0/5</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>0/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>0/6</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>9/9</span>
+        <span class='fraction'>0/9</span>
       </div>
     </div>
   </div>
-  <div class='status-line high'></div>
+  <div class='status-line low'></div>
 <pre><table class="coverage">
 <tr><td class="line-count quiet">1
 2
@@ -97,8 +97,7 @@
 52
 53
 54
-55
-56</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+55</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -122,35 +121,34 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">33×</span>
-<span class="cline-any cline-yes">33×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">6×</span>
-<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4×</span>
-<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
@@ -166,19 +164,15 @@ interface IRENTFOUNDATION {
 }
 &nbsp;
 interface IXTOKENROUTER {
-    function getXToken(string memory _name) external view returns(address);
+    function getXToken(string memory _name) external view returns (address);
 }
 &nbsp;
-contract CToken is
-    Context,
-    ERC20Burnable,
-    Ownable
-{
-    IRENTFOUNDATION public rentFoundation; 
+contract CToken is Context, ERC20Burnable, Ownable {
+    IRENTFOUNDATION public rentFoundation;
     IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
     string public constant crop = "CORN";
 &nbsp;
-    constructor(address _rentForndation, address _xTokenRouter)
+<span class="fstat-no" title="function not covered" >    constructor(address _rentForndation, address _xTokenRouter)</span>
         ERC20("LandX cToken", "cCORN")
     {
         rentFoundation = IRENTFOUNDATION(_rentForndation);
@@ -186,27 +180,30 @@ contract CToken is
     }
 &nbsp;
     // only minter can mint cTokens, for example xToken contract
-    function mint(address account, uint256 amount) public {
-        require(msg.sender == xTokenRouter.getXToken(crop), "action is not allowed");
-        _mint(account, amount);
+<span class="fstat-no" title="function not covered" >    function mint(address account, uint256 amount) public {</span>
+<span class="cstat-no" title="statement not covered" >        require(</span>
+            msg.sender == xTokenRouter.getXToken(crop),
+            "action is not allowed"
+        );
+<span class="cstat-no" title="statement not covered" >        _mint(account, amount)</span>;
     }
 &nbsp;
-    function burn(uint256 amount) public override {
-        rentFoundation.sellCToken(msg.sender, amount);
-        _burn(msg.sender, amount);
+<span class="fstat-no" title="function not covered" >    function burn(uint256 amount) public override {</span>
+<span class="cstat-no" title="statement not covered" >        rentFoundation.sellCToken(msg.sender, amount)</span>;
+<span class="cstat-no" title="statement not covered" >        _burn(msg.sender, amount)</span>;
     }
 &nbsp;
-    function setRentFoundation(address _address) public onlyOwner {
+<span class="fstat-no" title="function not covered" >    function setRentFoundation(address _address) public onlyOwner {</span>
         rentFoundation = IRENTFOUNDATION(_address);
     }
 &nbsp;
-    function setXTokenRouter(address _router) public onlyOwner {
+<span class="fstat-no" title="function not covered" >    function setXTokenRouter(address _router) public onlyOwner {</span>
         xTokenRouter = IXTOKENROUTER(_router);
     }
 &nbsp;
-    function decimals() public pure override returns (uint8) {
-        return 6;
-	}
+<span class="fstat-no" title="function not covered" >    function decimals() public pure override returns (uint8) {</span>
+<span class="cstat-no" title="statement not covered" >        return 6;</span>
+    }
 }
 &nbsp;</pre></td></tr>
 </table></pre>
@@ -214,7 +211,7 @@ contract CToken is
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 04 2022 11:43:57 GMT+0300 (Moscow Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 11 2022 13:41:25 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>

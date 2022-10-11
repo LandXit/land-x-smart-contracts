@@ -11,15 +11,11 @@ interface IRENTFOUNDATION {
 }
 
 interface IXTOKENROUTER {
-    function getXToken(string memory _name) external view returns(address);
+    function getXToken(string memory _name) external view returns (address);
 }
 
-contract CToken is
-    Context,
-    ERC20Burnable,
-    Ownable
-{
-    IRENTFOUNDATION public rentFoundation; 
+contract CToken is Context, ERC20Burnable, Ownable {
+    IRENTFOUNDATION public rentFoundation;
     IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
     string public constant crop = "CORN";
 
@@ -32,7 +28,10 @@ contract CToken is
 
     // only minter can mint cTokens, for example xToken contract
     function mint(address account, uint256 amount) public {
-        require(msg.sender == xTokenRouter.getXToken(crop), "action is not allowed");
+        require(
+            msg.sender == xTokenRouter.getXToken(crop),
+            "action is not allowed"
+        );
         _mint(account, amount);
     }
 
@@ -51,5 +50,5 @@ contract CToken is
 
     function decimals() public pure override returns (uint8) {
         return 6;
-	}
+    }
 }

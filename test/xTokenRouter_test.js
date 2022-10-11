@@ -8,7 +8,7 @@ let xTokenRouter
 let owner, acc1
 let mockedXTokenContract, mockedCTokenContract
 
-describe("cToken", function () {
+describe("xTokenRouter", function () {
 	beforeEach(async function () {
 		;[owner, acc1] = await ethers.getSigners()
 		const xTokenContract = require("../artifacts/contracts/xToken.sol/XToken.json")

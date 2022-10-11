@@ -3,9 +3,7 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
-contract KeyProtocolVariables is Ownable{
-
+contract KeyProtocolVariables is Ownable {
     address public dao;
 
     bool public preLaunch = true;
@@ -16,7 +14,7 @@ contract KeyProtocolVariables is Ownable{
     uint256 public payRentFee = 150; // 1.5%
 
     uint256 public validatorCommission = 25; // 0.25%
-    
+
     mapping(string => uint256) public maxAllowableCropShare;
 
     uint256 public hedgeFundAllocation = 1500; //15%
@@ -33,13 +31,12 @@ contract KeyProtocolVariables is Ownable{
     address public xTokensSecurityWallet;
     address public validatorCommisionWallet;
 
-
     constructor(
-        address _dao, 
-        address _hedgeFundWallet, 
-        address _landxOperationalWallet, 
-        address _landxChoiceWallet, 
-        address _xTokensSecurityWallet, 
+        address _dao,
+        address _hedgeFundWallet,
+        address _landxOperationalWallet,
+        address _landxChoiceWallet,
+        address _xTokensSecurityWallet,
         address _validatorCommisionWallet
     ) {
         dao = _dao;
@@ -63,34 +60,45 @@ contract KeyProtocolVariables is Ownable{
     function updateCTokenSellFee(uint256 _fee) public {
         require(msg.sender == dao, "only dao can change value");
         cTokenSellFee = _fee;
-    } 
+    }
 
-    function updatePayRentFee(uint256 _fee)public {
+    function updatePayRentFee(uint256 _fee) public {
         require(msg.sender == dao, "only dao can change value");
         payRentFee = _fee;
-    } 
+    }
 
-    function updateMaxAllowableCropShare(string memory _crop, uint256 _macs) public {
+    function updateMaxAllowableCropShare(string memory _crop, uint256 _macs)
+        public
+    {
         require(msg.sender == dao, "only dao can change value");
         maxAllowableCropShare[_crop] = _macs;
-    } 
+    }
 
     function updateHedgeFundAllocation(uint256 _allocation) public {
         require(msg.sender == dao, "only dao can change value");
-        hedgeFundAllocation= _allocation;
-    } 
+        hedgeFundAllocation = _allocation;
+    }
 
     function updateSecurityDepositMonths(uint8 _months) public {
         require(msg.sender == dao, "only dao can change value");
         securityDepositMonths = _months;
     }
 
-    function updateFeeDistributionPercentage(uint256 _lndxHoldersPercentage, uint256 _landxOperationPercentage) public { 
+    function updateFeeDistributionPercentage(
+        uint256 _lndxHoldersPercentage,
+        uint256 _landxOperationPercentage
+    ) public {
         require(msg.sender == dao, "only dao can change value");
-        require((_lndxHoldersPercentage + _landxOperationPercentage) < 10000, "inconsistent values");
+        require(
+            (_lndxHoldersPercentage + _landxOperationPercentage) < 10000,
+            "inconsistent values"
+        );
         lndxHoldersPercentage = _lndxHoldersPercentage;
         landXOpertationsPercentage = _landxOperationPercentage;
-        landXChoicePercentage = 10000 - lndxHoldersPercentage - landXOpertationsPercentage;
+        landXChoicePercentage =
+            10000 -
+            lndxHoldersPercentage -
+            landXOpertationsPercentage;
     }
 
     function updateHedgeFundWallet(address _wallet) public {
@@ -118,7 +126,7 @@ contract KeyProtocolVariables is Ownable{
         validatorCommisionWallet = _wallet;
     }
 
-     function launch() public{
+    function launch() public {
         require(msg.sender == dao, "only dao can change value");
         preLaunch = false;
     }

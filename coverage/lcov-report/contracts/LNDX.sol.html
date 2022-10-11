@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>0/17</span>
+        <span class='fraction'>0/18</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>0/14</span>
+        <span class='fraction'>0/12</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>0/3</span>
+        <span class='fraction'>0/5</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">0% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>0/22</span>
+        <span class='fraction'>0/23</span>
       </div>
     </div>
   </div>
@@ -91,9 +91,18 @@
 46
 47
 48
-49</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -107,8 +116,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -129,38 +139,49 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.6;
 &nbsp;
-&nbsp;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 &nbsp;
 contract LNDX is ERC20 {
-&nbsp;
     address usdc;
     event Stake(address user, uint256 amount);
     event Unstake(address user, uint256 amount, uint256 feeShare);
 &nbsp;
 <span class="fstat-no" title="function not covered" >    constructor() ERC20("LNDX LandX Governance Token", "LNDX") {</span>
-<span class="cstat-no" title="statement not covered" >        _mint(msg.sender,1000000000 ether)</span>;
-<span class="cstat-no" title="statement not covered" >        if (block.chainid == 1) usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48;</span> // Mainnet
-<span class="cstat-no" title="statement not covered" >        if (block.chainid == 4) usdc = 0xE3A2763c0437B622077761697BC22782d59DbE19;</span> // Rinkeby
-<span class="cstat-no" title="statement not covered" >        if (block.chainid == 5) usdc = 0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841;</span> // Goerli
+<span class="cstat-no" title="statement not covered" >        _mint(msg.sender, 1000000000 ether)</span>;
+<span class="cstat-no" title="statement not covered" >        if (block.chainid == 1)</span>
+            usdc = 0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48; // Mainnet
+<span class="cstat-no" title="statement not covered" >        if (block.chainid == 5)</span>
+            usdc = 0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841; // Goerli
 <span class="cstat-no" title="statement not covered" >        require(usdc != address(0), "What chain are we on again?")</span>;
     }
 &nbsp;
-    uint256 public totalStaked = 1;
+    uint256 public totalStaked;
     mapping(address =&gt; uint256) public stakedBalance;
     mapping(address =&gt; uint256) public stakedShares;
 &nbsp;
@@ -170,21 +191,33 @@ contract LNDX is ERC20 {
         stakedBalance[msg.sender] += _amount;
 <span class="cstat-no" title="statement not covered" >        uint256 usdcBalance = IERC20(usdc).balanceOf(address(this));</span>
 <span class="cstat-no" title="statement not covered" >        if (usdcBalance == 0) usdcBalance = 1;</span>
-<span class="cstat-no" title="statement not covered" >        uint256 shares = _amount * usdcBalance / totalStaked;</span> // needs testing
+<span class="cstat-no" title="statement not covered" >        uint256 shares = (_amount * usdcBalance) / totalStaked;</span> // needs testing
         stakedShares[msg.sender] += shares;
 <span class="cstat-no" title="statement not covered" >        emit Stake(msg.sender, _amount);</span>
     }
 &nbsp;
 <span class="fstat-no" title="function not covered" >    function unstake(uint256 _amount) external {</span>
-<span class="cstat-no" title="statement not covered" >        require(stakedBalance[msg.sender] &gt;= _amount, "Not enough funds staked")</span>;
+<span class="cstat-no" title="statement not covered" >        require(</span>
+            stakedBalance[msg.sender] &gt;= _amount,
+            "Not enough funds staked"
+        );
         totalStaked -= _amount;
         stakedBalance[msg.sender] -= _amount;
 <span class="cstat-no" title="statement not covered" >        uint256 usdcBalance = IERC20(usdc).balanceOf(address(this));</span>
 <span class="cstat-no" title="statement not covered" >        if (usdcBalance == 0) usdcBalance = 1;</span>
-<span class="cstat-no" title="statement not covered" >        uint256 feeShare = stakedShares[msg.sender] * totalStaked / usdcBalance;</span> // needs testing
+<span class="cstat-no" title="statement not covered" >        uint256 feeShare = (stakedShares[msg.sender] * totalStaked) /</span>
+            usdcBalance; // needs testing
 <span class="cstat-no" title="statement not covered" >        transfer(msg.sender, _amount)</span>;
-<span class="cstat-no" title="statement not covered" >        IERC20(usdc).transfer(msg.sender,feeShare)</span>;
+<span class="cstat-no" title="statement not covered" >        IERC20(usdc).transfer(msg.sender, feeShare)</span>;
 <span class="cstat-no" title="statement not covered" >        emit Unstake(msg.sender, _amount, feeShare);</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function calculateShare(address _account) external view returns (uint256) {</span>
+<span class="cstat-no" title="statement not covered" >        return (stakedBalance[_account] / totalStaked) * 1e12;</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function decimals() public pure override returns (uint8) {</span>
+<span class="cstat-no" title="statement not covered" >        return 6;</span>
     }
 }
 &nbsp;</pre></td></tr>
@@ -193,7 +226,7 @@ contract LNDX is ERC20 {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 04 2022 11:43:57 GMT+0300 (Moscow Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 11 2022 13:41:25 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>

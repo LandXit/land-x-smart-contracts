@@ -110,7 +110,13 @@
 65
 66
 67
-68</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+68
+69
+70
+71</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -189,60 +195,63 @@ import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 &nbsp;
 contract USDC is
-	Context,
-	ERC20,
-	AccessControlEnumerable,
-	ERC20Permit,
-	ERC20Burnable,
-	ERC20Pausable,
-	ERC20Snapshot,
-	Ownable
+    Context,
+    ERC20,
+    AccessControlEnumerable,
+    ERC20Permit,
+    ERC20Burnable,
+    ERC20Pausable,
+    ERC20Snapshot,
+    Ownable
 {
-	bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-	bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
-	mapping(address =&gt; bool) public blacklist; //keep track of blacklist
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    bytes32 public constant BLACKLISTER_ROLE = keccak256("BLACKLISTER_ROLE");
+    mapping(address =&gt; bool) public blacklist; //keep track of blacklist
 &nbsp;
-<span class="fstat-no" title="function not covered" >	constructor(address _address) ERC20Permit("USDC") ERC20("USD Coin", "USDC") {</span>
-<span class="cstat-no" title="statement not covered" >		_setupRole(DEFAULT_ADMIN_ROLE, _address)</span>;
-<span class="cstat-no" title="statement not covered" >		_setupRole(MINTER_ROLE, _address)</span>;
-<span class="cstat-no" title="statement not covered" >		_setupRole(BLACKLISTER_ROLE, _address)</span>;
-	}
+<span class="fstat-no" title="function not covered" >    constructor(address _address)</span>
+        ERC20Permit("USDC")
+        ERC20("USD Coin", "USDC")
+    {
+<span class="cstat-no" title="statement not covered" >        _setupRole(DEFAULT_ADMIN_ROLE, _address)</span>;
+<span class="cstat-no" title="statement not covered" >        _setupRole(MINTER_ROLE, _address)</span>;
+<span class="cstat-no" title="statement not covered" >        _setupRole(BLACKLISTER_ROLE, _address)</span>;
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function decimals() public pure override returns (uint8) {</span>
+<span class="fstat-no" title="function not covered" >    function decimals() public pure override returns (uint8) {</span>
 <span class="cstat-no" title="statement not covered" >        return 6;</span>
-	}
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function mint(address to, uint256 amount) public virtual {</span>
-<span class="cstat-no" title="statement not covered" >		require(hasRole(MINTER_ROLE, _msgSender()), "not minter")</span>;
-<span class="cstat-no" title="statement not covered" >		_mint(to, amount)</span>;
-	}
+<span class="fstat-no" title="function not covered" >    function mint(address to, uint256 amount) public virtual {</span>
+<span class="cstat-no" title="statement not covered" >        require(hasRole(MINTER_ROLE, _msgSender()), "not minter")</span>;
+<span class="cstat-no" title="statement not covered" >        _mint(to, amount)</span>;
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function pause() public onlyOwner {</span>
-<span class="cstat-no" title="statement not covered" >		_pause()</span>;
-	}
+<span class="fstat-no" title="function not covered" >    function pause() public onlyOwner {</span>
+<span class="cstat-no" title="statement not covered" >        _pause()</span>;
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function unpause() public onlyOwner {</span>
-<span class="cstat-no" title="statement not covered" >		_unpause()</span>;
-	}
+<span class="fstat-no" title="function not covered" >    function unpause() public onlyOwner {</span>
+<span class="cstat-no" title="statement not covered" >        _unpause()</span>;
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function snapshot() public onlyOwner {</span>
-<span class="cstat-no" title="statement not covered" >		_snapshot()</span>;
-	}
+<span class="fstat-no" title="function not covered" >    function snapshot() public onlyOwner {</span>
+<span class="cstat-no" title="statement not covered" >        _snapshot()</span>;
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function setBlacklist(address user, bool value) public virtual {</span>
-<span class="cstat-no" title="statement not covered" >		require(hasRole(BLACKLISTER_ROLE, _msgSender()), "not blacklister")</span>;
-		blacklist[user] = value;
-	}
+<span class="fstat-no" title="function not covered" >    function setBlacklist(address user, bool value) public virtual {</span>
+<span class="cstat-no" title="statement not covered" >        require(hasRole(BLACKLISTER_ROLE, _msgSender()), "not blacklister")</span>;
+        blacklist[user] = value;
+    }
 &nbsp;
-<span class="fstat-no" title="function not covered" >	function _beforeTokenTransfer(</span>
-		address from,
-		address to,
-		uint256 amount
-	) internal override(ERC20, ERC20Pausable, ERC20Snapshot) {
-<span class="cstat-no" title="statement not covered" >		require(!blacklist[to], "recipient is blacklisted")</span>;
-<span class="cstat-no" title="statement not covered" >		require(!blacklist[from], "sender is blacklisted")</span>;
-<span class="cstat-no" title="statement not covered" >		super._beforeTokenTransfer(from, to, amount)</span>;
-	}
+<span class="fstat-no" title="function not covered" >    function _beforeTokenTransfer(</span>
+        address from,
+        address to,
+        uint256 amount
+    ) internal override(ERC20, ERC20Pausable, ERC20Snapshot) {
+<span class="cstat-no" title="statement not covered" >        require(!blacklist[to], "recipient is blacklisted")</span>;
+<span class="cstat-no" title="statement not covered" >        require(!blacklist[from], "sender is blacklisted")</span>;
+<span class="cstat-no" title="statement not covered" >        super._beforeTokenTransfer(from, to, amount)</span>;
+    }
 }
 &nbsp;</pre></td></tr>
 </table></pre>
@@ -250,7 +259,7 @@ contract USDC is
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 04 2022 11:43:57 GMT+0300 (Moscow Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Oct 11 2022 13:41:25 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>
