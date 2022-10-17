@@ -235,6 +235,16 @@
     </li>
         </ul>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#oracles">Oracles</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#contract">Contract</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#frontrunning-flashloans">Frontrunning &amp; Flashloans</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -371,6 +381,12 @@
 </li>
 </ul>
 </li>
+<li><a href="#oracles">Oracles</a><ul>
+<li><a href="#overview">Overview</a></li>
+<li><a href="#contract">Contract</a></li>
+</ul>
+</li>
+<li><a href="#frontrunning-flashloans">Frontrunning &amp; Flashloans</a></li>
 </ul>
 </li>
 </ul>
@@ -2472,6 +2488,27 @@ The function emit event:</p>
    </td>
   </tr>
 </table>
+
+<h2 id="oracles">Oracles</h2>
+<h3 id="overview">Overview</h3>
+<p>LandX has partnered with Chainlink and Matrixed.Link to provide an oracle service to bring commodity price data on-chain.</p>
+<p>The price data is derived from a commodities API which delivers it directly from CME, CBOT, NYMEX and COMEX. The data is pulled from the API by a decentralized network of nodes and sent via a transaction to our smart contracts on the Ethereum mainnet.</p>
+<h3 id="contract">Contract</h3>
+<p>The chainlink adapter is here:</p>
+<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OracleMulti.sol#L5">https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OracleMulti.sol#L5</a></p>
+<p>Multiple queries are called from a single transaction to fetch API data and bring that data into the OraclePrices.sol contract which makes it available throughout.</p>
+<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OraclePrices.sol">https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OraclePrices.sol</a></p>
+<p>This adapter is hosted by Matrixed.link and is called by Chainlink Automation (formerly Chainlink keepers) more information is available here: \
+<a href="https://docs.chain.link/docs/chainlink-automation/introduction/?_ga=2.75182097.2031120419.1665842779-312568758.1658466725">https://docs.chain.link/docs/chainlink-automation/introduction/?_ga=2.75182097.2031120419.1665842779-312568758.1658466725</a></p>
+<p>The Chainlink automation cron job is set to update 5 times a week when traditional finance markets are open. Further details are available here:</p>
+<p><a href="https://automation.chain.link/goerli/71649092462618195074524583505042249501464488159377840087759832747240961126361">https://automation.chain.link/goerli/71649092462618195074524583505042249501464488159377840087759832747240961126361</a></p>
+<h2 id="frontrunning-flashloans">Frontrunning &amp; Flashloans</h2>
+<p>Oracle price data affects the USD value of cTokens which are exchanged for USDC internally. This is available via the public sellCTokenfunction in RentFoundation.sol</p>
+<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/baf658d21439b5d8042575f1390607de2aeebfd6/contracts/rentFoundation.sol#L142">https://github.com/LandXit/land-x-smart-contracts/blob/baf658d21439b5d8042575f1390607de2aeebfd6/contracts/rentFoundation.sol#L142</a></p>
+<p>cTokens are not expected to trade on external exchanges and pricing is not affected by trade volume which mitigates the risk of a flashloan attack.</p>
+<p>xTokens are traded on decentralized exchanges and their price may find a fair market correlation to the price of the underlying commodities. However the commodity data would be available directly from tradfi exchanges before it becomes available on chain. There may be an informational advantage to trading xTokens based on the underlying commodity prices but that is for the market to decide.</p>
+<p>A technical user could potentially maximize their returns from xToken holdings by selling cTokens at the best price over two days.</p>
+<p>In theory a user could monitor the mempool for the incoming oracle transaction and then front run or wait for that transaction. If commodity prices continued to go up they could hold until there is a down turn and then sell. This is not a significant risk to the protocol and the same goal could be achieved by casually monitoring the price of commodities on traditional finance exchanges.</p>
               
             </div>
           </div><footer>
@@ -2513,6 +2550,6 @@ The function emit event:</p>
 </html>
 
 <!--
-MkDocs version : 1.4.0
-Build Date UTC : 2022-10-08 06:46:16.543927+00:00
+MkDocs version : 1.4.1
+Build Date UTC : 2022-10-17 07:52:30.254656+00:00
 -->
