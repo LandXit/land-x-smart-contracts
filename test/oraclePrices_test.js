@@ -15,7 +15,7 @@ describe("Oracle Prices", function () {
 		mockedXTokenContract = await deployMockContract(owner, xTokenContract.abi)
         const uniswapV3FactoryContract = require("../node_modules/@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Factory.sol/IUniswapV3Factory.json")
 		mockedUniswapV3FactoryContract = await deployMockContract(owner, uniswapV3FactoryContract.abi)
-		let oraclePricesContract = await ethers.getContractFactory("OraclePrices")
+		let oraclePricesContract = await ethers.getContractFactory("contracts/OraclePrices.sol:OraclePrices")
 		oraclePrices = await oraclePricesContract.deploy(
 			owner.address, 
 			mockedXTokenContract.address, 

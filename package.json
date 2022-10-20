@@ -8,7 +8,7 @@
 		"accounts": "npx hardhat accounts",
 		"balance": "npx hardhat balance",
 		"generate": "npx hardhat generate",
-		"test": "REPORT_GAS=true npx hardhat coverage --network ganache",
+		"test": "REPORT_GAS=true npx hardhat coverage --solcoverjs ./.solcover.js --network ganache --show-stack-traces",
 		"prettier": "prettier --write 'contracts/**/*.sol'",
 		"deploy_nft:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_nft.js",
 		"deploy_nft:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_nft.js",
@@ -31,6 +31,7 @@
 	"author": "LandX",
 	"license": "MIT",
 	"dependencies": {
+		"@chainlink/contracts": "^0.5.1",
 		"@openzeppelin/contracts": "^4.7.0",
 		"@truffle/hdwallet-provider": "1.2.5",
 		"@uniswap/v3-periphery": "^1.4.1",

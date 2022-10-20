@@ -16,7 +16,7 @@ describe("cToken", function () {
 		const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
 		let cTokenContract = await ethers.getContractFactory("CToken")
-		cToken = await cTokenContract.deploy(mockedRentFoundationContract.address, mockedXTokenRouterContract.address)
+		cToken = await cTokenContract.deploy(mockedRentFoundationContract.address, mockedXTokenRouterContract.address, "CORN")
 		await cToken.deployed()
 	})
 

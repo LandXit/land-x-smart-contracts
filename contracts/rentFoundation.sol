@@ -6,9 +6,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 
 interface ILANDXNFT {
-    function landArea(uint256 id) external view returns (uint256);
+    function tillableArea(uint256 id) external view returns (uint256);
 
-    function rent(uint256 id) external view returns (uint256);
+    function cropShare(uint256 id) external view returns (uint256);
 
     function crop(uint256 id) external view returns (string memory);
 }
@@ -105,7 +105,7 @@ contract RentFoundation is Context, Ownable {
             keyProtocolValues.validatorCommisionWallet(),
             validatorFee
         );
-        uint256 grainAmount = (amount - platformFee - validatorFee) /
+        uint256 grainAmount = (amount - platformFee - validatorFee) * 10 ** 3 /
             grainPrices.prices(landXNFT.crop(tokenID));
         feeDistributor(platformFee);
         deposits[tokenID].amount += grainAmount;
@@ -114,7 +114,7 @@ contract RentFoundation is Context, Ownable {
 
     // prepay initial rent after sharding in kg
     function payInitialRent(uint256 tokenID, uint256 amount) external {
-        string memory crop = ICrop(msg.sender).crop();
+        string memory crop = landXNFT.crop(tokenID);
         require(
             !initialRentApplied[tokenID],
             "Initial Paymant already applied"
@@ -132,11 +132,11 @@ contract RentFoundation is Context, Ownable {
     function getDepositBalance(uint256 tokenID) public view returns (int256) {
         uint256 elapsedSeconds = block.timestamp - deposits[tokenID].timestamp;
         uint256 delimeter = 365 * 1 days;
-        uint256 rentPerSecond = (landXNFT.rent(tokenID) *
-            landXNFT.landArea(tokenID)) / (10000 * delimeter);
+        uint256 rentPerSecond = (landXNFT.cropShare(tokenID) *
+            landXNFT.tillableArea(tokenID) * 10 ** 3) /  delimeter;
         return
             int256(deposits[tokenID].amount) -
-            int256(rentPerSecond * elapsedSeconds);
+            int256(rentPerSecond * elapsedSeconds / 10 ** 7);
     }
 
     function sellCToken(address account, uint256 amount) public {

@@ -17,13 +17,14 @@ interface IXTOKENROUTER {
 contract CToken is Context, ERC20Burnable, Ownable {
     IRENTFOUNDATION public rentFoundation;
     IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
-    string public constant crop = "CORN";
+    string public crop = "CORN";
 
-    constructor(address _rentForndation, address _xTokenRouter)
+    constructor(address _rentForndation, address _xTokenRouter, string memory _crop)
         ERC20("LandX cToken", "cCORN")
     {
         rentFoundation = IRENTFOUNDATION(_rentForndation);
         xTokenRouter = IXTOKENROUTER(_xTokenRouter);
+        crop = _crop;
     }
 
     // only minter can mint cTokens, for example xToken contract

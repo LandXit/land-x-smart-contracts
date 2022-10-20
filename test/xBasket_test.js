@@ -18,9 +18,10 @@ describe("xBasket", function () {
         
         const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
-        const uniswapRouterContract = require("../node_modules/@uniswap/v3-periphery/artifacts/contracts/interfaces/ISwapRouter.sol/ISwapRouter.json")
 
-		mockedUniswapRouter= await deployMockContract(owner, uniswapRouterContract.abi)
+        const uniswapRouterContract = require("../node_modules/@uniswap/v3-periphery/artifacts/contracts/interfaces/ISwapRouter.sol/ISwapRouter.json")
+		mockedUniswapRouter = await deployMockContract(owner, uniswapRouterContract.abi)
+
         const xTokenContract = require("../artifacts/contracts/xToken.sol/XToken.json")
         xSOY = await deployMockContract(owner, xTokenContract.abi)
         xRICE = await deployMockContract(owner, xTokenContract.abi)
@@ -274,49 +275,58 @@ describe("xBasket", function () {
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
         expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
         
-        console.log(await xBasket.convertToAssets(1000000));
         await xCORN.mock.claim.returns()
         await xSOY.mock.claim.returns()
         await xWHEAT.mock.claim.returns()
         await xRICE.mock.claim.returns()
 
-        await cCORN.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
-        await cSOY.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
         await cWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cSOY.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
         await cRICE.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cCORN.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
 
         await cWHEAT.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address,  Math.ceil(Date.now() / 1000) + 15, 5000000, 1, 0]).returns(30000000)
-
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        
         await cSOY.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address,  Math.ceil(Date.now() / 1000) + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)  
 
         await cRICE.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  Math.ceil(Date.now() / 1000) + 15, 5000000, 1, 0]).returns(30000000)
-
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+       
         await cCORN.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address,  Math.ceil(Date.now() / 1000) + 15, 5000000, 1, 0]).returns(30000000)
-       
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+
+        await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xRICE.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xCORN.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+
         await xWHEAT.mock.stake.withArgs(30000000).returns()
         await xSOY.mock.stake.withArgs(30000000).returns()
         await xRICE.mock.stake.withArgs(30000000).returns()
         await xCORN.mock.stake.withArgs(30000000).returns()
-
-        await xCORN.mock.unstake.withArgs(25071275).returns()
-        await xSOY.mock.unstake.withArgs(25071275).returns()
-        await xWHEAT.mock.unstake.withArgs(25071275).returns()
-        await xRICE.mock.unstake.withArgs(25071275).returns()
-
-        await xCORN.mock.transfer.withArgs(acc1.address, 25071275).returns(true)
-        await xSOY.mock.transfer.withArgs(acc1.address, 25071275).returns(true)
-        await xWHEAT.mock.transfer.withArgs(acc1.address, 25071275).returns(true)
-        await xRICE.mock.transfer.withArgs(acc1.address, 25071275).returns(true)
+       
+        await xCORN.mock.unstake.withArgs(1000000).returns()
+        await xSOY.mock.unstake.withArgs(1000000).returns()
+        await xWHEAT.mock.unstake.withArgs(1000000).returns()
+        await xRICE.mock.unstake.withArgs(1000000).returns()
         
-        await xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(0)
+        await xCORN.mock.transfer.withArgs(acc1.address, 1000000).returns(true)
+        await xSOY.mock.transfer.withArgs(acc1.address, 1000000).returns(true)
+        await xWHEAT.mock.transfer.withArgs(acc1.address, 1000000).returns(true)
+        await xRICE.mock.transfer.withArgs(acc1.address, 1000000).returns(true)
+        let bTime = (await time.latest()).toNumber()
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        
+        await expect(xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)).not.to.be.reverted
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(998647)
     }) 
 })
