@@ -1,0 +1,605 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/rentFoundation.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> rentFoundation.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>28/28</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>16/16</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>9/9</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>38/38</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">17×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.6;
+&nbsp;
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+&nbsp;
+interface ILANDXNFT {
+    function tillableArea(uint256 id) external view returns (uint256);
+&nbsp;
+    function cropShare(uint256 id) external view returns (uint256);
+&nbsp;
+    function crop(uint256 id) external view returns (string memory);
+}
+&nbsp;
+interface IXTOKENROUTER {
+    function getXToken(string memory _name) external view returns (address);
+&nbsp;
+    function getCToken(string memory _name) external view returns (address);
+}
+&nbsp;
+interface IGRAINPRICES {
+    function prices(string memory grain) external pure returns (uint256);
+}
+&nbsp;
+interface ICrop {
+    function crop() external pure returns (string memory);
+}
+&nbsp;
+interface IKEYPROTOCOLVALUES {
+    function landxOperationalWallet() external pure returns (address);
+&nbsp;
+    function landxChoiceWallet() external pure returns (address);
+&nbsp;
+    function landXOpertationsPercentage() external pure returns (uint256);
+&nbsp;
+    function landXChoicePercentage() external pure returns (uint256);
+&nbsp;
+    function lndxHoldersPercentage() external pure returns (uint256);
+&nbsp;
+    function hedgeFundAllocation() external pure returns (uint256);
+&nbsp;
+    function hedgeFundWallet() external pure returns (address);
+&nbsp;
+    function cTokenSellFee() external pure returns (uint256);
+&nbsp;
+    function validatorCommission() external pure returns (uint256);
+&nbsp;
+    function validatorCommisionWallet() external pure returns (address);
+&nbsp;
+    function payRentFee() external pure returns (uint256);
+}
+&nbsp;
+contract RentFoundation is Context, Ownable {
+    IERC20 public usdc;
+&nbsp;
+    address public lndx;
+&nbsp;
+    ILANDXNFT public landXNFT; //address of landXNFT
+&nbsp;
+    IGRAINPRICES public grainPrices;
+&nbsp;
+    IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
+    IKEYPROTOCOLVALUES public keyProtocolValues;
+&nbsp;
+    event rentPaid(uint256 tokenID, uint256 amount);
+    event initialRentPaid(uint256 tokenID, uint256 amount);
+&nbsp;
+    struct deposit {
+        uint256 timestamp;
+        uint256 amount; // in kg
+        int256 depositBalance; //in kg
+    }
+&nbsp;
+    mapping(uint256 =&gt; deposit) public deposits;
+&nbsp;
+    mapping(uint256 =&gt; bool) public initialRentApplied;
+&nbsp;
+    constructor(
+        address _usdc,
+        address _lndx,
+        address _keyProtokolValues
+    ) {
+        usdc = IERC20(_usdc);
+        lndx = _lndx;
+        keyProtocolValues = IKEYPROTOCOLVALUES(_keyProtokolValues);
+    }
+&nbsp;
+    // deposit rent for token ID, in USDC
+    function payRent(uint256 tokenID, uint256 amount) public {
+        require(initialRentApplied[tokenID], "Initial rent was not applied");
+        require(
+            usdc.transferFrom(msg.sender, address(this), amount),
+            "transfer failed"
+        );
+        uint256 platformFee = (amount * keyProtocolValues.payRentFee()) / 10000;
+        uint256 validatorFee = (amount *
+            keyProtocolValues.validatorCommission()) / 10000;
+        usdc.transfer(
+            keyProtocolValues.hedgeFundWallet(),
+            ((amount - platformFee - validatorFee) *
+                keyProtocolValues.hedgeFundAllocation()) / 10000
+        );
+        usdc.transfer(
+            keyProtocolValues.validatorCommisionWallet(),
+            validatorFee
+        );
+        uint256 grainAmount = (amount - platformFee - validatorFee) * 10 ** 3 /
+            grainPrices.prices(landXNFT.crop(tokenID));
+        feeDistributor(platformFee);
+        deposits[tokenID].amount += grainAmount;
+        emit rentPaid(tokenID, grainAmount);
+    }
+&nbsp;
+    // prepay initial rent after sharding in kg
+    function payInitialRent(uint256 tokenID, uint256 amount) external {
+        string memory crop = landXNFT.crop(tokenID);
+        require(
+            !initialRentApplied[tokenID],
+            "Initial Paymant already applied"
+        );
+        require(
+            xTokenRouter.getXToken(crop) == msg.sender,
+            "not initial payer"
+        );
+        deposits[tokenID].timestamp = block.timestamp;
+        deposits[tokenID].amount = amount;
+        initialRentApplied[tokenID] = true;
+        emit initialRentPaid(tokenID, amount);
+    }
+&nbsp;
+    function getDepositBalance(uint256 tokenID) public view returns (int256) {
+        uint256 elapsedSeconds = block.timestamp - deposits[tokenID].timestamp;
+        uint256 delimeter = 365 * 1 days;
+        uint256 rentPerSecond = (landXNFT.cropShare(tokenID) *
+            landXNFT.tillableArea(tokenID) * 10 ** 3) /  delimeter;
+        return
+            int256(deposits[tokenID].amount) -
+            int256(rentPerSecond * elapsedSeconds / 10 ** 7);
+    }
+&nbsp;
+    function sellCToken(address account, uint256 amount) public {
+        string memory crop = ICrop(msg.sender).crop();
+        require(xTokenRouter.getCToken(crop) == msg.sender, "no valid cToken");
+        uint256 usdcAmount = (amount * grainPrices.prices(crop)) / (10**9);
+        uint256 cellTokenFee = (usdcAmount *
+            keyProtocolValues.cTokenSellFee()) / 10000;
+        usdc.transfer(account, usdcAmount - cellTokenFee);
+        feeDistributor(cellTokenFee);
+    }
+&nbsp;
+    function feeDistributor(uint256 _fee) internal {
+        uint256 lndxFee = (_fee * keyProtocolValues.lndxHoldersPercentage()) /
+            10000;
+        uint256 operationalFee = (_fee *
+            keyProtocolValues.landXOpertationsPercentage()) / 10000;
+        usdc.transfer(lndx, lndxFee);
+        usdc.transfer(
+            keyProtocolValues.landxOperationalWallet(),
+            operationalFee
+        );
+        usdc.transfer(
+            keyProtocolValues.landxChoiceWallet(),
+            _fee - lndxFee - operationalFee
+        );
+    }
+&nbsp;
+    function setXTokenRouter(address _router) public onlyOwner {
+        xTokenRouter = IXTOKENROUTER(_router);
+    }
+&nbsp;
+    function setGrainPrices(address _grainPrices) public onlyOwner {
+        grainPrices = IGRAINPRICES(_grainPrices);
+    }
+&nbsp;
+    // change the address of landxNFT.
+    function changeLandXNFTAddress(address _newAddress) public onlyOwner {
+        landXNFT = ILANDXNFT(_newAddress);
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Oct 20 2022 18:48:41 GMT+0300 (Moscow Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

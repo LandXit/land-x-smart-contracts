@@ -2,6 +2,8 @@ const hre = require("hardhat")
 require("@nomiclabs/hardhat-web3")
 const fs = require("fs-extra")
 
+const { time } = require("@openzeppelin/test-helpers")
+
 function sleep(ms) {
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms)
@@ -14,11 +16,10 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const LandXNFTContract = await hre.ethers.getContractFactory("LandXNFT")
-	console.log("Deploying LandXNFT...")
+	const GrainPrices = await hre.ethers.getContractFactory("xBasket")
+	console.log("Deploying XBasket Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
-
 	console.log(">-> Network is set to " + network)
 
 	// ethers is avaialble in the global scope
@@ -27,26 +28,32 @@ async function main() {
 	const account = await web3.utils.toChecksumAddress(deployerAddress)
 	const balance = await web3.eth.getBalance(account)
 
+	let oraclePrices = "" //mainnet
+	let xTokenRouter = ""
+	let uniswapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+	if (network === "goerli") {
+		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99"
+		oraclePrices = "0x9D6EEe708a84BDa3aEb5b8C30Fc9Ee83Edd01929"
+	}
+
 	console.log(
 		"Deployer Account " + deployerAddress + " has balance: " + web3.utils.fromWei(balance, "ether"),
 		"ETH"
 	)
 
-	let xTokenRouter = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
-	let uri = "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/"
-	const deployed = await LandXNFTContract.deploy(xTokenRouter, uri)
-
+	let deployed = await GrainPrices.deploy(xTokenRouter, oraclePrices, uniswapRouter)
 	let dep = await deployed.deployed()
 
-	console.log("Contract deployed to:", dep.address)
-
-	await sleep(70000) //30 seconds sleep
+	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [xTokenRouter, uri],
+		constructorArguments: [xTokenRouter, oraclePrices],
 	})
+
 }
 
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
 main()
 	.then(() => process.exit(0))
 	.catch((error) => {

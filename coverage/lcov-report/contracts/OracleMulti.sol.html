@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/OracleMulti.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> OracleMulti.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>0/32</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>0/14</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>0/12</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">0% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>0/37</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line low'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.6;
+&nbsp;
+/*
+    LandX Chainlink Price Oracle
+    @dev This is an untested proof of concept
+*/
+&nbsp;
+import '@chainlink/contracts/src/v0.8/ChainlinkClient.sol';
+import '@chainlink/contracts/src/v0.8/ConfirmedOwner.sol';
+&nbsp;
+interface OraclePrices {
+  function setGrainPrice(string memory grain, uint256 price) external;
+}
+&nbsp;
+contract OracleMulti is ChainlinkClient, ConfirmedOwner {
+    using Chainlink for Chainlink.Request;
+    bytes32 private jobId = 'ca98366cc7314957b8c012c72f05aeeb';
+    uint256 private fee = (1 * LINK_DIVISIBILITY) / 10; // 0.1 LINK
+    int256 private constant timesAmount = 1;
+    OraclePrices private oraclePrices = OraclePrices(0xf2eCe499109B46f36DaefDD8351F85AC7b116107);
+ 
+    uint256 public wheat;
+    uint256 public soy;
+    uint256 public rice;
+    uint256 public corn;
+    
+<span class="fstat-no" title="function not covered" >    constructor() ConfirmedOwner(msg.sender) {</span>
+<span class="cstat-no" title="statement not covered" >        setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB)</span>;
+<span class="cstat-no" title="statement not covered" >        setChainlinkOracle(0xCC79157eb46F5624204f47AB42b3906cAA40eaB7)</span>;
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function requestAll() external {</span>
+<span class="cstat-no" title="statement not covered" >        requestWheat()</span>;
+<span class="cstat-no" title="statement not covered" >        requestSoy()</span>;
+<span class="cstat-no" title="statement not covered" >        requestRice()</span>;
+<span class="cstat-no" title="statement not covered" >        requestCorn()</span>;
+    }
+&nbsp;
+    /* Chainlink Request Functions */
+<span class="fstat-no" title="function not covered" >    function requestWheat() public {</span>
+<span class="cstat-no" title="statement not covered" >        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillWheat.selector);</span>
+<span class="cstat-no" title="statement not covered" >        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities')</span>;
+<span class="cstat-no" title="statement not covered" >        req.add('path', 'WHEAT')</span>;
+<span class="cstat-no" title="statement not covered" >        req.addInt('times', timesAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        sendChainlinkRequest(req, fee)</span>;
+    }
+<span class="fstat-no" title="function not covered" >    function requestSoy() public {</span>
+<span class="cstat-no" title="statement not covered" >        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillSoy.selector);</span>
+<span class="cstat-no" title="statement not covered" >        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities')</span>;
+<span class="cstat-no" title="statement not covered" >        req.add('path', 'SOY')</span>;
+<span class="cstat-no" title="statement not covered" >        req.addInt('times', timesAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        sendChainlinkRequest(req, fee)</span>;
+    }
+<span class="fstat-no" title="function not covered" >    function requestRice() public {</span>
+<span class="cstat-no" title="statement not covered" >        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillRice.selector);</span>
+<span class="cstat-no" title="statement not covered" >        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities')</span>;
+<span class="cstat-no" title="statement not covered" >        req.add('path', 'RICE')</span>;
+<span class="cstat-no" title="statement not covered" >        req.addInt('times', timesAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        sendChainlinkRequest(req, fee)</span>;
+    }
+<span class="fstat-no" title="function not covered" >    function requestCorn() public {</span>
+<span class="cstat-no" title="statement not covered" >        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillCorn.selector);</span>
+<span class="cstat-no" title="statement not covered" >        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities')</span>;
+<span class="cstat-no" title="statement not covered" >        req.add('path', 'CORN')</span>;
+<span class="cstat-no" title="statement not covered" >        req.addInt('times', timesAmount)</span>;
+<span class="cstat-no" title="statement not covered" >        sendChainlinkRequest(req, fee)</span>;
+    }
+&nbsp;
+    /* Chainlink Fulfill Functions */
+<span class="fstat-no" title="function not covered" >    function fulfillWheat(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {</span>
+        wheat = _price;
+<span class="cstat-no" title="statement not covered" >        try oraclePrices.setGrainPrice('WHEAT', _price) {} catch {}</span>
+    }
+<span class="fstat-no" title="function not covered" >    function fulfillSoy(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {</span>
+        soy = _price;
+<span class="cstat-no" title="statement not covered" >        try oraclePrices.setGrainPrice('SOY', _price) {} catch {}</span>
+    }
+<span class="fstat-no" title="function not covered" >    function fulfillRice(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {</span>
+        rice = _price;
+<span class="cstat-no" title="statement not covered" >        try oraclePrices.setGrainPrice('RICE', _price) {} catch {}</span>
+    }
+<span class="fstat-no" title="function not covered" >    function fulfillCorn(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {</span>
+        corn = _price;
+<span class="cstat-no" title="statement not covered" >        try oraclePrices.setGrainPrice('CORN', _price) {} catch {}</span>
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function updateOraclePrices(address _opAddress) public onlyOwner {</span>
+        oraclePrices = OraclePrices(_opAddress);
+    }
+&nbsp;
+<span class="fstat-no" title="function not covered" >    function withdrawLink() public onlyOwner {</span>
+<span class="cstat-no" title="statement not covered" >        LinkTokenInterface link = LinkTokenInterface(chainlinkTokenAddress());</span>
+<span class="cstat-no" title="statement not covered" >        require(link.transfer(msg.sender, link.balanceOf(address(this))), 'Unable to transfer')</span>;
+    }
+}</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Thu Oct 20 2022 17:24:53 GMT+0300 (Moscow Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>

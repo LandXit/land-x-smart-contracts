@@ -2,6 +2,8 @@ const hre = require("hardhat")
 require("@nomiclabs/hardhat-web3")
 const fs = require("fs-extra")
 
+const { time } = require("@openzeppelin/test-helpers")
+
 function sleep(ms) {
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms)
@@ -14,11 +16,10 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const LandXNFTContract = await hre.ethers.getContractFactory("LandXNFT")
-	console.log("Deploying LandXNFT...")
+	const cToken = await hre.ethers.getContractFactory("CToken")
+	console.log("Deploying CToken Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
-
 	console.log(">-> Network is set to " + network)
 
 	// ethers is avaialble in the global scope
@@ -32,21 +33,26 @@ async function main() {
 		"ETH"
 	)
 
-	let xTokenRouter = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
-	let uri = "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/"
-	const deployed = await LandXNFTContract.deploy(xTokenRouter, uri)
+	let xTokenRouter = "" //mainnet
+	let rentFoundation = ""
+	let crop = "CORN"
+	if (network === "goerli") {
+		xTokenRouter = "0xa9BA799B7C041c9530CA6e212371E80dc202e97B" //rinkeby
+		rentFoundation = "0xB26A5242655225d9Eccc0925bf907caCE98F1330"
+	}
 
+	let deployed = await cToken.deploy(rentFoundation, xTokenRouter, crop)
 	let dep = await deployed.deployed()
 
-	console.log("Contract deployed to:", dep.address)
-
-	await sleep(70000) //30 seconds sleep
+	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [xTokenRouter, uri],
+		constructorArguments: [rentFoundation, xTokenRouter, crop]
 	})
 }
 
+// We recommend this pattern to be able to use async/await everywhere
+// and properly handle errors.
 main()
 	.then(() => process.exit(0))
 	.catch((error) => {

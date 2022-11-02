@@ -203,3 +203,5 @@ npm run deploy_v:mainnet
 ```
 
 ```
+
+See [full documentation](https://landxit.github.io/land-x-smart-contracts/)

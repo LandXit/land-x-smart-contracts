@@ -14,8 +14,8 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const LandXNFTContract = await hre.ethers.getContractFactory("LandXNFT")
-	console.log("Deploying LandXNFT...")
+	const USDCContract = await hre.ethers.getContractFactory("USDC")
+	console.log("Deploying USDC...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 
@@ -32,18 +32,18 @@ async function main() {
 		"ETH"
 	)
 
-	let xTokenRouter = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
-	let uri = "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/"
-	const deployed = await LandXNFTContract.deploy(xTokenRouter, uri)
+	//deployerAddress is minter
+	const deployed = await USDCContract.deploy(deployerAddress)
 
 	let dep = await deployed.deployed()
 
 	console.log("Contract deployed to:", dep.address)
 
-	await sleep(70000) //30 seconds sleep
+	await sleep(60000) //30 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [xTokenRouter, uri],
+		constructorArguments: [deployerAddress],
+		contract: "contracts/usdc.sol:USDC"
 	})
 }
 
