@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 interface IXTOKENROUTER {
-    function getXToken(string memory _name) external view returns(address); 
+    function getXToken(string memory _name) external view returns (address);
 }
 
 contract LandXNFT is ERC1155, Ownable {
@@ -18,37 +18,47 @@ contract LandXNFT is ERC1155, Ownable {
     // other parameters
     string private _baseTokenURI =
         "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/";
-    string private _contractURI =
-        "https://raw.githubusercontent.com/AndreiD/Playground/master/nfts_sample/contract_uri";
 
     mapping(uint256 => uint256) public totalSupply;
-    mapping(uint256 => uint256) public landArea; // in square-meters
-    mapping(uint256 => uint256) public rent; //rentInKgOfWheatPerYear
-    mapping(uint256 => string)  public crop; // ["SOY", "RICE" ....]
-    mapping(uint256 => address) public landOwner;
+    mapping(uint256 => uint256) public landArea; // total area in square-meters
+    mapping(uint256 => uint256) public tillableArea; // tillable area in square-meters
+    mapping(uint256 => uint256) public cropShare; //crop share
+    mapping(uint256 => string) public crop; // ["SOY", "RICE" ....]
+    mapping(uint256 => address) public validator; // validator or landowner
+    mapping(uint256 => bytes32) public lienAgreementHash; //sha256 hash of lien documents
+    mapping(uint256 => address) public initialOwner;
 
-    //1 shard = (landArea * rent) /  10000
-
-    constructor() ERC1155(_baseTokenURI) {
-        
+    constructor(address _xTokenRouter, string memory _uri)
+        ERC1155(_baseTokenURI)
+    {
+        xTokenRouter = IXTOKENROUTER(_xTokenRouter);
+        _baseTokenURI = _uri;
     }
 
     /**@dev sets the token details. price is in *wei* */
     function setDetailsAndMint(
-        uint256 _index, 
+        uint256 _index,
         uint256 _landArea,
-        uint256 _rent,
-        address _landOwner,
+        uint256 _tillableArea,
+        uint256 _cropShare,
+        address _validator,
+        bytes32 _lienAgreementHash,
         string memory _crop,
         address _to
-    ) public onlyOwner{
+    ) public onlyOwner {
         require(totalSupply[_index] == 0, "tokenID already minted");
-        require(xTokenRouter.getXToken(_crop) != address(0), "xToken is not defined");
+        require(
+            xTokenRouter.getXToken(_crop) != address(0),
+            "xToken is not defined"
+        );
         landArea[_index] = _landArea;
-        rent[_index] = _rent;
+        tillableArea[_index] = _tillableArea;
+        cropShare[_index] = _cropShare;
         crop[_index] = _crop;
-        landOwner[_index] = _landOwner;
+        validator[_index] = _validator;
+        lienAgreementHash[_index] = _lienAgreementHash;
         totalSupply[_index] = totalSupply[_index] + 1;
+        initialOwner[_index] = _to;
         _mint(_to, _index, 1, "0x0000");
     }
 
@@ -68,14 +78,6 @@ contract LandXNFT is ERC1155, Ownable {
 
     function setBaseURI(string memory newuri) public onlyOwner {
         _baseTokenURI = newuri;
-    }
-
-    function setContractURI(string memory newuri) public onlyOwner {
-        _contractURI = newuri;
-    }
-
-    function contractURI() public view returns (string memory) {
-        return _contractURI;
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
@@ -114,17 +116,5 @@ contract LandXNFT is ERC1155, Ownable {
             _i /= 10;
         }
         return string(bstr);
-    }
-
-    // reclaim accidentally sent eth
-    function withdraw() public onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
-    }
-
-    // reclaim accidentally sent tokens
-    function reclaimToken(IERC20 token) public onlyOwner {
-        require(address(token) != address(0));
-        uint256 balance = token.balanceOf(address(this));
-        token.transfer(msg.sender, balance);
     }
 }

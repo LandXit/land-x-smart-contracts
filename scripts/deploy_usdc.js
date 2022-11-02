@@ -43,7 +43,7 @@ async function main() {
 	await hre.run("verify:verify", {
 		address: dep.address,
 		constructorArguments: [deployerAddress],
-		contract: "contracts/USDC.sol:USDC"
+		contract: "contracts/usdc.sol:USDC"
 	})
 }
 

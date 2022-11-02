@@ -28,7 +28,11 @@ async function main() {
 	const account = await web3.utils.toChecksumAddress(deployerAddress)
 	const balance = await web3.eth.getBalance(account)
 
-	let usdcTokenAddress = "0x......" //mainnet
+	let usdcTokenAddress = "0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841"
+	let Lndx = "0x3931C703BEdB4f00f602f3F5F7838801F0b5BEb0"
+	let kv = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
+
+	//let usdcTokenAddress = "0x......" //mainnet
 	if (network === "rinkeby") {
 		usdcTokenAddress = "0xE3A2763c0437B622077761697BC22782d59DbE19" //rinkeby
 		console.log(">-> USDC ADDRESS " + usdcTokenAddress)
@@ -39,13 +43,14 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await RentFoundation.deploy(usdcTokenAddress)
+	let deployed = await RentFoundation.deploy(usdcTokenAddress, Lndx, kv)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [usdcTokenAddress],
+		constructorArguments: [usdcTokenAddress, Lndx, kv],
+		contract: "contracts/rentFoundation.sol:RentFoundation"
 	})
 
 }
