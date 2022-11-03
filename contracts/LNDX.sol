@@ -5,15 +5,19 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface IveLNDX {
     function mint(address account, uint256 amount) external;
+
     function burn(address account, uint256 amount) external;
 }
 
-contract LNDX is ERC20, Ownable {
+contract LNDX is ERC20, Ownable, AccessControl {
+    bytes32 public constant FEE_DISTRIBUTOR = keccak256("FEE_DISTRIBUTOR");
+
     using SafeMath for uint256;
-	using SafeMath for uint16;
+    using SafeMath for uint16;
 
     uint256 public constant MAX_MINTABLE_AMOUNT = 80000000000000;
     uint256 public constant MAX_REWARD_AMOUNT = 15600000000000;
@@ -22,22 +26,24 @@ contract LNDX is ERC20, Ownable {
     address usdc;
     address veLNDX;
 
-    enum StakePeriods {MONTHS_3, MONTHS_12, MONTHS_48}
+    enum StakePeriods {
+        MONTHS_3,
+        MONTHS_12,
+        MONTHS_48
+    }
 
-    mapping (StakePeriods => uint8) public coefficients;
-    mapping (StakePeriods => uint16) public aprs;
+    mapping(StakePeriods => uint8) public coefficients;
 
     struct Grant {
         uint256 createdTime;
-		uint256 startTime;
-		uint256 amount;
-		uint16 vestingDuration;
-		uint16 daysClaimed;
-		uint256 totalClaimed;
-		address recipient;
+        uint256 startTime;
+        uint256 amount;
+        uint16 vestingDuration;
+        uint16 daysClaimed;
+        uint256 totalClaimed;
+        address recipient;
         uint256 veLndxClaimed;
-        uint16 apr;
-	}
+    }
 
     struct Stake {
         address staker;
@@ -45,7 +51,6 @@ contract LNDX is ERC20, Ownable {
         uint256 startTime;
         uint256 endTime;
         uint256 veLndxClaimed;
-        uint16 apr;
         bool unstaked;
     }
 
@@ -60,178 +65,270 @@ contract LNDX is ERC20, Ownable {
     event Staked(address user, uint256 amount, uint256 stakeId);
     event Unstaked(address user, uint256 amount, uint256 stakeId);
 
-    mapping(address => uint256) feeShares;
-    mapping(address => uint256) stakedBalance;
+    mapping(address => uint256) public feePerGrant;
+    mapping(address => uint256) public rewardsPerGrant;
+
+    mapping(uint256 => uint256) public feePerStake;
+    mapping(uint256 => uint256) public rewardsPerStake;
 
     uint256 public feeSharesPerToken;
-    
+    uint256 public feeNotDistributed;
+
+    uint256 public rewardSharesPerToken;
+    uint256 public rewardNotDistributed;
+
     uint256 public totalStaked;
     uint256 public totalLocked;
 
+    uint16 public rewardVestingDuration; // reward vesting duration in days;
 
-    constructor(address _usdc, address _veLNDX) ERC20("LandX Governance Token", "LNDX") {
-       usdc = _usdc;
-       veLNDX = _veLNDX;
-       coefficients[StakePeriods.MONTHS_3] = 25;
-       coefficients[StakePeriods.MONTHS_12] = 50;
-       coefficients[StakePeriods.MONTHS_48] = 100;
-
-       aprs[StakePeriods.MONTHS_3] = 400; //4%
-       aprs[StakePeriods.MONTHS_12] = 800; //8%
-       aprs[StakePeriods.MONTHS_48] = 1600; //16%
+    struct RewardVesting {
+        uint256 amountVested;
+        uint256 vestingStartedAt;
+        uint256 lastVestedAt;
+        uint256 daysClaimed;
     }
 
-    function updateAPR(uint16 _month3, uint16 _month12, uint16 _month48) external onlyOwner {
-        require(_month3 <= 5000, "Too high APR");
-        require(_month12 <= 5000, "Too high APR");
-        require(_month48 <= 5000, "Too high APR");
+    RewardVesting public rewardVested;
 
-        aprs[StakePeriods.MONTHS_3] = _month3; 
-        aprs[StakePeriods.MONTHS_12] = _month12;
-        aprs[StakePeriods.MONTHS_48] = _month48;
+    constructor(
+        address _usdc,
+        address _veLNDX,
+        uint16 _rewardVestingDuration
+    ) ERC20("LandX Governance Token", "LNDX") {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        usdc = _usdc;
+        veLNDX = _veLNDX;
+        coefficients[StakePeriods.MONTHS_3] = 25;
+        coefficients[StakePeriods.MONTHS_12] = 50;
+        coefficients[StakePeriods.MONTHS_48] = 100;
+
+        if (_rewardVestingDuration == 0) {
+            rewardVestingDuration = 1825; // 5 years = 1825 days
+        } else {
+            rewardVestingDuration = _rewardVestingDuration;
+        }
     }
 
     /**
         LNDX Vesting logic
     */
-    function grantLNDX(address recipient, uint256 amount, uint16 cliffInMonths, uint16 vestingDurationInMonths) external onlyOwner {
-        require(grants[recipient].amount == 0, "grant already exists");
-        require(totalSupply() + amount <= MAX_MINTABLE_AMOUNT, "Mint limit amount exceeded");
+    function grantLNDX(
+        address recipient,
+        uint256 amount,
+        uint16 cliffInMonths,
+        uint16 vestingDurationInMonths
+    ) external onlyOwner {
+        require(
+            totalSupply() + amount <= MAX_MINTABLE_AMOUNT,
+            "Mint limit amount exceeded"
+        );
         if (cliffInMonths == 0 && vestingDurationInMonths == 0) {
             _mint(recipient, amount);
             return;
         }
+        require(grants[recipient].amount == 0, "grant already exists");
         require(cliffInMonths <= 60, "cliff greater than one year");
-		require(vestingDurationInMonths <= 60, "duration greater than 5 years");
+        require(vestingDurationInMonths <= 60, "duration greater than 5 years");
         uint128 totalPeriod = cliffInMonths + vestingDurationInMonths;
 
         uint8 coefficient = coefficients[StakePeriods.MONTHS_3];
-        uint16 apr = aprs[StakePeriods.MONTHS_3];
         if (totalPeriod >= 12 && totalPeriod < 48) {
             coefficient = coefficients[StakePeriods.MONTHS_12];
-            apr = aprs[StakePeriods.MONTHS_12];
         }
-
         if (totalPeriod >= 48) {
             coefficient = coefficients[StakePeriods.MONTHS_48];
-            apr = aprs[StakePeriods.MONTHS_48];
         }
 
         _mint(address(this), amount);
-        stakedBalance[recipient] = stakedBalance[recipient] + amount;
-       
-        totalLocked = totalLocked + amount;
-        uint256 veLNDXAmount = amount * coefficient / 100;
-        IveLNDX(veLNDX).mint(recipient, veLNDXAmount);
-        feeShares[recipient] = feeShares[recipient] + feeSharesPerToken * veLNDXAmount;
 
-        uint256 startTime = block.timestamp + (30 days * uint256(cliffInMonths));
+        totalLocked = totalLocked + amount;
+        uint256 veLNDXAmount = (amount * coefficient) / 100;
+
+        IveLNDX(veLNDX).mint(recipient, veLNDXAmount);
+        rewardsToDistribute();
+
+        rewardsPerGrant[recipient] +=
+            (rewardSharesPerToken * veLNDXAmount) /
+            1e6;
+        feePerGrant[recipient] += (feeSharesPerToken * veLNDXAmount) / 1e6;
+
+        uint256 startTime = block.timestamp +
+            (30 days * uint256(cliffInMonths));
 
         Grant memory grant = Grant({
             createdTime: block.timestamp,
-			startTime: startTime,
-			amount: amount,
-			vestingDuration: vestingDurationInMonths * 30,
-			daysClaimed: 0,
-			totalClaimed: 0,
-			recipient: recipient,
-            veLndxClaimed: veLNDXAmount,
-            apr: apr 
-		});
+            startTime: startTime,
+            amount: amount,
+            vestingDuration: vestingDurationInMonths * 30,
+            daysClaimed: 0,
+            totalClaimed: 0,
+            recipient: recipient,
+            veLndxClaimed: veLNDXAmount
+        });
 
         grants[recipient] = grant;
         emit GrantAdded(recipient, amount);
     }
 
     function claimVestedTokens() external {
-		uint16 daysVested;
-		uint256 amountVested;
-		(daysVested, amountVested) = calculateGrantClaim(msg.sender);
-		require(amountVested > 0, "wait one day or vested is 0");
+        uint16 daysVested;
+        uint256 amountVested;
+        (daysVested, amountVested) = calculateGrantClaim(msg.sender);
+        require(amountVested > 0, "wait one day or vested is 0");
 
-		Grant storage grant = grants[msg.sender];
-		grant.daysClaimed = uint16(grant.daysClaimed.add(daysVested));
-		grant.totalClaimed = uint256(grant.totalClaimed.add(amountVested));
+        rewardsToDistribute();
 
-        uint256 rewardsForDays = block.timestamp.sub(grant.createdTime - 1 days).div(1 days);
-        uint256 rewards = mintReward(amountVested, rewardsForDays, grant.apr);
+        Grant storage grant = grants[msg.sender];
+        grant.daysClaimed = uint16(grant.daysClaimed.add(daysVested));
+        grant.totalClaimed = uint256(grant.totalClaimed.add(amountVested));
 
-        uint256 veLNDXAmount = amountVested * grant.veLndxClaimed / grant.amount;
+        uint256 veLNDXAmount = (amountVested * grant.veLndxClaimed) /
+            grant.amount;
+
         IveLNDX(veLNDX).burn(msg.sender, veLNDXAmount);
-        stakedBalance[msg.sender] = stakedBalance[msg.sender] - amountVested;
-        totalLocked = totalLocked - amountVested;
-        feeShares[msg.sender] = feeShares[msg.sender] - feeSharesPerToken * veLNDXAmount;
-		require(transfer(grant.recipient, amountVested + rewards), "no tokens");
-		emit GrantTokensClaimed(grant.recipient, amountVested);
-	}
 
-    function calculateGrantClaim(address _recipient) private view returns (uint16, uint256) {
-		Grant storage grant = grants[_recipient];
+        totalLocked -= amountVested;
+        uint256 totalFee = computeGrantFee(msg.sender);
+        uint256 fee = (veLNDXAmount * totalFee) / grant.veLndxClaimed;
+        feePerGrant[msg.sender] -= fee;
 
-		require(grant.totalClaimed < grant.amount, "grant fully claimed");
+        uint256 totalRewards = computeGrantReward(msg.sender);
+        uint256 rewards = (veLNDXAmount * totalRewards) / grant.veLndxClaimed;
+        rewardsPerGrant[msg.sender] -= rewards;
 
-		// For grants created with a future start date, that hasn't been reached, return 0, 0
-		if (block.timestamp < grant.startTime) {
-			return (0, 0);
-		}
-
-		// Check cliff was reached
-		uint256 elapsedDays = block.timestamp.sub(grant.startTime - 1 days).div(1 days);
-
-		// If over vesting duration, all tokens vested
-		if (elapsedDays >= grant.vestingDuration) {
-			uint256 remainingGrant = grant.amount.sub(grant.totalClaimed);
-			return (grant.vestingDuration, remainingGrant);
-		} else {
-			uint16 daysVested = uint16(elapsedDays.sub(grant.daysClaimed));
-			uint256 amountVestedPerDay = grant.amount.div(uint256(grant.vestingDuration));
-			uint256 amountVested = uint256(daysVested.mul(amountVestedPerDay));
-			return (daysVested, amountVested);
-		}
-	}
-
-    function getGrantStartTime(address _recipient) public view returns (uint256) {
-		Grant storage grant = grants[_recipient];
-		return grant.startTime;
-	}
-
-	function getGrantAmount(address _recipient) public view returns (uint256) {
-		Grant storage grant = grants[_recipient];
-		return grant.amount;
-	}
-
-    function calculateReward(uint256 amount, uint256 daysCount, uint16 apr) internal view returns (uint256) {
-         if (totalRewardMinted >= MAX_REWARD_AMOUNT) {
-            return 0;
-        }
-
-        uint256 rewards = amount * apr * daysCount / 10000 / 365;
-        if (totalRewardMinted + rewards > MAX_REWARD_AMOUNT) {
-            rewards = MAX_REWARD_AMOUNT - totalRewardMinted;
-        }
-        return rewards;
+        IERC20(usdc).transfer(msg.sender, fee);
+        require(transfer(grant.recipient, amountVested + rewards), "no tokens");
+        emit GrantTokensClaimed(grant.recipient, amountVested);
     }
 
-    function mintReward(uint256 amount, uint256 daysCount, uint16 apr) internal returns (uint256) {
-        uint256 rewards = calculateReward(amount, daysCount, apr);
-        _mint(address(this), rewards);
-        return rewards;
+    function computeGrantReward(address recipient)
+        public
+        view
+        returns (uint256)
+    {
+        Grant storage grant = grants[msg.sender];
+        return
+            (grant.veLndxClaimed * rewardSharesPerToken) /
+            1e6 -
+            rewardsPerGrant[recipient];
+    }
+
+    function computeGrantFee(address recipient) public view returns (uint256) {
+        Grant storage grant = grants[msg.sender];
+        return
+            (grant.veLndxClaimed * feeSharesPerToken) /
+            1e6 -
+            feePerGrant[recipient];
+    }
+
+    function rewardsToDistribute() internal {
+        if (rewardVested.amountVested >= MAX_REWARD_AMOUNT) {
+            return;
+        }
+
+        if (rewardVested.lastVestedAt >= block.timestamp) {
+            return;
+        }
+
+        if (rewardVested.vestingStartedAt == 0) {
+            rewardVested.vestingStartedAt = block.timestamp;
+        }
+
+        uint256 elapsedDays = block
+            .timestamp
+            .sub(rewardVested.vestingStartedAt - 1 days)
+            .div(1 days);
+
+        uint256 amountVested = 0;
+        // If over vesting duration, all tokens vested
+        if (elapsedDays >= rewardVestingDuration) {
+            amountVested = MAX_REWARD_AMOUNT.sub(rewardVested.amountVested);
+            _mint(address(this), amountVested);
+            rewardVested.amountVested += amountVested;
+            rewardVested.lastVestedAt = block.timestamp;
+        } else {
+            uint16 daysVested = uint16(
+                elapsedDays.sub(rewardVested.daysClaimed)
+            );
+            if (daysVested > 0) {
+                uint256 amountVestedPerDay = MAX_REWARD_AMOUNT.div(
+                    uint256(rewardVestingDuration)
+                );
+                amountVested = uint256(daysVested.mul(amountVestedPerDay));
+                _mint(address(this), amountVested);
+                rewardVested.amountVested += amountVested;
+                rewardVested.lastVestedAt = block.timestamp;
+                rewardVested.daysClaimed += daysVested;
+                uint256 tokensCount = IERC20(veLNDX).totalSupply();
+                if (tokensCount == 0) {
+                    rewardNotDistributed += amountVested;
+                    return;
+                }
+                rewardSharesPerToken +=
+                    (1e6 * (amountVested + rewardNotDistributed)) /
+                    tokensCount;
+                rewardNotDistributed = 0;
+            }
+        }
+    }
+
+    function calculateGrantClaim(address _recipient)
+        private
+        view
+        returns (uint16, uint256)
+    {
+        Grant storage grant = grants[_recipient];
+
+        require(grant.totalClaimed < grant.amount, "grant fully claimed");
+
+        // For grants created with a future start date, that hasn't been reached, return 0, 0
+        if (block.timestamp < grant.startTime) {
+            return (0, 0);
+        }
+
+        // Check cliff was reached
+        uint256 elapsedDays = block.timestamp.sub(grant.startTime - 1 days).div(
+            1 days
+        );
+
+        // If over vesting duration, all tokens vested
+        if (elapsedDays >= grant.vestingDuration) {
+            uint256 remainingGrant = grant.amount.sub(grant.totalClaimed);
+            return (grant.vestingDuration, remainingGrant);
+        } else {
+            uint16 daysVested = uint16(elapsedDays.sub(grant.daysClaimed));
+            uint256 amountVestedPerDay = grant.amount.div(
+                uint256(grant.vestingDuration)
+            );
+            uint256 amountVested = uint256(daysVested.mul(amountVestedPerDay));
+            return (daysVested, amountVested);
+        }
     }
 
     /**
     Staking logic
     */
-    function feeToDistribute(uint256 amount) external {
+    function feeToDistribute(uint256 amount)
+        external
+        onlyRole(FEE_DISTRIBUTOR)
+    {
         uint256 tokensCount = IERC20(veLNDX).totalSupply();
-        if (tokensCount == 0) tokensCount = 1;
-        feeSharesPerToken = feeSharesPerToken + amount / tokensCount;
+        if (tokensCount == 0) {
+            feeNotDistributed += amount;
+            return;
+        }
+        feeSharesPerToken += (1e6 * (amount + feeNotDistributed)) / tokensCount;
+        feeNotDistributed = 0;
     }
 
     function stakeLNDX(uint256 amount, StakePeriods period) external {
         require(coefficients[period] != 0, "wrong period");
-        transferFrom(msg.sender, address(this), amount);
-        uint256 mintAmount = amount * coefficients[period] / 100; //veLNDX amount to mint
+        _transfer(msg.sender, address(this), amount);
+        uint256 mintAmount = (amount * coefficients[period]) / 100; //veLNDX amount to mint
         IveLNDX(veLNDX).mint(msg.sender, mintAmount);
+
+        rewardsToDistribute();
 
         Stake memory stake = Stake({
             staker: msg.sender,
@@ -239,83 +336,85 @@ contract LNDX is ERC20, Ownable {
             startTime: block.timestamp,
             endTime: calculateEndDate(period),
             unstaked: false,
-            veLndxClaimed: mintAmount,
-            apr: aprs[period]
+            veLndxClaimed: mintAmount
         });
 
         stakesCount++;
         stakes[stakesCount] = stake;
 
-        uint256 veTokensCount = IERC20(veLNDX).totalSupply();
-        if (veTokensCount == 0) veTokensCount = 1;
-        
-        stakedBalance[msg.sender] += amount;
+        totalStaked += amount;
 
-        feeShares[msg.sender] += feeSharesPerToken * mintAmount;
+        feePerStake[stakesCount] += (feeSharesPerToken * mintAmount) / 1e6;
+        rewardsPerStake[stakesCount] +=
+            (rewardSharesPerToken * mintAmount) /
+            1e6;
         emit Staked(msg.sender, amount, stakesCount);
     }
 
     function unstake(uint256 stakeID) external {
-        require(
-           stakes[stakeID].staker == msg.sender,
-            "not staker"
-        );
-        require(
-           stakes[stakeID].unstaked == false,
-            "already unstaked"
-        );
-        require(
-           stakes[stakeID].endTime >= block.timestamp,
-            "too early"
-        );
+        require(stakes[stakeID].staker == msg.sender, "not staker");
+        require(stakes[stakeID].unstaked == false, "already unstaked");
+        require(stakes[stakeID].endTime <= block.timestamp, "too early");
 
-        Stake storage s  = stakes[stakeID];
+        Stake storage s = stakes[stakeID];
         totalStaked -= s.amount;
-        stakedBalance[msg.sender] -= s.amount;
 
-        uint256 feeShare = calculateFeeShare(msg.sender);
-        feeShares[msg.sender] = 0;
+        rewardsToDistribute();
 
-        IveLNDX(veLNDX).burn(msg.sender, s.veLndxClaimed);
+        uint256 rewards = computeStakeReward(stakeID);
+        uint256 fee = computeStakeFee(stakeID);
 
-        uint256 rewardsForDays = s.endTime.sub(s.startTime - 1 days).div(1 days);
-        uint256 rewards = mintReward(s.amount, rewardsForDays, s.apr);
-        
+        s.unstaked = true;
+
+        rewardsPerStake[stakeID] = 0;
+        feePerStake[stakeID] = 0;
+
         transfer(msg.sender, s.amount + rewards);
-        IERC20(usdc).transfer(msg.sender, feeShare);
+        IERC20(usdc).transfer(msg.sender, fee);
         emit Unstaked(msg.sender, s.amount, stakeID);
     }
 
-    function unstakePreview(uint256 stakeID) external view returns (uint256, uint256, uint256){
-        require(
-           stakes[stakeID].staker == msg.sender,
-            "not staker"
-        );
-        require(
-           stakes[stakeID].unstaked == false,
-            "already unstaked"
-        );
-        require(
-           stakes[stakeID].endTime >= block.timestamp,
-            "too early"
-        );
+    function unstakePreview(uint256 stakeID)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        require(stakes[stakeID].staker == msg.sender, "not staker");
+        require(stakes[stakeID].unstaked == false, "already unstaked");
 
-        Stake storage s  = stakes[stakeID];
-        
-        uint256 feeShare = calculateFeeShare(msg.sender);
-       
-        uint256 rewardsForDays = s.endTime.sub(s.startTime - 1 days).div(1 days);
-        uint256 rewards = calculateReward(s.amount, rewardsForDays, s.apr);
-        
-      return (s.amount, feeShare, rewards);
+        Stake storage s = stakes[stakeID];
+
+        uint256 rewards = computeStakeReward(stakeID);
+        uint256 fee = computeStakeFee(stakeID);
+
+        return (s.amount, fee, rewards);
     }
 
-    function calculateFeeShare(address _account) internal view returns (uint256) {
-        uint256 veTokensCount = IERC20(veLNDX).balanceOf(_account);
-        return veTokensCount * feeSharesPerToken - feeShares[_account];
+    function computeStakeReward(uint256 stakeID) public view returns (uint256) {
+        Stake storage stake = stakes[stakeID];
+        return
+            (stake.veLndxClaimed * rewardSharesPerToken) /
+            1e6 -
+            rewardsPerStake[stakeID];
     }
 
-    function calculateEndDate(StakePeriods period) internal view returns (uint256) {
+    function computeStakeFee(uint256 stakeID) public view returns (uint256) {
+        Stake storage stake = stakes[stakeID];
+        return
+            (stake.veLndxClaimed * feeSharesPerToken) /
+            1e6 -
+            feePerStake[stakeID];
+    }
+
+    function calculateEndDate(StakePeriods period)
+        internal
+        view
+        returns (uint256)
+    {
         if (period == StakePeriods.MONTHS_3) {
             return (block.timestamp + 90 days);
         }

@@ -13,6 +13,10 @@ interface ILANDXNFT {
     function crop(uint256 id) external view returns (string memory);
 }
 
+interface ILNDX {
+    function feeToDistribute(uint256 amount) external
+}
+
 interface IXTOKENROUTER {
     function getXToken(string memory _name) external view returns (address);
 
@@ -155,6 +159,7 @@ contract RentFoundation is Context, Ownable {
         uint256 operationalFee = (_fee *
             keyProtocolValues.landXOpertationsPercentage()) / 10000;
         usdc.transfer(lndx, lndxFee);
+        ILNDX(lndx).feeToDistribute(lndxFee);
         usdc.transfer(
             keyProtocolValues.landxOperationalWallet(),
             operationalFee

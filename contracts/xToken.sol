@@ -45,6 +45,10 @@ interface IRentFoundation {
     function payInitialRent(uint256 tokenID, uint256 amount) external;
 }
 
+interface ILNDX {
+    function feeToDistribute(uint256 amount) external
+}
+
 interface ICToken {
     function mint(address account, uint256 amount) external;
 }
@@ -282,6 +286,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         uint256 operationalFee = (_fee *
             keyProtocolValues.landXOpertationsPercentage()) / 10000;
         ERC20(usdc).transfer(lndx, lndxFee);
+        ILNDX(lndx).feeToDistribute(lndxFee);
         ERC20(usdc).transfer(
             keyProtocolValues.landxOperationalWallet(),
             operationalFee
