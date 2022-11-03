@@ -14,7 +14,7 @@ interface ILANDXNFT {
 }
 
 interface ILNDX {
-    function feeToDistribute(uint256 amount) external
+    function feeToDistribute(uint256 amount) external;
 }
 
 interface IXTOKENROUTER {
