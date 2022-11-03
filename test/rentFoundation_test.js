@@ -18,10 +18,12 @@ describe("RentFoundation", function () {
 
         const ERC20Contract = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
         mockedUSDCContract = await deployMockContract(owner, ERC20Contract.abi)
-        mockedLNDXTokenContract = await deployMockContract(owner, ERC20Contract.abi)
 		
         const keyProtocolVariablesContract = require("../artifacts/contracts/KeyProtocolVariables.sol/KeyProtocolVariables.json")
-		mockedKeyProtocalValues= await deployMockContract(owner, keyProtocolVariablesContract.abi)
+		mockedKeyProtocalValues = await deployMockContract(owner, keyProtocolVariablesContract.abi)
+
+        const LNDXContract = require("../artifacts/contracts/LNDX.sol/LNDX.json")
+        mockedLNDXTokenContract = await deployMockContract(owner, LNDXContract.abi)
 
         const xTokenContract = require("../artifacts/contracts/xToken.sol/XToken.json")
         xSOY = await deployMockContract(owner, xTokenContract.abi)
@@ -142,6 +144,7 @@ describe("RentFoundation", function () {
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
         await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
         await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
         
@@ -195,9 +198,10 @@ describe("RentFoundation", function () {
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
         await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 37520).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(37520).returns();
         await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 17317).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 2887).returns(true)
-        await expect(cToken.connect(acc1).burn(1000000)).not.to.be.revertedWith
+        await expect(cToken.connect(acc1).burn(1000000)).not.to.be.reverted
     })
 
     it("can't sell cTokens, no valid cToken", async function () {

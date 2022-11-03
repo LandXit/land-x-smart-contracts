@@ -8,7 +8,7 @@
 		"accounts": "npx hardhat accounts",
 		"balance": "npx hardhat balance",
 		"generate": "npx hardhat generate",
-		"test": "REPORT_GAS=true npx hardhat coverage --solcoverjs ./.solcover.js --network ganache --show-stack-traces",
+		"test": "REPORT_GAS=true npx hardhat coverage --solcoverjs ./.solcover.js --network ganache",
 		"prettier": "prettier --write 'contracts/**/*.sol'",
 		"deploy_nft:mainnet": "NETWORK=mainnet npx hardhat run --network mainnet scripts/deploy_nft.js",
 		"deploy_nft:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_nft.js",
@@ -26,6 +26,7 @@
 		"deploy_xbasket:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_xbasket.js",
 		"deploy_usdc:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_usdc.js",
 		"deploy_lndx:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_lndx.js",
+		"deploy_velndx:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_velndx.js",
 		"deploy_kv:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_kv.js"
 	},
 	"author": "LandX",

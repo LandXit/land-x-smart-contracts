@@ -15,7 +15,8 @@ describe("xToken", function () {
 		;[owner, acc1, acc2, landxOperationalWallet, xTokensSecurityWallet, hedgeFundWallet, landxChoiceWallet] = await ethers.getSigners()
         const ERC20Contract = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
         mockedUSDCContract = await deployMockContract(owner, ERC20Contract.abi)
-        mockedLndxContract = await deployMockContract(owner, ERC20Contract.abi)
+        const LNDXContract = require("../artifacts/contracts/LNDX.sol/LNDX.json")
+        mockedLndxContract = await deployMockContract(owner, LNDXContract.abi)
         const rentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
         mockedRentFoundationContract = await deployMockContract(owner, rentFoundationContract.abi)
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
@@ -88,6 +89,7 @@ describe("xToken", function () {
         await mockedKeyProtocolVariablesContract.mock.landXOpertationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocolVariablesContract.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(mockedLndxContract.address, 65000000).returns(true)
+        await mockedLndxContract.mock.feeToDistribute.withArgs(65000000).returns();
         await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 30000000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 5000000).returns(true)
         await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
