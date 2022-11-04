@@ -421,13 +421,13 @@
 <pre><code>npm run test
 </code></pre>
 <p>All test should pass</p>
-<p><a href="./coverage/index.html">Test Report</a>a</p>
+<p><a href="./coverage/index.html">Test Report</a></p>
 <p>Publish on some blockchain (check package.json scripts):</p>
 <pre><code>npm run deploy_t:rinkeby
 npm run deploy_v:mainnet
 </code></pre>
 <h2 id="contracts-under-review">Contracts Under Review</h2>
-<h3 id="contractsnftsol">contracts/nft.sol</h3>
+<h3 id="contractsnftsol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/nft.sol">contracts/nft.sol</a></h3>
 <p>LandXNFT is an ERC1155 compatible contract and represents landowner’s crop share agreement as a non-fungible token. Each NFT contains information on how much of xTokens the NFT is allowed to mint. Each NFT contains:</p>
 <ul>
 <li>landArea, total land area in m<sup>2 </sup>   </li>
@@ -435,23 +435,23 @@ npm run deploy_v:mainnet
 <li>cropShare, crop share in kg/ha</li>
 <li>lienAgreementHash, hash of lien documents (byte32 word)</li>
 </ul>
-<h3 id="contractsxtokensol">contracts/xToken.sol</h3>
+<h3 id="contractsxtokensol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">contracts/xToken.sol</a></h3>
 <p>XToken is an ERC20 compatible contract. It presents perpetual commodity vault that pays out 1 cToken per year. It accepts landxNFT and mints xTokens. It also provides logic for stake/unstake functionality. A user stakes xTokens to receive cTokens.</p>
-<h3 id="contractsctokensol">contracts/cToken.sol</h3>
+<h3 id="contractsctokensol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol">contracts/cToken.sol</a></h3>
 <p>CToken is an ERC20 compatible contract, 1 cToken represents 1 KG of crop. It can always be exchanged to USDC for prices to be updated via OraclePrices.sol that uses real world trading pricing data from traditional commodity exchanges. CTokens can be only minted by xToken contracts. </p>
-<h3 id="contractsxbasketsol">contracts/xBasket.sol</h3>
+<h3 id="contractsxbasketsol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol">contracts/xBasket.sol</a></h3>
 <p>XBasket is an ERC20 and ERC4626 compatible contract. xBasket contract accepts deposits of all four xTokens and mints another ERC20 which acts as an index fund of them. It stakes all deposited xToken and receives cTokens. It then sells cTokens and buys more xTokens, creating self-compounding mechanism. </p>
-<h3 id="contractsrentfoundationsol">contracts/rentFoundation.sol</h3>
+<h3 id="contractsrentfoundationsol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol">contracts/rentFoundation.sol</a></h3>
 <p>This contract is responsible for accepting crop share payments. Contains logic for accounting of crop share payments and exchange of cTokens for USDC</p>
-<h3 id="contractsoraclepricessol">contracts/OraclePrices.sol</h3>
+<h3 id="contractsoraclepricessol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol">contracts/OraclePrices.sol</a></h3>
 <p>It provides current commodities and xTokens prices. It is deployed with initial prices. Provides a smart contract function which allows an authorized oracle address to update the values. </p>
-<h3 id="contractsxtokenroutersol">contracts/xTokenRouter.sol</h3>
+<h3 id="contractsxtokenroutersol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol">contracts/xTokenRouter.sol</a></h3>
 <p>This contract is used for getting correct xToken/cTokens contract addresses by others contracts.</p>
-<h3 id="contractskeyprotocolvariablessol">contracts/KeyProtocolVariables.sol</h3>
+<h3 id="contractskeyprotocolvariablessol"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol">contracts/KeyProtocolVariables.sol</a></h3>
 <p>It contains key Landx Protocol values like fees and commission rates, max allowable cropshare and other parameters. Its values can be changed based on the recommended DAO vote.</p>
 <h2 id="contracts-functions-description">Contracts functions description</h2>
-<h3 id="contractsnftsol_1">contracts/nft.sol</h3>
-<h4 id="setdetailsandmint">setDetailsAndMint</h4>
+<h3 id="contractsnftsol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/nft.sol">contracts/nft.sol</a></h3>
+<h4 id="setdetailsandmint"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/nft.sol#L39-L63">setDetailsAndMint</a></h4>
 <pre><code>function setDetailsAndMint(
        uint256 _index,
        uint256 _landArea,
@@ -540,8 +540,8 @@ npm run deploy_v:mainnet
   </tr>
 </table>
 
-<h3 id="contractsxtokensol_1">contracts/xToken.sol</h3>
-<h4 id="getshards">getShards</h4>
+<h3 id="contractsxtokensol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">contracts/xToken.sol</a></h3>
+<h4 id="getshards"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L143-L229">getShards</a></h4>
 <pre><code>function getShards(uint256 _id) external
 </code></pre>
 <p>Deposit NFT, mint and distribute xTokens. Requires allowance to use NFT. Amount of xTokens is calculated by formula:</p>
@@ -566,11 +566,10 @@ npm run deploy_v:mainnet
   </tr>
 </table>
 
-<p>\
-The function emit event:</p>
+<p>The function emit event:</p>
 <pre><code>event Sharded(uint256 nftID, uint256 amount, string name);
 </code></pre>
-<h4 id="getthenft">getTheNFT</h4>
+<h4 id="getthenft"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L232-L259">getTheNFT</a></h4>
 <pre><code>function getTheNFT(uint256 _id) external
 </code></pre>
 <p>Redeem the NFT. A caller should be a depositor of the NFT and has to have a full xTokens amount. xTokens will be burned. </p>
@@ -597,7 +596,7 @@ The function emit event:</p>
 <p>The function emit event:</p>
 <pre><code>event BuyOut(uint256 nftID, uint256 amount, string name);
 </code></pre>
-<h4 id="stake">stake</h4>
+<h4 id="stake"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L250-L259">stake</a></h4>
 <pre><code>function stake(uint256 amount) public
 </code></pre>
 <p>Stake xTokens. Staked xTokens generate cTokens.</p>
@@ -621,7 +620,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="unstake">unstake</h4>
+<h4 id="unstake"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L261-L267">unstake</a></h4>
 <pre><code>function unstake(uint256 amount) public
 </code></pre>
 <p>Unstake xTokens. This function also call claim() function so a caller also get all cTokens that were generated by this time.</p>
@@ -645,11 +644,11 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="claim">claim</h4>
+<h4 id="claim"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L269-L281">claim</a></h4>
 <pre><code>function claim() public
 </code></pre>
 <p>Send all generated cTokens to a caller.</p>
-<h4 id="availabletoclaim">availableToClaim</h4>
+<h4 id="availabletoclaim"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L300-L302">availableToClaim</a></h4>
 <pre><code>function availableToClaim(address account) public view returns(uint256)
 </code></pre>
 <p>Returns cTokens amount available to claim by a staker.</p>
@@ -689,7 +688,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="totalavailabletoclaim">totalAvailableToClaim</h4>
+<h4 id="totalavailabletoclaim"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L304-L306">totalAvailableToClaim</a></h4>
 <pre><code>function totalAvailableToClaim() public view returns(uint256)
 </code></pre>
 <p>Returns all cTokens amount available to claim</p>
@@ -709,7 +708,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="preview">preview</h4>
+<h4 id="preview"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L385-L420">preview</a></h4>
 <pre><code>function preview(uint256 id) public view returns(uint256, uint256, uint256, uint256)
 </code></pre>
 <p>Returns xTokens amount will be minted and how they will be distributed</p>
@@ -767,7 +766,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="xbaskettransfer">xBasketTransfer</h4>
+<h4 id="xbaskettransfer"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L321-L324">xBasketTransfer</a></h4>
 <pre><code>function xBasketTransfer(address _from, uint256 amount) external
 </code></pre>
 <p>Service method that can be used only by xBasket contract. Implemented to avoid extra allowances during xBasket mining</p>
@@ -799,7 +798,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="changelandxnftaddress">changeLandXNFTAddress</h4>
+<h4 id="changelandxnftaddress"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L327-L329">changeLandXNFTAddress</a></h4>
 <pre><code>function changeLandXNFTAddress(address _newAddress) public onlyOwner
 </code></pre>
 <p>Service method to change LandX NFT contract address. Only contract owner can use it</p>
@@ -823,7 +822,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="changexbasketaddress">changeXBasketAddress</h4>
+<h4 id="changexbasketaddress"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L332-L334">changeXBasketAddress</a></h4>
 <pre><code>function changeXBasketAddress(address _newAddress) public onlyOwner
 </code></pre>
 <p>Service method to change xBasket contract address. Only contract owner can use it</p>
@@ -847,7 +846,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setrentfoundation">setRentFoundation</h4>
+<h4 id="setrentfoundation"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L336-L338">setRentFoundation</a></h4>
 <pre><code>function setRentFoundation(address _address) public onlyOwner
 </code></pre>
 <p>Service method to change RentFoundation contract address. Only contract owner can use it</p>
@@ -871,8 +870,8 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setgrainprices">setGrainPrices</h4>
-<pre><code>function setGrainPrices(address _grainPrices) public onlyOwner
+<h4 id="setgrainprices"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L340-L342">setOraclePrices</a></h4>
+<pre><code>function setOraclePrices(address _grainPrices) public onlyOwner
 </code></pre>
 <p>Service method to change OraclePrices contract address. Only contract owner can use it</p>
 <p><strong>Parameters:</strong></p>
@@ -895,7 +894,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setxtokenrouter">setXTokenRouter</h4>
+<h4 id="setxtokenrouter"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L349-L351">setXTokenRouter</a></h4>
 <pre><code>function setXTokenRouter(address _router) public onlyOwner
 </code></pre>
 <p>Service method to change xTokenRouter contract address. Only contract owner can use it</p>
@@ -919,8 +918,8 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h3 id="contractsctokensol_1">contracts/cToken.sol</h3>
-<h4 id="mint">mint</h4>
+<h3 id="contractsctokensol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol">contracts/cToken.sol</a></h3>
+<h4 id="mint"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol#L31-L37">mint</a></h4>
 <pre><code>function mint(address account, uint256 amount) public
 </code></pre>
 <p>Mints cTokens. Only xToken contract can use it</p>
@@ -952,7 +951,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="burn">burn</h4>
+<h4 id="burn"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol#L39-L42">burn</a></h4>
 <pre><code>function burn(uint256 amount) public override
 </code></pre>
 <p>Send USDC equivalent to caller and burn cTokens (Implemented selling for USDC logic). </p>
@@ -976,7 +975,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setrentfoundation_1">setRentFoundation</h4>
+<h4 id="setrentfoundation_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol#L44-L46">setRentFoundation</a></h4>
 <pre><code>function setRentFoundation(address _address) public onlyOwner
 </code></pre>
 <p>Service method to change RentFoundation contract address. Only contract owner can use it</p>
@@ -1000,7 +999,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setxtokenrouter_1">setXTokenRouter</h4>
+<h4 id="setxtokenrouter_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol#L48-L50">setXTokenRouter</a></h4>
 <pre><code>function setXTokenRouter(address _router) public onlyOwner
 </code></pre>
 <p>Service method to change xTokenRouter contract address. Only contract owner can use it</p>
@@ -1024,8 +1023,8 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h3 id="contractsxbasketsol_1">contracts/xBasket.sol</h3>
-<h4 id="asset">asset</h4>
+<h3 id="contractsxbasketsol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol">contracts/xBasket.sol</a></h3>
+<h4 id="asset"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L78-L80">asset</a></h4>
 <pre><code>function asset() public view override returns (address)
 </code></pre>
 <p>Returns underlying asset contract address. As xBasket has 4 underlying assets and total assets amount can be represented in USDC it returns USDC contract address</p>
@@ -1045,7 +1044,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="totalassets">totalAssets</h4>
+<h4 id="totalassets"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L83-L85">totalAssets</a></h4>
 <pre><code>function totalAssets() public view override returns (uint256)
 </code></pre>
 <p>Returns total assets amount represented in USDC</p>
@@ -1065,7 +1064,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="converttoshares">convertToShares</h4>
+<h4 id="converttoshares"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L87-L94">convertToShares</a></h4>
 <pre><code>function convertToShares(uint256 assets) public view override returns (uint256)
 </code></pre>
 <p>Returns amount of xBasket that can be minted with provided amount of each xTokens</p>
@@ -1105,7 +1104,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="converttoassets">convertToAssets</h4>
+<h4 id="converttoassets"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L111-L128">convertToAssets</a></h4>
 <pre><code>function convertToAssets(uint256 shares) public view override returns (uint256)
 </code></pre>
 <p>Returns amount of each xTokens amount xBaskets will be converted to</p>
@@ -1145,7 +1144,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="maxdeposit">maxDeposit</h4>
+<h4 id="maxdeposit"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L130-L138">maxDeposit</a></h4>
 <pre><code>function maxDeposit(address receiver) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns max amount of each xTokens that can be deposited</p>
@@ -1185,7 +1184,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="maxmint">maxMint</h4>
+<h4 id="maxmint"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L140-L148">maxMint</a></h4>
 <pre><code>function maxMint(address receiver) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns max amount of xBasket that can be minted</p>
@@ -1225,7 +1224,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="maxwithdraw">maxWithdraw</h4>
+<h4 id="maxwithdraw"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L150-L158">maxWithdraw</a></h4>
 <pre><code>function maxWithdraw(address owner) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns max amount of each xToken that xBaskets owner can receive</p>
@@ -1265,7 +1264,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="maxredeem">maxRedeem</h4>
+<h4 id="maxredeem"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L160-L168">maxRedeem</a></h4>
 <pre><code>function maxRedeem(address owner) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns max amount of xBasket available to redeem (balanceOf)</p>
@@ -1305,7 +1304,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="previewdeposit">previewDeposit</h4>
+<h4 id="previewdeposit"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L170-L178">previewDeposit</a></h4>
 <pre><code>function previewDeposit(uint256 assets) public view virtual override returns (uint256)
 </code></pre>
 <p>Calculate xBasket amount that can be received for provided amount of each xToken</p>
@@ -1345,7 +1344,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="previewmint">previewMint</h4>
+<h4 id="previewmint"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L180-L188">previewMint</a></h4>
 <pre><code>function previewMint(uint256 shares) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns required amount of each xToken for minting provided amount of xBaskets</p>
@@ -1385,7 +1384,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="previewwithdarw">previewWithdarw</h4>
+<h4 id="previewwithdarw"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L190-L198">previewWithdarw</a></h4>
 <pre><code>function previewWithdraw(uint256 assets) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns required amount of xBasket to receive provided amount of each xTokens</p>
@@ -1425,7 +1424,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="previewredeem">previewRedeem</h4>
+<h4 id="previewredeem"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L200-L208">previewRedeem</a></h4>
 <pre><code>function previewRedeem(uint256 shares) public view virtual override returns (uint256)
 </code></pre>
 <p>Returns amount of each xTokens that can be received for redeem provided amount of xBasket</p>
@@ -1465,7 +1464,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="deposit">deposit</h4>
+<h4 id="deposit"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L210-L225">deposit</a></h4>
 <pre><code>function deposit(uint256 assets, address receiver) public virtual override returns (uint256)
 </code></pre>
 <p>Deposit each xToken, mint xBasket and send them to received address</p>
@@ -1513,7 +1512,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="mint_1">mint</h4>
+<h4 id="mint_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L227-L239">mint</a></h4>
 <pre><code>function mint(uint256 shares, address receiver) public virtual override returns (uint256)
 </code></pre>
 <p>Deposit required amount of each xToken, mint provided amount of xBasket and send them to received address</p>
@@ -1561,7 +1560,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="withdraw">withdraw</h4>
+<h4 id="withdraw"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L241-L255">withdraw</a></h4>
 <pre><code>function withdraw(uint256 assets, address receiver, address owner) public virtual override returns (uint256)
 </code></pre>
 <p>Withdraw provided amount of each xTokens and send them to receiver address</p>
@@ -1617,7 +1616,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="redeem">redeem</h4>
+<h4 id="redeem"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L257-L268">redeem</a></h4>
 <pre><code>function redeem(uint256 shares, address receiver, address owner) public virtual override returns (uint256)
 </code></pre>
 <p>Redeem provided amount of xBasket  and send xTokens them to receiver address</p>
@@ -1673,7 +1672,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="calculateyield">calculateYield</h4>
+<h4 id="calculateyield"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L366-L399">calculateYield</a></h4>
 <pre><code>function calculateYield() public view returns(uint256)
 </code></pre>
 <p>Calculate the value of the contracts cToken holdings in USDC</p>
@@ -1693,7 +1692,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="calculatetvl">calculateTVL</h4>
+<h4 id="calculatetvl"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L402-L407">calculateTVL</a></h4>
 <pre><code>function calculateTVL() public view returns(uint256)
 </code></pre>
 <p>Calculate the value of the contracts holdings in USDC</p>
@@ -1713,7 +1712,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="pricepertoken">pricePerToken</h4>
+<h4 id="pricepertoken"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L410-L415">pricePerToken</a></h4>
 <pre><code>function pricePerToken() public view returns(uint256)
 </code></pre>
 <p>Calculate xBasket price in USDC</p>
@@ -1733,12 +1732,12 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="autocompoundrewards">autoCompoundRewards</h4>
+<h4 id="autocompoundrewards"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol#L418-L448">autoCompoundRewards</a></h4>
 <pre><code>function autoCompoundRewards() public
 </code></pre>
 <p>Claims cTokens, sell them for USDC, buy xTokens and stakes them.</p>
-<h3 id="contractsoraclepricessol_1">contracts/OraclePrices.sol</h3>
-<h4 id="setgrainprice">setGrainPrice</h4>
+<h3 id="contractsoraclepricessol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol">contracts/OraclePrices.sol</a></h3>
+<h4 id="setgrainprice"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol#L74-L78">setGrainPrice</a></h4>
 <pre><code>function setGrainPrice(string memory grain, uint256 price) public
 </code></pre>
 <p>Set commodity price in USDC (per megatone). Used by ChainLink oracle. Only setter with PRICE_SETTER_ROLE can set prices</p>
@@ -1770,7 +1769,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setxtokenprice">setXTokenPrice</h4>
+<h4 id="setxtokenprice"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol#L80-L84">setXTokenPrice</a></h4>
 <pre><code>function setXTokenPrice(address xToken, uint256 price) public
 </code></pre>
 <p>Set xToken price in USDC. This price is used when there are no Uniswap pools. Only setter with PRICE_SETTER_ROLE can set prices</p>
@@ -1802,7 +1801,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="getxtokenprice">getXTokenPrice</h4>
+<h4 id="getxtokenprice"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol#L86-L108">getXTokenPrice</a></h4>
 <pre><code>function getXTokenPrice(address xToken) public view returns(uint256)
 </code></pre>
 <p>get xToken price in USDC. If there isUniswap pool it returns the spot price from Uniswap pool. If no, xToken price was set in this contract is returned</p>
@@ -1842,8 +1841,8 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h3 id="contractsrentfoundationsol_1">contracts/rentFoundation.sol</h3>
-<h4 id="payrent">payRent</h4>
+<h3 id="contractsrentfoundationsol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol">contracts/rentFoundation.sol</a></h3>
+<h4 id="payrent"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L94-L117">payRent</a></h4>
 <pre><code>function payRent(uint256 tokenID, uint256 amount) public
 </code></pre>
 <p>It is used to pay rent for the nft. Rent can be paid only for sharded NFT. </p>
@@ -1878,7 +1877,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="payinitialrent">payInitialRent</h4>
+<h4 id="payinitialrent"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L120-L134">payInitialRent</a></h4>
 <pre><code>function payInitialRent(uint256 tokenID, uint256 amount) external
 </code></pre>
 <p>It is used only by the xToken contract to apply annual rent during getting depositing NFT and getting xTokens. </p>
@@ -1913,7 +1912,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="getdepositbalance">getDepositBalance</h4>
+<h4 id="getdepositbalance"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L136-L144">getDepositBalance</a></h4>
 <pre><code>function getDepositBalance(uint256 tokenID) public view returns(int256)
 </code></pre>
 <p>Returns paid rent balance for NFT by its ID, can be a negative value. Negative value means there is a debt</p>
@@ -1953,7 +1952,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="sellctoken">sellCToken</h4>
+<h4 id="sellctoken"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L146-L154">sellCToken</a></h4>
 <pre><code>function sellCToken(address account, uint256 amount) public
 </code></pre>
 <p>Used only by cToken contracts. Convert burning cToken amount to USDC and send USDC to account</p>
@@ -1985,7 +1984,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setgrainprices_1">setGrainPrices</h4>
+<h4 id="setgrainprices_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L177-L179">setGrainPrices</a></h4>
 <pre><code>function setGrainPrices(address _grainPrices) public onlyOwner
 </code></pre>
 <p>Service method to change OraclePrices contract address. Only contract owner can use it</p>
@@ -2009,7 +2008,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="setxtokenrouter_2">setXTokenRouter</h4>
+<h4 id="setxtokenrouter_2"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L173-L175">setXTokenRouter</a></h4>
 <pre><code>function setXTokenRouter(address _router) public onlyOwner
 </code></pre>
 <p>Service method to change xTokenRouter contract address. Only contract owner can use it</p>
@@ -2033,7 +2032,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="changelandxnftaddress_1">changeLandXNFTAddress</h4>
+<h4 id="changelandxnftaddress_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L182-L185">changeLandXNFTAddress</a></h4>
 <pre><code>function changeLandXNFTAddress(address _newAddress) public onlyOwner
 </code></pre>
 <p>Service method to change LandX NFT contract address. Only contract owner can use it</p>
@@ -2057,8 +2056,8 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h3 id="contractskeyprotocolvariablessol_1">contracts/KeyProtocolVariables.sol</h3>
-<h4 id="updatextokenmintfee">updateXTokenMintFee</h4>
+<h3 id="contractskeyprotocolvariablessol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol">contracts/KeyProtocolVariables.sol</a></h3>
+<h4 id="updatextokenmintfee"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L55-L58">updateXTokenMintFee</a></h4>
 <pre><code>function updateXTokenMintFee(uint256 _fee) public
 </code></pre>
 <p>Updates xToken mint fee. Default value 300(3%)</p>
@@ -2082,7 +2081,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatectokensellfee">updateCTokenSellFee</h4>
+<h4 id="updatectokensellfee"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L60-L63">updateCTokenSellFee</a></h4>
 <pre><code>function updateCTokenSellFee(uint256 _fee) public
 </code></pre>
 <p>Updates cToken sell fee. Default value 1000(10%)</p>
@@ -2106,7 +2105,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatepayrentfee">updatePayRentFee</h4>
+<h4 id="updatepayrentfee"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L65-L68">updatePayRentFee</a></h4>
 <pre><code>function updatePayRentFee(uint256 _fee)public
 </code></pre>
 <p>Updates pay rent fee. Default value 150(1.5%)</p>
@@ -2130,7 +2129,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatemaxallowablecropshare">updateMaxAllowableCropShare</h4>
+<h4 id="updatemaxallowablecropshare"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L70-L75">updateMaxAllowableCropShare</a></h4>
 <pre><code>function updateMaxAllowableCropShare(string memory _crop, uint256 _macs) public
 </code></pre>
 <p>Updates max allowable crop share for crop. Default value 1200(12%)</p>
@@ -2162,7 +2161,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatehedgefundallocation">updateHedgeFundAllocation</h4>
+<h4 id="updatehedgefundallocation"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L77-L80">updateHedgeFundAllocation</a></h4>
 <pre><code>function updateHedgeFundAllocation(uint256 _allocation) public
 </code></pre>
 <p>Updates hedge fund allocation percentage. Default value 1500(15%). This parameter define which part of rent payments send to hedge fund wallet</p>
@@ -2186,7 +2185,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatesecuritydepositmonths">updateSecurityDepositMonths</h4>
+<h4 id="updatesecuritydepositmonths"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L82-L85">updateSecurityDepositMonths</a></h4>
 <pre><code>function updateSecurityDepositMonths(uint8 _months) public
 </code></pre>
 <p>Updates securityDepositMonth parameter. Id defines payment of how many month rent goes to the security deposit wallet during deposit NFT to mint xTokens. Default value is 12 months</p>
@@ -2210,7 +2209,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatefeedistributionpercentage">updateFeeDistributionPercentage</h4>
+<h4 id="updatefeedistributionpercentage"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L87-L102">updateFeeDistributionPercentage</a></h4>
 <pre><code>function updateFeeDistributionPercentage(uint256 _lndxHoldersPercentage, uint256 _landxOperationPercentage) public
 </code></pre>
 <p>Updates fee distribution percentage. </p>
@@ -2245,7 +2244,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatehedgefundwallet">updateHedgeFundWallet</h4>
+<h4 id="updatehedgefundwallet"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L104-L107">updateHedgeFundWallet</a></h4>
 <pre><code>function updateHedgeFundWallet(address _wallet) public
 </code></pre>
 <p>Updates hedge fund wallet address.</p>
@@ -2269,7 +2268,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatelandxoperationalwallet">updateLandxOperationalWallet</h4>
+<h4 id="updatelandxoperationalwallet"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L109-L112">updateLandxOperationalWallet</a></h4>
 <pre><code>function updateLandxOperationalWallet(address _wallet) public
 </code></pre>
 <p>Updates Landx opertainal wallet address.</p>
@@ -2293,7 +2292,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatelandxchoicewallet">updateLandxChoiceWallet</h4>
+<h4 id="updatelandxchoicewallet"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L114-L117">updateLandxChoiceWallet</a></h4>
 <pre><code>function updateLandxChoiceWallet(address _wallet) public
 </code></pre>
 <p>Updates landx choice wallet address.</p>
@@ -2317,7 +2316,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatextokenssecuritywallet">updateXTokensSecurityWallet</h4>
+<h4 id="updatextokenssecuritywallet"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L119-L122">updateXTokensSecurityWallet</a></h4>
 <pre><code>function updateXTokensSecurityWallet(address _wallet) public
 </code></pre>
 <p>Updates xTokens security wallet address.</p>
@@ -2341,7 +2340,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="updatevalidatorcommisionwallet">updateValidatorCommisionWallet</h4>
+<h4 id="updatevalidatorcommisionwallet"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L124-L127">updateValidatorCommisionWallet</a></h4>
 <pre><code>function updateValidatorCommisionWallet(address _wallet) public
 </code></pre>
 <p>Updates validator commission wallet address.</p>
@@ -2365,12 +2364,12 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="launch">launch</h4>
+<h4 id="launch"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol#L129-L132">launch</a></h4>
 <pre><code>function launch() public
 </code></pre>
 <p>Disables pre-launch mode. It can be done only once and pre-launch mode can’t be switched on again.</p>
-<h3 id="contractsxtokenroutersol_1">contracts/xTokenRouter.sol</h3>
-<h4 id="settoken">setToken</h4>
+<h3 id="contractsxtokenroutersol_1"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol">contracts/xTokenRouter.sol</a></h3>
+<h4 id="settoken"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol#L18-L25">setToken</a></h4>
 <pre><code>function setToken(string memory crop, address xToken, address cToken) public onlyOwner
 </code></pre>
 <p>Set xToken/cToken pair for given crop type.</p>
@@ -2410,7 +2409,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="getxtoken">getXtoken</h4>
+<h4 id="getxtoken"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol#L27-L29">getXtoken</a></h4>
 <pre><code>function getXToken(string memory crop) external view returns(address)
 </code></pre>
 <p>Returns xToken contract address by crop type</p>
@@ -2450,7 +2449,7 @@ The function emit event:</p>
   </tr>
 </table>
 
-<h4 id="getctoken">getCtoken</h4>
+<h4 id="getctoken"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol#L31-L33">getCtoken</a></h4>
 <pre><code>function getCToken(string memory crop) external view returns(address)
 </code></pre>
 <p>Returns cToken contract address by crop type</p>
