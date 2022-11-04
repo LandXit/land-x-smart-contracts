@@ -11,6 +11,7 @@ let rentFoundationContract, owner, acc1, xTokenContractAddress, validatorCommisi
 
 describe("RentFoundation", function () {
 	beforeEach(async function () {
+        console.log("", '\n')
 		;[owner, acc1, acc2, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner] = await ethers.getSigners()
 		
         const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
@@ -46,6 +47,7 @@ describe("RentFoundation", function () {
     })
 
     it("set NFT Contract", async function () {
+        console.log("updates NFT contract by contract owner")
         let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
         let mockedNFTContract2= await deployMockContract(owner, nft.abi)
         await rentFoundationContract.changeLandXNFTAddress(mockedNFTContract2.address)
@@ -53,12 +55,14 @@ describe("RentFoundation", function () {
 	})
 
     it("impossible set NFT Contract", async function () {
+        console.log("try to update NFT contract by NOT contract owner")
         let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
         let mockedNFTContract2 = await deployMockContract(owner, nft.abi)
         await expect(rentFoundationContract.connect(acc1).changeLandXNFTAddress(mockedNFTContract2.address)).to.be.reverted
 	})
 
     it("set XTokenRouter", async function () {
+        console.log("updates xTokenRouter contract by contract owner")
         let xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
         let mockedXTokenRouterContract2 = await deployMockContract(owner, xTokenRouterContract.abi)
         await rentFoundationContract.setXTokenRouter(mockedXTokenRouterContract2.address)
@@ -66,12 +70,14 @@ describe("RentFoundation", function () {
 	})
 
     it("impossible to set XTokenRouter", async function () {
+        console.log("try to update xTokenRouter contract by NOT contract owner")
         let xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
         let mockedXTokenRouterContract2 = await deployMockContract(owner, xTokenRouterContract.abi)
         await expect(rentFoundationContract.connect(acc1).setXTokenRouter(mockedXTokenRouterContract2.address)).to.be.reverted
 	})
 
     it("set OraclePrices contract", async function () {
+        console.log("updates OraclePrice contract by contract owner")
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         let mockedOraclePricesContract2 = await deployMockContract(owner, oraclePricesContract.abi)
         await rentFoundationContract.setGrainPrices(mockedOraclePricesContract2.address)
@@ -79,12 +85,14 @@ describe("RentFoundation", function () {
 	})
 
     it("it is not possible to set OraclePrices contract (not owner contract)", async function () {
+        console.log("try to update OraclePrice contract by NOT contract owner")
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         let mockedOraclePricesContract2 = await deployMockContract(owner, oraclePricesContract.abi)
         await expect(rentFoundationContract.connect(acc1).setGrainPrices(mockedOraclePricesContract2.address)).to.be.reverted
 	})
 
     it("pay initial rent", async function () {
+        console.log("pay initial rent for NFT with ID=1")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
@@ -92,12 +100,14 @@ describe("RentFoundation", function () {
 	})
 
     it("pay initial rent, not initial payer", async function () {
+        console.log("try to pay initial rent for NFT with ID=1 by not initial payer, only xToken contract can pay initial rent")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xSOY.address)
         await expect(rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)).to.be.revertedWith("not initial payer")
 	})
 
     it("pay initial rent, initial rent is applied before", async function () {
+        console.log("try to pay initial rent for NFT with ID=1 but initial rent was already applied, initial rent can be paid once")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
@@ -107,10 +117,12 @@ describe("RentFoundation", function () {
 	})
 
     it("pay rent, initial rent was not applied", async function () {
+        console.log("try to pay rent for NFT with ID=1 but initial rent was not applied, it is impossible to pay rent for NFT that was not converted to xTokens")
         await expect(rentFoundationContract.connect(acc1).payRent(1, 1000000)).to.be.revertedWith("Initial rent was not applied")
     })
 
     it("pay rent, not enough USDC to transfer", async function () {
+        console.log("try to pay 1000000 USDC of rent for NFT with ID=1 but account has not enaough of USDC")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
@@ -121,6 +133,7 @@ describe("RentFoundation", function () {
     })
 
     it("pay rent", async function () {
+        console.log("pay 1000000 USDC of rent for NFT with ID=1")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
@@ -153,6 +166,7 @@ describe("RentFoundation", function () {
     })
 
     it("get deposit balance", async function () {
+        console.log("get deposit amount for NFT with ID=1:, it become less each second: start deposit is 81000, after 100000 seconds it becomes 80744")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 81000)
@@ -166,6 +180,7 @@ describe("RentFoundation", function () {
     })
 
     it("get deposit balance, negative value if there wasn't payments", async function () {
+        console.log("get deposit amount for NFT with ID=1:, it become less each second: can be negative, start deposit is 81000, after 32336000 seconds it becomes -2051")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 81000)
