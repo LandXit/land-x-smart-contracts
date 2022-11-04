@@ -1,0 +1,20 @@
+name: Run Tests
+on: [push, pull_request]
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Node 12
+        uses: actions/setup-node@v3
+        with:
+          node-version: 12
+      - name: Install dependencies
+        run: npm install
+      - name: Run tests and collect coverage
+        run: npm run test
+      - name: Set ENV Variable
+        run: export CODECOV_TOKEN=2de0fb60-8499-4afa-b959-1408b92a04ee
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
