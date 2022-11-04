@@ -14,7 +14,7 @@ jobs:
         run: npm install
       - name: Run tests and collect coverage
         run: npm run test
-      - name: Set ENV Variable
-        run: export CODECOV_TOKEN=2de0fb60-8499-4afa-b959-1408b92a04ee
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
+        with:
+          token: 2de0fb60-8499-4afa-b959-1408b92a04ee
