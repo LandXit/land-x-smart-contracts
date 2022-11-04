@@ -329,4 +329,247 @@ describe("xBasket", function () {
         await expect(xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)).not.to.be.reverted
         expect(await xBasket.balanceOf(acc1.address)).to.equal(998647)
     }) 
+
+    it("get xBasket price", async function () {
+        let assets = 1000000
+        let shares = 39886
+        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(assets)
+
+        await xCORN.mock.stake.withArgs(assets).returns()
+        await xSOY.mock.stake.withArgs(assets).returns()
+        await xWHEAT.mock.stake.withArgs(assets).returns()
+        await xRICE.mock.stake.withArgs(assets).returns()
+        await xBasket.connect(acc1).deposit(1000000, acc1.address)
+        
+        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
+        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
+        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
+        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
+
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(50000)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(50000)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(50000)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(50000)
+
+        await xCORN.mock.stake.withArgs(999992).returns()
+        await xSOY.mock.stake.withArgs(999992).returns()
+        await xWHEAT.mock.stake.withArgs(999992).returns()
+        await xRICE.mock.stake.withArgs(999992).returns()
+        expect(await xBasket.pricePerToken()).to.equal(25071275)
+    }) 
+
+    it("redeem", async function () {
+        let assets = 1000000
+        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+
+        await xCORN.mock.stake.withArgs(assets).returns()
+        await xSOY.mock.stake.withArgs(assets).returns()
+        await xWHEAT.mock.stake.withArgs(assets).returns()
+        await xRICE.mock.stake.withArgs(assets).returns()
+        await xBasket.connect(acc1).deposit(1000000, acc1.address)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        
+        await xCORN.mock.claim.returns()
+        await xSOY.mock.claim.returns()
+        await xWHEAT.mock.claim.returns()
+        await xRICE.mock.claim.returns()
+
+        await cWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cSOY.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cRICE.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cCORN.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+
+        await cWHEAT.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        
+        await cSOY.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)  
+
+        await cRICE.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+       
+        await cCORN.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+
+        await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xRICE.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xCORN.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+
+        await xWHEAT.mock.stake.withArgs(30000000).returns()
+        await xSOY.mock.stake.withArgs(30000000).returns()
+        await xRICE.mock.stake.withArgs(30000000).returns()
+        await xCORN.mock.stake.withArgs(30000000).returns()
+       
+        await xWHEAT.mock.unstake.withArgs(738672552).returns()
+        await xCORN.mock.unstake.withArgs(738672552).returns()
+        await xSOY.mock.unstake.withArgs(738672552).returns()
+        await xRICE.mock.unstake.withArgs(738672552).returns()
+        
+        await xCORN.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xSOY.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xWHEAT.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xRICE.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+
+        let bTime = (await time.latest()).toNumber()
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+
+        await xBasket.connect(acc1).redeem(1000000, acc1.address, acc1.address)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(0)
+    }) 
+
+    it("can't redeem, ERC4626: redeem more than max", async function () {
+        let assets = 1000000
+        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+
+        await xCORN.mock.stake.withArgs(assets).returns()
+        await xSOY.mock.stake.withArgs(assets).returns()
+        await xWHEAT.mock.stake.withArgs(assets).returns()
+        await xRICE.mock.stake.withArgs(assets).returns()
+        await xBasket.connect(acc1).deposit(1000000, acc1.address)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        
+        await xCORN.mock.claim.returns()
+        await xSOY.mock.claim.returns()
+        await xWHEAT.mock.claim.returns()
+        await xRICE.mock.claim.returns()
+
+        await cWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cSOY.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cRICE.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cCORN.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+
+        await cWHEAT.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        
+        await cSOY.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)  
+
+        await cRICE.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+       
+        await cCORN.mock.burn.withArgs(1000000).returns()
+        await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+
+        await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xRICE.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xCORN.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+
+        await xWHEAT.mock.stake.withArgs(30000000).returns()
+        await xSOY.mock.stake.withArgs(30000000).returns()
+        await xRICE.mock.stake.withArgs(30000000).returns()
+        await xCORN.mock.stake.withArgs(30000000).returns()
+       
+        await xWHEAT.mock.unstake.withArgs(738672552).returns()
+        await xCORN.mock.unstake.withArgs(738672552).returns()
+        await xSOY.mock.unstake.withArgs(738672552).returns()
+        await xRICE.mock.unstake.withArgs(738672552).returns()
+        
+        await xCORN.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xSOY.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xWHEAT.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xRICE.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+
+        let bTime = (await time.latest()).toNumber()
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+
+        await expect(xBasket.connect(acc1).redeem(2000000, acc1.address, acc1.address)).to.be.revertedWith("ERC4626: redeem more than max")
+    }) 
+
+    it("get total assets", async function () {
+        let assets = 1000000
+        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
+
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+
+        await xCORN.mock.stake.withArgs(assets).returns()
+        await xSOY.mock.stake.withArgs(assets).returns()
+        await xWHEAT.mock.stake.withArgs(assets).returns()
+        await xRICE.mock.stake.withArgs(assets).returns()
+        await xBasket.connect(acc1).deposit(1000000, acc1.address)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        
+        await xCORN.mock.claim.returns()
+        await xSOY.mock.claim.returns()
+        await xWHEAT.mock.claim.returns()
+        await xRICE.mock.claim.returns()
+
+        await cWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cSOY.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cRICE.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+        await cCORN.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
+
+        await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xRICE.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+        await xCORN.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
+
+        await xWHEAT.mock.stake.withArgs(30000000).returns()
+        await xSOY.mock.stake.withArgs(30000000).returns()
+        await xRICE.mock.stake.withArgs(30000000).returns()
+        await xCORN.mock.stake.withArgs(30000000).returns()
+       
+        await xWHEAT.mock.unstake.withArgs(738672552).returns()
+        await xCORN.mock.unstake.withArgs(738672552).returns()
+        await xSOY.mock.unstake.withArgs(738672552).returns()
+        await xRICE.mock.unstake.withArgs(738672552).returns()
+        
+        await xCORN.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xSOY.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xWHEAT.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xRICE.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+
+        let bTime = (await time.latest()).toNumber()
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
+
+        expect(await xBasket.totalAssets()).to.equal(730670000)
+    })
 })
