@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/LandXit/land-x-smart-contracts/branch/develop/graph/badge.svg?token=J8INVF31NO)](https://codecov.io/gh/LandXit/land-x-smart-contracts)
+
 # LandX NFT Contracts
 
 ### Always use the correct contract addresses
