@@ -43,7 +43,7 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href=".">LandX Smart Contracts Documentation</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#landx-smart-contract-interaction-overview">Landx Smart contract interaction overview</a>
+    <li class="toctree-l2"><a class="reference internal" href="#landx-smart-contract-interaction-overview">Architecture Overview</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#deployment-steps">Deployment steps</a>
     </li>
@@ -275,7 +275,7 @@
 <div class="toc">
 <ul>
 <li><a href="#landx-smart-contracts-documentation">LandX Smart Contracts Documentation</a><ul>
-<li><a href="#landx-smart-contract-interaction-overview">Landx Smart contract interaction overview</a></li>
+<li><a href="#landx-smart-contract-interaction-overview">Architecture Overview</a></li>
 <li><a href="#deployment-steps">Deployment steps</a></li>
 <li><a href="#build-and-test">Build and test</a></li>
 <li><a href="#contracts-under-review">Contracts Under Review</a><ul>
@@ -391,8 +391,35 @@
 </li>
 </ul>
 </div>
-<h2 id="landx-smart-contract-interaction-overview">Landx Smart contract interaction overview</h2>
-<p><img alt="alt_text" src="images/image1.png" title="Landx Smart contract interaction overview" /></p>
+<h2 id="landx-smart-contract-interaction-overview">Architecture Overview</h2>
+<p>The repository for the LandX Protocol can be found on Github <a href="https://github.com/LandXit/land-x-smart-contracts">here</a></p>
+<p><img alt="alt_text" src="images/image2.png" title="Architecture Overview" /></p>
+<p style="text-align: center;">LandX Smart Contract Architecture</p>
+<p>
+  LandX is built on the Ethereum blockchain, meaning all transactions reach consensus through a peer-to-peer system. All logic is implemented as a group of smart contracts that can interact with each other. They can be divided by two groups:
+  </p>
+  <ul>
+  
+  <li>Internal contracts
+  
+  <li>Contracts that users can interact with
+  </li>
+  </ul>
+  <p>
+  Internal Contracts: <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol">xTokenRouter.sol</a>, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol">OraclePrices.sol</a>, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol">KeyProtocolVariables.sol</a>. Contract <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xTokenRouter.sol">xTokenRouter.sol</a> is used for storing actual xToken/cToken Pair. <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol">OraclePrices.sol</a> provides actual prices for commodities and xTokens for executing internal calculations. <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/KeyProtocolVariables.sol">KeyProtocolVariables.sol</a> contains such protocol key parameters as fees percentages, the order of fee distributions, system wallets addresses.
+  </p>
+  <p>
+  Contracts that users can interact with: <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/nft.sol">nft.sol</a>, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">xToken.sol</a>, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol">cToken.sol</a>, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol">xBasket.sol</a>, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol">rentFoundation.sol</a>. LandX NFTis an ERC1155 compatible contract, it represents landowner’s crop share agreement as a non-fungible token. 
+  </p>
+  <p>
+  Each supported commodity type requires a deployed own version of the <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">xToken</a>/<a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol">cToken</a> pair. They are ERC20 compatible tokens.  For example for SOY we should deploy <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">xToken.sol</a>/<a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol">cToken.sol </a>contracts as xSOY and cSOY, <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">xToken.sol</a> contract provide functionality to convert LNDX NFT to supported xTokens and stake/unstake feature for xToken owners. Staked xTokens generate cTokens. <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/cToken.sol">cToken.sol</a> is usual ERC20 token and do not provide additional features except converting cTokens to USDC. It happens when the owner burns his tokens. At the beginning LandX protocol support four agricultural commodities: Wheat, Soy, Corn & Rice, so there are four xTokens/cTokens pairs: xWHEAT/cWHEAT, xSOY/cSOY, xCORN, cCORN and xRICE/cRICE.
+  </p>
+  <p>
+  <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol">xBasket.sol</a> is an ERC20 and ERC4626 compatible contract. xBasket contract accepts deposits of all four xTokens and mints another ERC20 which acts as an index fund of them. User is allowed to convert his xBasket to xTokens back.
+  </p>
+  <p>
+  <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol">rentFoundation.sol</a> is responsible to account rent payments for NFT that were converted to xTokens.
+  </p>
 <h2 id="deployment-steps">Deployment steps</h2>
 <ol>
 <li>Deploy KeyProtocolVariables.sol</li>
@@ -547,7 +574,7 @@ npm run deploy_v:mainnet
 <pre><code>function getShards(uint256 _id) external
 </code></pre>
 <p>Deposit NFT, mint and distribute xTokens. Requires allowance to use NFT. Amount of xTokens is calculated by formula:</p>
-<p>xTokens = landXNFT.landArea(_id) * (landXNFT.rent(_id)) / 10000</p>
+<p>xTokens = landXNFT.tillableArea(_id) * (landXNFT.cropShare(_id)) / 10000</p>
 <p><strong>Parameters:</strong></p>
 <table>
   <tr>
