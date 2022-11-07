@@ -418,7 +418,13 @@
   <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol">xBasket.sol</a> is an ERC20 and ERC4626 compatible contract. xBasket contract accepts deposits of all four xTokens and mints another ERC20 which acts as an index fund of them. User is allowed to convert his xBasket to xTokens back.
   </p>
   <p>
-  <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol">rentFoundation.sol</a> is responsible to account rent payments for NFT that were converted to xTokens.
+  <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol">rentFoundation.sol</a> is responsible to account rent payments for NFT that were converted to xTokens. Lanowners should make rent payments using <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/rentFoundation.sol#L94-L117">payRent()</a> method
+  </p>
+  <p>
+    Such contracts as <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol">xToken.sol</a> and <a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xBasket.sol">xBasket</a> can interract with <a href="https://uniswap.org/blog/uniswap-v3">Uniswap</a> for trading.
+  </p>
+  <p>
+    Detailed information about contract's methods and functions including who can call them is <a href="#contracts-functions-description">here</a>.
   </p>
 <h2 id="deployment-steps">Deployment steps</h2>
 <ol>
@@ -442,6 +448,7 @@
 <a href="https://codecov.io/gh/LandXit/land-x-smart-contracts" > 
   <img src="https://codecov.io/gh/LandXit/land-x-smart-contracts/branch/develop/graph/badge.svg?token=J8INVF31NO"/> 
   </a>
+<p>Test coverage <a href="./coverage/index.html">report</a></p>  
 <p>Copy-paste the env-sample to .env and replace the private keys &amp; api keys accordingly.</p>
 <p>Run: </p>
 <pre><code>npm install
@@ -2524,9 +2531,9 @@ npm run deploy_v:mainnet
 <p>The price data is derived from a commodities API which delivers it directly from CME, CBOT, NYMEX and COMEX. The data is pulled from the API by a decentralized network of nodes and sent via a transaction to our smart contracts on the Ethereum mainnet.</p>
 <h3 id="contract">Contract</h3>
 <p>The chainlink adapter is here:</p>
-<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OracleMulti.sol#L5">https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OracleMulti.sol#L5</a></p>
+<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/develop/contracts/OracleMulti.sol">https://github.com/LandXit/land-x-smart-contracts/blob/develop/contracts/OracleMulti.sol</a></p>
 <p>Multiple queries are called from a single transaction to fetch API data and bring that data into the OraclePrices.sol contract which makes it available throughout.</p>
-<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OraclePrices.sol">https://github.com/LandXit/land-x-smart-contracts/blob/feat/updates-contracts/contracts/OraclePrices.sol</a></p>
+<p><a href="https://github.com/LandXit/land-x-smart-contracts/blob/develop/contracts/OraclePrices.sol">https://github.com/LandXit/land-x-smart-contracts/blob/develop/contracts/OraclePrices.sol</a></p>
 <p>This adapter is hosted by Matrixed.link and is called by Chainlink Automation (formerly Chainlink keepers) more information is available here: \
 <a href="https://docs.chain.link/docs/chainlink-automation/introduction/?_ga=2.75182097.2031120419.1665842779-312568758.1658466725">https://docs.chain.link/docs/chainlink-automation/introduction/?_ga=2.75182097.2031120419.1665842779-312568758.1658466725</a></p>
 <p>The Chainlink automation cron job is set to update 5 times a week when traditional finance markets are open. Further details are available here:</p>
