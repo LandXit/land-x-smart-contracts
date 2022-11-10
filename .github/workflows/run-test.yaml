@@ -15,6 +15,8 @@ jobs:
           node-version: 12
       - name: Install dependencies
         run: npm install
+      - name: Ganache clean
+        run: npx hardhat clean  
       - name: Run tests and collect coverage
         run: npm run test
       - name: Upload coverage to Codecov
