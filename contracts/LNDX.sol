@@ -21,7 +21,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
 
     uint256 public constant MAX_MINTABLE_AMOUNT = 80000000000000;
     uint256 public constant MAX_REWARD_AMOUNT = 15600000000000;
-    uint256 public totalRewardMinted = 0;
+    uint256 public totalGranted = 0;
 
     address usdc;
     address veLNDX;
@@ -59,10 +59,10 @@ contract LNDX is ERC20, Ownable, AccessControl {
 
     mapping(address => Grant) public grants;
 
-    event GrantAdded(address recipient, uint256 amount);
+    event GrantAdded(address recipient, uint256 amount, uint256 cliffEndAt, uint256 vestingEndAt);
     event GrantTokensClaimed(address recipient, uint256 amountClaimed);
 
-    event Staked(address user, uint256 amount, uint256 stakeId);
+    event Staked(address user, uint256 amount, uint256 stakeId, uint256 endAt);
     event Unstaked(address user, uint256 amount, uint256 stakeId);
 
     mapping(address => uint256) public feePerGrant;
@@ -79,6 +79,10 @@ contract LNDX is ERC20, Ownable, AccessControl {
 
     uint256 public totalStaked;
     uint256 public totalLocked;
+
+    mapping (address => uint256[2]) public stakerClaimed;
+
+    mapping (address => uint256) public staked;
 
     uint16 public rewardVestingDuration; // reward vesting duration in days;
 
@@ -119,16 +123,19 @@ contract LNDX is ERC20, Ownable, AccessControl {
         uint16 cliffInMonths,
         uint16 vestingDurationInMonths
     ) external onlyOwner {
+        rewardsToDistribute();
         require(
-            totalSupply() + amount <= MAX_MINTABLE_AMOUNT,
+            (totalGranted + amount) <= (MAX_MINTABLE_AMOUNT.sub(MAX_REWARD_AMOUNT)),
             "Mint limit amount exceeded"
         );
         if (cliffInMonths == 0 && vestingDurationInMonths == 0) {
             _mint(recipient, amount);
+             totalGranted += amount;
             return;
         }
+
         require(grants[recipient].amount == 0, "grant already exists");
-        require(cliffInMonths <= 60, "cliff greater than one year");
+        require(cliffInMonths <= 60, "cliff greater than 5 year");
         require(vestingDurationInMonths <= 60, "duration greater than 5 years");
         uint128 totalPeriod = cliffInMonths + vestingDurationInMonths;
 
@@ -141,12 +148,12 @@ contract LNDX is ERC20, Ownable, AccessControl {
         }
 
         _mint(address(this), amount);
-
+        totalGranted += amount;
         totalLocked = totalLocked + amount;
+
         uint256 veLNDXAmount = (amount * coefficient) / 100;
 
         IveLNDX(veLNDX).mint(recipient, veLNDXAmount);
-        rewardsToDistribute();
 
         rewardsPerGrant[recipient] +=
             (rewardSharesPerToken * veLNDXAmount) /
@@ -168,7 +175,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         });
 
         grants[recipient] = grant;
-        emit GrantAdded(recipient, amount);
+        emit GrantAdded(recipient, amount, startTime, startTime + grant.vestingDuration * 1 days);
     }
 
     function claimVestedTokens() external {
@@ -186,19 +193,23 @@ contract LNDX is ERC20, Ownable, AccessControl {
         uint256 veLNDXAmount = (amountVested * grant.veLndxClaimed) /
             grant.amount;
 
+         if (grant.totalClaimed == grant.amount) {
+            veLNDXAmount = IERC20(veLNDX).balanceOf(msg.sender);
+         }
+
         IveLNDX(veLNDX).burn(msg.sender, veLNDXAmount);
 
         totalLocked -= amountVested;
         uint256 totalFee = computeGrantFee(msg.sender);
         uint256 fee = (veLNDXAmount * totalFee) / grant.veLndxClaimed;
-        feePerGrant[msg.sender] -= fee;
+        feePerGrant[msg.sender] += fee;
 
         uint256 totalRewards = computeGrantReward(msg.sender);
         uint256 rewards = (veLNDXAmount * totalRewards) / grant.veLndxClaimed;
-        rewardsPerGrant[msg.sender] -= rewards;
+        rewardsPerGrant[msg.sender] += rewards;
 
         IERC20(usdc).transfer(msg.sender, fee);
-        require(transfer(grant.recipient, amountVested + rewards), "no tokens");
+        _transfer(address(this), grant.recipient,  amountVested + rewards);
         emit GrantTokensClaimed(grant.recipient, amountVested);
     }
 
@@ -207,7 +218,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         view
         returns (uint256)
     {
-        Grant storage grant = grants[msg.sender];
+        Grant storage grant = grants[recipient];
         return
             (grant.veLndxClaimed * rewardSharesPerToken) /
             1e6 -
@@ -215,7 +226,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
     }
 
     function computeGrantFee(address recipient) public view returns (uint256) {
-        Grant storage grant = grants[msg.sender];
+        Grant storage grant = grants[recipient];
         return
             (grant.veLndxClaimed * feeSharesPerToken) /
             1e6 -
@@ -227,40 +238,39 @@ contract LNDX is ERC20, Ownable, AccessControl {
             return;
         }
 
-        if (rewardVested.lastVestedAt >= block.timestamp) {
-            return;
-        }
-
         if (rewardVested.vestingStartedAt == 0) {
             rewardVested.vestingStartedAt = block.timestamp;
         }
 
+         if (rewardVested.lastVestedAt == 0) {
+            rewardVested.lastVestedAt = block.timestamp;
+        }
+
         uint256 elapsedDays = block
             .timestamp
-            .sub(rewardVested.vestingStartedAt - 1 days)
+            .sub(rewardVested.lastVestedAt)
             .div(1 days);
 
         uint256 amountVested = 0;
-        // If over vesting duration, all tokens vested
-        if (elapsedDays >= rewardVestingDuration) {
-            amountVested = MAX_REWARD_AMOUNT.sub(rewardVested.amountVested);
-            _mint(address(this), amountVested);
-            rewardVested.amountVested += amountVested;
-            rewardVested.lastVestedAt = block.timestamp;
-        } else {
-            uint16 daysVested = uint16(
-                elapsedDays.sub(rewardVested.daysClaimed)
-            );
-            if (daysVested > 0) {
-                uint256 amountVestedPerDay = MAX_REWARD_AMOUNT.div(
+
+        if (elapsedDays > 0) {
+            uint256 amountVestedPerDay = MAX_REWARD_AMOUNT.div(
                     uint256(rewardVestingDuration)
-                );
-                amountVested = uint256(daysVested.mul(amountVestedPerDay));
-                _mint(address(this), amountVested);
+            );
+            amountVested = amountVestedPerDay.mul(elapsedDays);
+
+            if (amountVested.add(rewardVested.amountVested) > MAX_REWARD_AMOUNT) {
+                amountVested = MAX_REWARD_AMOUNT.sub(rewardVested.amountVested);
+                elapsedDays = rewardVestingDuration - rewardVested.daysClaimed;
+            }
+                
+                rewardVested.daysClaimed += elapsedDays;
                 rewardVested.amountVested += amountVested;
                 rewardVested.lastVestedAt = block.timestamp;
-                rewardVested.daysClaimed += daysVested;
-                uint256 tokensCount = IERC20(veLNDX).totalSupply();
+
+                 _mint(address(this), amountVested);
+
+                 uint256 tokensCount = IERC20(veLNDX).totalSupply();
                 if (tokensCount == 0) {
                     rewardNotDistributed += amountVested;
                     return;
@@ -269,12 +279,11 @@ contract LNDX is ERC20, Ownable, AccessControl {
                     (1e6 * (amountVested + rewardNotDistributed)) /
                     tokensCount;
                 rewardNotDistributed = 0;
-            }
         }
     }
 
     function calculateGrantClaim(address _recipient)
-        private
+        public
         view
         returns (uint16, uint256)
     {
@@ -288,7 +297,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         }
 
         // Check cliff was reached
-        uint256 elapsedDays = block.timestamp.sub(grant.startTime - 1 days).div(
+        uint256 elapsedDays = block.timestamp.sub(grant.startTime).div(
             1 days
         );
 
@@ -343,12 +352,13 @@ contract LNDX is ERC20, Ownable, AccessControl {
         stakes[stakesCount] = stake;
 
         totalStaked += amount;
+        staked[msg.sender] += amount;
 
         feePerStake[stakesCount] += (feeSharesPerToken * mintAmount) / 1e6;
         rewardsPerStake[stakesCount] +=
             (rewardSharesPerToken * mintAmount) /
             1e6;
-        emit Staked(msg.sender, amount, stakesCount);
+        emit Staked(msg.sender, amount, stakesCount, stake.endTime);
     }
 
     function unstake(uint256 stakeID) external {
@@ -358,18 +368,23 @@ contract LNDX is ERC20, Ownable, AccessControl {
 
         Stake storage s = stakes[stakeID];
         totalStaked -= s.amount;
+        staked[msg.sender] -= s.amount;
 
         rewardsToDistribute();
 
         uint256 rewards = computeStakeReward(stakeID);
         uint256 fee = computeStakeFee(stakeID);
 
+        stakerClaimed[s.staker][0] += fee;
+        stakerClaimed[s.staker][1] += rewards;
+
         s.unstaked = true;
 
         rewardsPerStake[stakeID] = 0;
         feePerStake[stakeID] = 0;
 
-        transfer(msg.sender, s.amount + rewards);
+        _transfer(address(this), msg.sender, s.amount + rewards);
+        IveLNDX(veLNDX).burn(msg.sender, s.veLndxClaimed);
         IERC20(usdc).transfer(msg.sender, fee);
         emit Unstaked(msg.sender, s.amount, stakeID);
     }
@@ -383,7 +398,6 @@ contract LNDX is ERC20, Ownable, AccessControl {
             uint256
         )
     {
-        require(stakes[stakeID].staker == msg.sender, "not staker");
         require(stakes[stakeID].unstaked == false, "already unstaked");
 
         Stake storage s = stakes[stakeID];
