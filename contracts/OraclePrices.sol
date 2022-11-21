@@ -90,7 +90,7 @@ contract OraclePrices is Context, Ownable, AccessControlEnumerable {
 
         address pool = getXtokenPool(xToken);
         if (pool == address(0)) {
-            return xTokenPrices[xToken];
+            revert("Pool not found");
         }
 
         address poolToken0 = IUniswapPool(pool).token0();
