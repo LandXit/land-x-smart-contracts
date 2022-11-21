@@ -72,11 +72,11 @@ describe("Oracle Prices", function () {
     })
 
     it("get xToken price (prelauch is false, pool not found)", async function () {
-        console.log("try to get xToken price when pre launch mode is disabled and uniswap pool is not found; in this case returns default price")
+        console.log("try to get xToken price when pre launch mode is disabled and uniswap pool is not found; in this case transaction is reverted")
         await mockedKeyProtocalValues.mock.preLaunch.withArgs().returns(false)
         let usdc = await oraclePrices.usdc()
         await mockedUniswapV3FactoryContract.mock.getPool.withArgs(usdc, mockedXTokenContract.address, 3000).returns(constants.AddressZero)
-        expect(await oraclePrices.getXTokenPrice(mockedXTokenContract.address)).to.be.equal(6000000)
+        await expect(oraclePrices.getXTokenPrice(mockedXTokenContract.address)).to.be.revertedWith("Pool not found")
     })
 
     it("get xToken price (prelauch is false, pool exists, token0 is usdc)", async function () {
