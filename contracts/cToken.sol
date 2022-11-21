@@ -17,10 +17,10 @@ interface IXTOKENROUTER {
 contract CToken is Context, ERC20Burnable, Ownable {
     IRENTFOUNDATION public rentFoundation;
     IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
-    string public crop = "CORN";
+    string public crop;
 
     constructor(address _rentForndation, address _xTokenRouter, string memory _crop)
-        ERC20("LandX cToken", "cCORN")
+        ERC20("LandX cToken", string(abi.encodePacked('c', _crop)))
     {
         rentFoundation = IRENTFOUNDATION(_rentForndation);
         xTokenRouter = IXTOKENROUTER(_xTokenRouter);

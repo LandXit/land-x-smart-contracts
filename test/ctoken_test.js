@@ -21,6 +21,10 @@ describe("cToken", function () {
 		await cToken.deployed()
 	})
 
+    it("check symbol value", async function () {
+        expect(await cToken.symbol()).to.equal("cCORN")
+	})
+
 	it("minting  works", async function () {
         console.log("mint 1000000 cCORN for " + acc1.address)
 		await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xTokenContractAddress.address)
