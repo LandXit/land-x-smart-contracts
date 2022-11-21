@@ -25,6 +25,10 @@ describe("cToken", function () {
         expect(await cToken.symbol()).to.equal("cCORN")
 	})
 
+    it("owner can't renounceOwnership", async function () {
+        await expect(cToken.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
 	it("minting  works", async function () {
         console.log("mint 1000000 cCORN for " + acc1.address)
 		await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xTokenContractAddress.address)

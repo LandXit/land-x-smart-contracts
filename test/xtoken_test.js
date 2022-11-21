@@ -53,6 +53,11 @@ describe("xToken", function () {
         nft.connect(acc2).setApprovalForAll(xToken.address, true)
         xTokenMintFee = 300
     })
+
+    it("owner can't renounceOwnership", async function () {
+        await expect(xToken.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
     it("Get Shards works (preLaunch mode is enabled)", async function () {
         await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
         await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)

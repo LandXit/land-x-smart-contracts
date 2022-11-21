@@ -29,6 +29,11 @@ describe("Oracle Prices", function () {
 		await oraclePrices.deployed()
         await oraclePrices.grantRole("0x04824fcb60e7cc526d70b264caa65b62ed44d9c8e5d230e8ff6b0c7373843b8a", acc1.address)
     })
+
+    it("owner can't renounceOwnership", async function () {
+        await expect(oraclePrices.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
     it("setGrainPrice works ", async function () {
         console.log("set price=500000000 (USDC per megatone) for SOY")
         await oraclePrices.connect(acc1).setGrainPrice("SOY", 500000000)

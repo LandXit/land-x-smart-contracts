@@ -130,4 +130,8 @@ contract KeyProtocolVariables is Ownable {
         require(msg.sender == dao, "only dao can change value");
         preLaunch = false;
     }
+
+    function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
 }

@@ -464,6 +464,10 @@ contract xBasket is ERC20, IERC4626, Ownable {
         return uniswapRouter.exactInputSingle(params);
     }
 
+    function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
+
     function decimals()
         public
         view

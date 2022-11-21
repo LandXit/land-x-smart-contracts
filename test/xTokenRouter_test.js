@@ -20,6 +20,10 @@ describe("xTokenRouter", function () {
 		await xTokenRouter.deployed()
 	})
 
+	it("owner can't renounceOwnership", async function () {
+        await expect(xTokenRouter.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
 	it("Set Tokens works", async function () {
 		await xTokenRouter.setToken("SOY", mockedXTokenContract.address, mockedCTokenContract.address)
         expect(await xTokenRouter.getXToken("SOY")).to.equal(mockedXTokenContract.address)

@@ -84,6 +84,10 @@ describe("xBasket", function () {
         await xRICE.mock.availableToClaim.withArgs(xBasket.address).returns(1000000)
     })
 
+    it("owner can't renounceOwnership", async function () {
+        await expect(xBasket.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
     it("get decimals  works", async function () {
         expect(await xBasket.decimals()).to.equal(6)
 	})

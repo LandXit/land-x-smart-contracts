@@ -52,4 +52,8 @@ contract CToken is Context, ERC20Burnable, Ownable {
     function decimals() public pure override returns (uint8) {
         return 6;
     }
+
+     function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
 }
