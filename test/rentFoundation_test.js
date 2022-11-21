@@ -46,6 +46,10 @@ describe("RentFoundation", function () {
         await rentFoundationContract.setXTokenRouter(mockedXTokenRouterContract.address)
     })
 
+    it("owner can't renounceOwnership", async function () {
+        await expect(rentFoundationContract.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
     it("set NFT Contract", async function () {
         console.log("updates NFT contract by contract owner")
         let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")

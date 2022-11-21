@@ -430,4 +430,8 @@ contract LNDX is ERC20, Ownable, AccessControl {
     function decimals() public pure override returns (uint8) {
         return 6;
     }
+
+    function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
 }

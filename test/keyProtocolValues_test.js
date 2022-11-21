@@ -28,6 +28,10 @@ describe("Key Protocol Values", function () {
 		expect(await keyProtocolValues.xTokenMintFee()).to.equal(400)
 	})
 
+	it("owner can't renounceOwnership", async function () {
+        await expect(keyProtocolValues.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
+	})
+
 	it("updateXTokenMintFee doesn't work (not dao)", async function () {
 		console.log("try to update xToken mint fee when it is not allowed")
         expect(keyProtocolValues.updateXTokenMintFee(400)).to.be.revertedWith("only dao can change value")

@@ -182,4 +182,8 @@ contract RentFoundation is Context, Ownable {
     function changeLandXNFTAddress(address _newAddress) public onlyOwner {
         landXNFT = ILANDXNFT(_newAddress);
     }
+
+    function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
 }

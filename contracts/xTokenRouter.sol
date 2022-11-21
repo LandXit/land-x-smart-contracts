@@ -31,4 +31,8 @@ contract xTokenRouter is Ownable {
     function getCToken(string memory crop) external view returns (address) {
         return tokens[crop].cToken;
     }
+
+    function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
 }

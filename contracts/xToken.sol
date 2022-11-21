@@ -419,6 +419,10 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         );
     }
 
+    function renounceOwnership() public override onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
+
     function decimals() public pure override returns (uint8) {
         return 6;
     }
