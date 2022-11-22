@@ -81,7 +81,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
 
     // return underlying assets amount in USDC
     function totalAssets() public view override returns (uint256) {
-        return calculateCollateral();
+        return calculateTVL();
     }
 
     function convertToShares(uint256 assets)
