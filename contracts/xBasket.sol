@@ -214,12 +214,12 @@ contract xBasket is ERC20, IERC4626, Ownable {
         returns (uint256)
     {
         require(
-            assets <= maxDeposit(receiver),
+            assets <= maxDeposit(msg.sender),
             "ERC4626: deposit more than max"
         );
 
         uint256 shares = previewDeposit(assets);
-        _deposit(_msgSender(), receiver, assets, shares);
+        _deposit(msg.sender, receiver, assets, shares);
 
         return shares;
     }
@@ -230,10 +230,10 @@ contract xBasket is ERC20, IERC4626, Ownable {
         override
         returns (uint256)
     {
-        require(shares <= maxMint(receiver), "ERC4626: mint more than max");
+        require(shares <= maxMint(msg.sender), "ERC4626: mint more than max");
 
         uint256 assets = previewMint(shares);
-        _deposit(_msgSender(), receiver, assets, shares);
+        _deposit(msg.sender, receiver, assets, shares);
 
         return assets;
     }
@@ -306,7 +306,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         IXToken(xSoy).stake(assets);
         IXToken(xRice).stake(assets);
         IXToken(xCorn).stake(assets);
-        _mint(msg.sender, shares);
+        _mint(receiver, shares);
         emit Deposit(caller, receiver, assets, shares);
     }
 
@@ -464,7 +464,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         return uniswapRouter.exactInputSingle(params);
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 
