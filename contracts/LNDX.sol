@@ -128,7 +128,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
             return;
         }
         require(grants[recipient].amount == 0, "grant already exists");
-        require(cliffInMonths <= 60, "cliff greater than one year");
+        require(cliffInMonths <= 60, "cliff greater than 5 years");
         require(vestingDurationInMonths <= 60, "duration greater than 5 years");
         uint128 totalPeriod = cliffInMonths + vestingDurationInMonths;
 
