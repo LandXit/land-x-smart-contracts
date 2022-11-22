@@ -86,7 +86,7 @@ interface IKeyProtocolValues {
 //xToken NFT in = shards. xToken in = NFT
 //1 xToken = (tillableArea * cropShare) /  10000
 contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
-    string public constant crop = "CORN";
+    string public crop;
     address public xBasketContract;
     address public lndx;
     address public usdc;
@@ -127,9 +127,10 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         address _keyProtocolValues,
         address _uniswapRouter,
         address _oraclePrices,
-        string memory _name // "xSOY, xCORN etc"
-    ) ERC20Permit(_name) ERC20("LandX xToken", _name) {
+        string memory _crop// "SOY, CORN etc"
+    ) ERC20Permit(string(abi.encodePacked("x", _crop))) ERC20("LandX xToken", string(abi.encodePacked("x", _crop))) {
         landXNFT = ILandxNFT(_landXNFT);
+        crop = _crop;
         lndx = _lndx;
         usdc = _usdc;
         rentFoundation = IRentFoundation(_rentFoundation);
@@ -419,7 +420,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         );
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 

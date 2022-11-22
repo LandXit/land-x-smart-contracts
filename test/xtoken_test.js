@@ -44,7 +44,7 @@ describe("xToken", function () {
 			mockedKeyProtocolVariablesContract.address,
             mockedUniswapRouter.address,
             mockedOraclePricesContract.address,
-            "xCORN"
+            "CORN"
 		)
 		await xToken.deployed()
         await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
@@ -53,6 +53,10 @@ describe("xToken", function () {
         nft.connect(acc2).setApprovalForAll(xToken.address, true)
         xTokenMintFee = 300
     })
+
+    it("check symbol value", async function () {
+        expect(await xToken.symbol()).to.equal("xCORN")
+	})
 
     it("owner can't renounceOwnership", async function () {
         await expect(xToken.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
