@@ -8,11 +8,11 @@ let xToken, NFTContract, nft
 let mockedUSDCContract, mockedKeyProtocolVariablesContract, mockedXTokenRouterContract, mockedRentFoundationContract
 let mockedUniswapRouter, mockedLndxContract, mockedOraclePricesContract, mockedCTokenContract
 let xTokenMintFee
-let owner, acc1, acc2, landxOperationalWallet, xTokensSecurityWallet
+let owner, acc1, acc2, acc3, landxOperationalWallet, xTokensSecurityWallet, xSOY
 
 describe("xToken", function () {
 	beforeEach(async function () {
-		;[owner, acc1, acc2, landxOperationalWallet, xTokensSecurityWallet, hedgeFundWallet, landxChoiceWallet] = await ethers.getSigners()
+		;[owner, acc1, acc2, acc3, landxOperationalWallet, xTokensSecurityWallet, hedgeFundWallet, landxChoiceWallet, xSOY] = await ethers.getSigners()
         const ERC20Contract = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
         mockedUSDCContract = await deployMockContract(owner, ERC20Contract.abi)
         const LNDXContract = require("../artifacts/contracts/LNDX.sol/LNDX.json")
@@ -147,9 +147,21 @@ describe("xToken", function () {
 
     it("impossible to get Shards (unsupported grain)", async function () {
         await mockedXTokenRouterContract.mock.getXToken.withArgs("POTATO").returns(xToken.address)
-        await mockedKeyProtocolVariablesContract.mock.maxAllowableCropShare.withArgs("POTATO").returns(1200)
         await nft.setDetailsAndMint(2, 30000000, 30000000, 3000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "POTATO", acc2.address)
         await expect(xToken.connect(acc2).getShards(2)).to.be.revertedWith("wrong crop")
+    })
+
+    it("impossible to get Shards (wrong xToken contract)", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xSOY.address)
+        await nft.setDetailsAndMint(2, 30000000, 30000000, 3000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "CORN", acc2.address)
+        await expect(xToken.connect(acc2).getShards(2)).to.be.revertedWith("tokens are not set for this crop")
+    })
+
+    it("impossible to get Shards (not token owner)", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await nft.setDetailsAndMint(2, 30000000, 30000000, 3000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "CORN", acc2.address)
+        await nft.connect(acc2).safeTransferFrom(acc2.address, acc3.address, 2, 1, 0x0)
+        await expect(xToken.connect(acc2).getShards(2)).to.be.revertedWith("you must own this NFT")
     })
 
     it("impossible to get Shards (rent already applied)", async function () {
@@ -372,14 +384,26 @@ describe("xToken", function () {
         expect((await xToken.preview(1))[3]).to.equal(766940742000)
     })
 
-    it("preview", async function () {
+    it("preview reverted", async function () {
         await nft.setDetailsAndMint(2, 0, 0, 3000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "CORN", acc2.address)
         await expect(xToken.preview(2)).to.be.revertedWith("this NFT has no land area set")
     })
 
-    it("preview", async function () {
+    it("preview reverted", async function () {
         await nft.setDetailsAndMint(2, 30000000, 30000000, 0, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "CORN", acc2.address)
         await expect(xToken.preview(2)).to.be.revertedWith("this NFT has no crop share set")
+    })
+
+    it("preview reverted", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xSOY.address)
+        await nft.setDetailsAndMint(2, 30000000, 30000000, 2000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "SOY", acc2.address)
+        await expect(xToken.preview(2)).to.be.revertedWith("wrong crop")
+    })
+
+    it("preview reverted", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xSOY.address)
+        await nft.setDetailsAndMint(2, 30000000, 30000000, 2000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824", "CORN", acc2.address)
+        await expect(xToken.preview(2)).to.be.revertedWith("Unable to shard this NFT")
     })
 
     it("XBasket Transfer", async function () {

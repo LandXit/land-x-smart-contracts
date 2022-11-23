@@ -396,9 +396,15 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         require(landXNFT.tillableArea(id) > 0, "this NFT has no land area set");
         require(landXNFT.cropShare(id) > 0, "this NFT has no crop share set");
         require(
+            keccak256(abi.encodePacked(landXNFT.crop(id))) ==
+                keccak256(abi.encodePacked(crop)),
+            "wrong crop"
+        );
+        require(
             xTokenRouter.getXToken(landXNFT.crop(id)) == address(this),
             "Unable to shard this NFT"
         );
+        
         uint256 shards = (landXNFT.tillableArea(id) *
             landXNFT.cropShare(id) *
             1e6) / 10000;

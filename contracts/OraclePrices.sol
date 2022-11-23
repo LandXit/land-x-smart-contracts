@@ -79,6 +79,7 @@ contract OraclePrices is Context, Ownable, AccessControlEnumerable {
 
     function setXTokenPrice(address xToken, uint256 price) public {
         require(hasRole(PRICE_SETTER_ROLE, msg.sender), "not price setter");
+        require(xToken != address(0), "xToken address can't be zero");
         require(price > 0 && price < 9999999999, "Invalid values");
         xTokenPrices[xToken] = price;
     }

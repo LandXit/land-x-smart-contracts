@@ -77,6 +77,10 @@ describe("NFT", function () {
 		await expect(nft.connect(acc1).setBaseURI("some_url")).to.be.reverted
 	})
 
+	it ("set base token URI doesn't work, empty string", async function (){
+		await expect(nft.setBaseURI("")).to.be.revertedWith("empty string")
+	})
+
 	it ("set xTokenRouter works", async function (){
 		console.log("updates xTokenRouter contract by contract owner")
 		await expect(nft.setXTokenRouter("0x4ab1dEA2F94ECf2a25B8B81D29da05443fe4A420")).not.to.reverted

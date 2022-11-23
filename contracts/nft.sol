@@ -77,6 +77,7 @@ contract LandXNFT is ERC1155, Ownable {
     }
 
     function setBaseURI(string memory newuri) public onlyOwner {
+        require(bytes(newuri).length > 0, "empty string");
         _baseTokenURI = newuri;
     }
 
