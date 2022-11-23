@@ -137,6 +137,10 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.updateHedgeFundWallet(owner.address)).to.be.revertedWith("only dao can change value")
 	})
 
+	it("updateHedgeFundWallet doesn't work (zero address)", async function () {
+        expect(keyProtocolValues.connect(dao).updateHedgeFundWallet(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
 	it("updateLandxOperationalWallet works", async function () {
 		console.log("updates landx operational wallet")
         await keyProtocolValues.connect(dao).updateLandxOperationalWallet(owner.address)
@@ -146,6 +150,10 @@ describe("Key Protocol Values", function () {
 	it("updateLandxOperationalWallet doesn't work (not dao)", async function () {
 		console.log("try to update landx operational wallet when it is not allowed")
         expect(keyProtocolValues.updateLandxOperationalWallet(owner.address)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateLandxOperationalWallet doesn't work (zero address)", async function () {
+        expect(keyProtocolValues.connect(dao).updateLandxOperationalWallet(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
 	it("updateLandxChoiceWallet works", async function () {
@@ -159,6 +167,10 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.updateLandxChoiceWallet(owner.address)).to.be.revertedWith("only dao can change value")
 	})
 
+	it("updateLandxChoiceWallet doesn't work (zero address)", async function () {
+        expect(keyProtocolValues.connect(dao).updateLandxChoiceWallet(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
 	it("updateXTokensSecurityWallet works", async function () {
 		console.log("updates xToken security wallet")
         await keyProtocolValues.connect(dao).updateXTokensSecurityWallet(owner.address)
@@ -170,6 +182,10 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.updateXTokensSecurityWallet(owner.address)).to.be.revertedWith("only dao can change value")
 	})
 
+	it("updateXTokensSecurityWallet doesn't work (zero address)", async function () {
+        expect(keyProtocolValues.connect(dao).updateXTokensSecurityWallet(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
 	it("updateValidatorCommisionWallet works", async function () {
 		console.log("updates validator's commission wallet")
         await keyProtocolValues.connect(dao).updateValidatorCommisionWallet(owner.address)
@@ -179,6 +195,10 @@ describe("Key Protocol Values", function () {
 	it("updateValidatorCommisionWallet doesn't work (not dao)", async function () {
 		console.log("try to update validator's commission wallet when it is not allowed")
         expect(keyProtocolValues.updateValidatorCommisionWallet(owner.address)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateValidatorCommisionWallet doesn't work (zero address)", async function () {
+        expect(keyProtocolValues.connect(dao).updateValidatorCommisionWallet(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
 	it("launch works", async function () {

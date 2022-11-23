@@ -36,6 +36,14 @@ describe("xTokenRouter", function () {
         expect(await xTokenRouter.getCToken("SOY")).to.equal(constants.AddressZero)
 	})
 
+	it("owner can't set Tokens with zero adress", async function () {
+		await expect(xTokenRouter.setToken("SOY", zeroAddress(), mockedCTokenContract.address)).to.be.revertedWith("zero address is not allowed")
+	})
+
+	it("owner can't set Tokens with zero adress", async function () {
+		await expect(xTokenRouter.setToken("SOY", mockedXTokenContract.address, zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
 	it("get cToken", async function () {
 		await xTokenRouter.setToken("SOY", mockedXTokenContract.address, mockedCTokenContract.address)
         expect(await xTokenRouter.getCToken("SOY")).to.equal(mockedCTokenContract.address)

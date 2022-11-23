@@ -22,6 +22,8 @@ contract CToken is Context, ERC20Burnable, Ownable {
     constructor(address _rentForndation, address _xTokenRouter, string memory _crop)
         ERC20("LandX cToken", string(abi.encodePacked('c', _crop)))
     {
+        require(_rentForndation != address(0), "zero address is not allowed");
+        require(_xTokenRouter != address(0), "zero address is not allowed");
         rentFoundation = IRENTFOUNDATION(_rentForndation);
         xTokenRouter = IXTOKENROUTER(_xTokenRouter);
         crop = _crop;
@@ -42,10 +44,12 @@ contract CToken is Context, ERC20Burnable, Ownable {
     }
 
     function setRentFoundation(address _address) public onlyOwner {
+        require(_address != address(0), "zero address is not allowed");
         rentFoundation = IRENTFOUNDATION(_address);
     }
 
     function setXTokenRouter(address _router) public onlyOwner {
+        require(_router != address(0), "zero address is not allowed");
         xTokenRouter = IXTOKENROUTER(_router);
     }
 
@@ -53,7 +57,7 @@ contract CToken is Context, ERC20Burnable, Ownable {
         return 6;
     }
 
-     function renounceOwnership() public override onlyOwner {
+     function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 }

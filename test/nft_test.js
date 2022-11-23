@@ -91,6 +91,10 @@ describe("NFT", function () {
 		await expect(nft.connect(acc1).setXTokenRouter("0x4ab1dEA2F94ECf2a25B8B81D29da05443fe4A420")).to.be.reverted
 	})
 
+	it ("set xTokenRouter doesn't work, zero address is not allowed", async function (){
+		await expect(nft.connect(owner).setXTokenRouter(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
 	it ("get uri", async function (){
 		console.log("returns uri for NFT token by token ID")
 		await nft.setBaseURI("some_url/")

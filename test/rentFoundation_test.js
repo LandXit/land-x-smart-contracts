@@ -65,6 +65,10 @@ describe("RentFoundation", function () {
         await expect(rentFoundationContract.connect(acc1).changeLandXNFTAddress(mockedNFTContract2.address)).to.be.reverted
 	})
 
+    it("impossible set NFT Contract, zero address", async function () {
+        await expect(rentFoundationContract.connect(owner).changeLandXNFTAddress(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
     it("set XTokenRouter", async function () {
         console.log("updates xTokenRouter contract by contract owner")
         let xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
@@ -80,6 +84,10 @@ describe("RentFoundation", function () {
         await expect(rentFoundationContract.connect(acc1).setXTokenRouter(mockedXTokenRouterContract2.address)).to.be.reverted
 	})
 
+    it("impossible to set xTokenRouter, zero address", async function () {
+        await expect(rentFoundationContract.connect(owner).setXTokenRouter(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
     it("set OraclePrices contract", async function () {
         console.log("updates OraclePrice contract by contract owner")
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
@@ -93,6 +101,10 @@ describe("RentFoundation", function () {
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         let mockedOraclePricesContract2 = await deployMockContract(owner, oraclePricesContract.abi)
         await expect(rentFoundationContract.connect(acc1).setGrainPrices(mockedOraclePricesContract2.address)).to.be.reverted
+	})
+
+    it("it is not possible to set OraclePrices contract, zero address", async function () {
+        await expect(rentFoundationContract.connect(owner).setGrainPrices(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
     it("pay initial rent", async function () {

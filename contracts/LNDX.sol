@@ -96,6 +96,8 @@ contract LNDX is ERC20, Ownable, AccessControl {
         address _veLNDX,
         uint16 _rewardVestingDuration
     ) ERC20("LandX Governance Token", "LNDX") {
+        require(_usdc != address(0), "zero address is not allowed");
+        require(_veLNDX != address(0), "zero address is not allowed");
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         usdc = _usdc;
         veLNDX = _veLNDX;

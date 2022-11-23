@@ -60,6 +60,9 @@ contract xBasket is ERC20, IERC4626, Ownable {
         address _oraclePrices,
         address _uniswapRouter
     ) ERC20("xBasket LandX Index Fund", "xBASKET") {
+        require(_xTokenRouter != address(0), "zero address is not allowed");
+        require(_oraclePrices != address(0), "zero address is not allowed");
+        require(_uniswapRouter != address(0), "zero address is not allowed");
         xTokenRouter = IxTokenRouter(_xTokenRouter);
         oraclePrices = IOraclePrices(_oraclePrices);
         xWheat = xTokenRouter.getXToken("WHEAT");

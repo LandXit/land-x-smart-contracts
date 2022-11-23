@@ -45,6 +45,12 @@ contract KeyProtocolVariables is Ownable {
         maxAllowableCropShare["RICE"] = 1200;
         maxAllowableCropShare["CORN"] = 1200;
 
+        require(_hedgeFundWallet != address(0), "zero address is not allowed");
+        require(_landxOperationalWallet != address(0), "zero address is not allowed");
+        require(_landxChoiceWallet != address(0), "zero address is not allowed");
+        require(_xTokensSecurityWallet != address(0), "zero address is not allowed");
+        require(_validatorCommisionWallet != address(0), "zero address is not allowed");
+
         hedgeFundWallet = _hedgeFundWallet;
         landxOperationalWallet = _landxOperationalWallet;
         landxChoiceWallet = _landxChoiceWallet;
@@ -107,26 +113,31 @@ contract KeyProtocolVariables is Ownable {
 
     function updateHedgeFundWallet(address _wallet) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_wallet != address(0), "zero address is not allowed");
         hedgeFundWallet = _wallet;
     }
 
     function updateLandxOperationalWallet(address _wallet) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_wallet != address(0), "zero address is not allowed");
         landxOperationalWallet = _wallet;
     }
 
     function updateLandxChoiceWallet(address _wallet) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_wallet != address(0), "zero address is not allowed");
         landxChoiceWallet = _wallet;
     }
 
     function updateXTokensSecurityWallet(address _wallet) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_wallet != address(0), "zero address is not allowed");
         xTokensSecurityWallet = _wallet;
     }
 
     function updateValidatorCommisionWallet(address _wallet) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_wallet != address(0), "zero address is not allowed");
         validatorCommisionWallet = _wallet;
     }
 

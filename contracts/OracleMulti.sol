@@ -86,6 +86,7 @@ contract OracleMulti is ChainlinkClient, ConfirmedOwner {
     }
 
     function updateOraclePrices(address _opAddress) public onlyOwner {
+        require(_opAddress!= address(0), "zero address is not allowed");
         oraclePrices = OraclePrices(_opAddress);
     }
 

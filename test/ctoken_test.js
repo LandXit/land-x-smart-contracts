@@ -63,6 +63,10 @@ describe("cToken", function () {
         await expect(cToken.connect(acc1).setXTokenRouter(mockedXTokenRouterContract2.address)).to.be.reverted
 	})
 
+    it("it is not possible to set XTokenRouter (zero address)", async function () {
+        await expect(cToken.connect(owner).setXTokenRouter(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
     it("set RentFoundation contract", async function () {
         console.log("updates RentFoundationcontract by contract owner")
         let rentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
@@ -76,6 +80,10 @@ describe("cToken", function () {
         let rentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
         let mockedRentFoundationContract = await deployMockContract(owner, rentFoundationContract.abi)
         await expect(cToken.connect(acc1).setRentFoundation(mockedRentFoundationContract.address)).to.be.reverted
+	})
+
+    it("it is not possible to set RentFoundation contract (zero address)", async function () {
+        await expect(cToken.connect(owner).setRentFoundation(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
     it("burn works", async function () {

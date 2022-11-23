@@ -3,6 +3,7 @@ const { expect } = require("chai");
 const { constants, BigNumber } = require("ethers");
 const { ethers} = require("hardhat");
 const { time, BN } = require("@openzeppelin/test-helpers");
+const { zeroAddress } = require("ethereumjs-util");
 
 let xToken, NFTContract, nft
 let mockedUSDCContract, mockedKeyProtocolVariablesContract, mockedXTokenRouterContract, mockedRentFoundationContract
@@ -315,6 +316,10 @@ describe("xToken", function () {
         await expect(xToken.connect(acc1).setRentFoundation(mockedRentFoundationContract2.address)).to.be.reverted
 	})
 
+    it("impossible to set RentFoundation, zero address", async function () {
+        await expect(xToken.setRentFoundation(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
     it("set OraclePrices contract", async function () {
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         let mockedOraclePricesContract2 = await deployMockContract(owner, oraclePricesContract.abi)
@@ -327,6 +332,10 @@ describe("xToken", function () {
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         let mockedOraclePricesContract2 = await deployMockContract(owner, oraclePricesContract.abi)
         await expect(xToken.connect(acc1).setOraclePrices(mockedOraclePricesContract2.address)).to.be.reverted
+	})
+
+    it("impossible to set OraclePrices, zero address", async function () {
+        await expect(xToken.setOraclePrices(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
     it("get decimals  works", async function () {
@@ -346,6 +355,10 @@ describe("xToken", function () {
         await expect(xToken.connect(acc1).setXTokenRouter(mockedXTokenRouterContract2.address)).to.be.reverted
 	})
 
+    it("impossible to set XTokenRouter, zero address", async function () {
+        await expect(xToken.setXTokenRouter(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
     it("set XBasketAddress", async function () {
         let xBasketContract = require("../artifacts/contracts/xBasket.sol/xBasket.json")
         let mockedXBascetContract= await deployMockContract(owner, xBasketContract.abi)
@@ -359,6 +372,10 @@ describe("xToken", function () {
         await expect(xToken.connect(acc1).changeXBasketAddress(mockedXBasketContract.address)).to.be.reverted
 	})
 
+    it("impossible to set XBasketAddresst, zero address", async function () {
+        await expect(xToken.changeXBasketAddress(zeroAddress())).to.be.revertedWith("zero address is not allowed")
+	})
+
     it("set NFT Contract", async function () {
         let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
         let mockedNFTContract= await deployMockContract(owner, nft.abi)
@@ -370,6 +387,10 @@ describe("xToken", function () {
         let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
         let mockedNFTContract= await deployMockContract(owner, nft.abi)
         await expect(xToken.connect(acc1).changeLandXNFTAddress(mockedNFTContract.address)).to.be.reverted
+	})
+
+    it("impossible set NFT Contract, zero address", async function () {
+        await expect(xToken.changeLandXNFTAddress(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
     it("preview", async function () {
