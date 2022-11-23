@@ -37,6 +37,10 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.updateXTokenMintFee(400)).to.be.revertedWith("only dao can change value")
 	})
 
+	it("updateXTokenMintFee doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateXTokenMintFee(10001)).to.be.revertedWith("value can't be above 100%")
+	})
+
 	it("updateCTokenSellFee works", async function () {
 		console.log("updates cToken sell fee ")
         await keyProtocolValues.connect(dao).updateCTokenSellFee(800)
@@ -46,6 +50,10 @@ describe("Key Protocol Values", function () {
 	it("updateCTokenSellFee doesn't work (not dao)", async function () {
 		console.log("try to update cToken sell fee when it is not allowed")
         expect(keyProtocolValues.updateCTokenSellFee(800)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateCTokenSellFee doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateCTokenSellFee(10001)).to.be.revertedWith("value can't be above 100%")
 	})
 
 	it("updatePayRentFee works", async function () {
@@ -59,6 +67,10 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.updatePayRentFee(200)).to.be.revertedWith("only dao can change value")
 	})
 
+	it("updatePayRentFee doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updatePayRentFee(10001)).to.be.revertedWith("value can't be above 100%")
+	})
+
 	it("updateHedgeFundAllocation works", async function () {
 		console.log("updates hedge fund allocation percentage to 10%")
         await keyProtocolValues.connect(dao).updateHedgeFundAllocation(1000)
@@ -68,6 +80,10 @@ describe("Key Protocol Values", function () {
 	it("updateHedgeFundAllocation doesn't work (not dao)", async function () {
 		console.log("try to update  hedge fund allocation percentage when it is not allowed")
         expect(keyProtocolValues.updateHedgeFundAllocation(1000)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateHedgeFundAllocation doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateHedgeFundAllocation(10001)).to.be.revertedWith("value can't be above 100%")
 	})
 
 	it("updateSecurityDepositMonths works", async function () {

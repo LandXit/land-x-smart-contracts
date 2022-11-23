@@ -54,16 +54,19 @@ contract KeyProtocolVariables is Ownable {
 
     function updateXTokenMintFee(uint256 _fee) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_fee < 10000, "value can't be above 100%");
         xTokenMintFee = _fee;
     }
 
     function updateCTokenSellFee(uint256 _fee) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_fee < 10000, "value can't be above 100%");
         cTokenSellFee = _fee;
     }
 
     function updatePayRentFee(uint256 _fee) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_fee < 10000, "value can't be above 100%");
         payRentFee = _fee;
     }
 
@@ -76,6 +79,7 @@ contract KeyProtocolVariables is Ownable {
 
     function updateHedgeFundAllocation(uint256 _allocation) public {
         require(msg.sender == dao, "only dao can change value");
+        require(_allocation < 10000, "value can't be above 100%");
         hedgeFundAllocation = _allocation;
     }
 
@@ -131,7 +135,7 @@ contract KeyProtocolVariables is Ownable {
         preLaunch = false;
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 }
