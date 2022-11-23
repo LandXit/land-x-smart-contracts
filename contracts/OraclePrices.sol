@@ -56,6 +56,13 @@ contract OraclePrices is Context, Ownable, AccessControlEnumerable {
         address _keyProtocolValue,
         address _uniswapFactory
     ) {
+        require(_address != address(0), "zero address is not allowed");
+        require(_xWheat != address(0), "zero address is not allowed");
+        require(_xSoy != address(0), "zero address is not allowed");
+        require(_xRice != address(0), "zero address is not allowed");
+        require(_xCorn != address(0), "zero address is not allowed");
+        require(_keyProtocolValue != address(0), "zero address is not allowed");
+        require(_uniswapFactory != address(0), "zero address is not allowed");
         _setupRole(DEFAULT_ADMIN_ROLE, _address);
 
         prices["SOY"] = 577244585;
@@ -112,7 +119,7 @@ contract OraclePrices is Context, Ownable, AccessControlEnumerable {
         return IUniswapV3Factory(uniswapFactory).getPool(usdc, xToken, 3000);
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 }

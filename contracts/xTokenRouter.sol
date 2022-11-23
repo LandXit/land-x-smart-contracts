@@ -20,6 +20,8 @@ contract xTokenRouter is Ownable {
         address xToken,
         address cToken
     ) public onlyOwner {
+        require(xToken != address(0), "zero address is not allowed");
+        require(cToken != address(0), "zero address is not allowed");
         tokens[crop].xToken = xToken;
         tokens[crop].cToken = cToken;
     }
@@ -32,7 +34,7 @@ contract xTokenRouter is Ownable {
         return tokens[crop].cToken;
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 }

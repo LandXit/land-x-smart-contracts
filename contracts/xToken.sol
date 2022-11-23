@@ -129,6 +129,14 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         address _oraclePrices,
         string memory _crop// "SOY, CORN etc"
     ) ERC20Permit(string(abi.encodePacked("x", _crop))) ERC20("LandX xToken", string(abi.encodePacked("x", _crop))) {
+        require(_landXNFT != address(0), "zero address is not allowed");
+        require(_lndx != address(0), "zero address is not allowed");
+        require(_usdc != address(0), "zero address is not allowed");
+        require(_rentFoundation != address(0), "zero address is not allowed");
+        require(_xTokenRouter != address(0), "zero address is not allowed");
+        require(_keyProtocolValues != address(0), "zero address is not allowed");
+        require(_uniswapRouter != address(0), "zero address is not allowed");
+        require(_oraclePrices != address(0), "zero address is not allowed");
         landXNFT = ILandxNFT(_landXNFT);
         crop = _crop;
         lndx = _lndx;
@@ -326,19 +334,23 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     // change the address of landxNFT.
     function changeLandXNFTAddress(address _newAddress) public onlyOwner {
+        require(_newAddress != address(0), "zero address is not allowed");
         landXNFT = ILandxNFT(_newAddress);
     }
 
     // change the address of xBasket.
     function changeXBasketAddress(address _newAddress) public onlyOwner {
+        require(_newAddress != address(0), "zero address is not allowed");
         xBasketContract = _newAddress;
     }
 
     function setRentFoundation(address _address) public onlyOwner {
+        require(_address != address(0), "zero address is not allowed");
         rentFoundation = IRentFoundation(_address);
     }
 
     function setOraclePrices(address _oraclePrices) public onlyOwner {
+        require(_oraclePrices != address(0), "zero address is not allowed");
         oraclePrices = IOraclePrices(_oraclePrices);
     }
 
@@ -348,6 +360,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     }
 
     function setXTokenRouter(address _router) public onlyOwner {
+        require(_router != address(0), "zero address is not allowed");
         xTokenRouter = IXTokenRouter(_router);
     }
 

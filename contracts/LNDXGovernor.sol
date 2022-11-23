@@ -15,7 +15,10 @@ contract LNDXGovernor is Governor, GovernorSettings, GovernorCountingSimple, Gov
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
-    {}
+    {
+        require(address(_token) != address(0), "zero address is not allowed");
+        require(address(_timelock) != address(0), "zero address is not allowed");
+    }
 
     // The following functions are overrides required by Solidity.
 

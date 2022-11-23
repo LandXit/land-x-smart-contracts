@@ -85,6 +85,9 @@ contract RentFoundation is Context, Ownable {
         address _lndx,
         address _keyProtokolValues
     ) {
+        require(_usdc != address(0), "zero address is not allowed");
+        require(_lndx != address(0), "zero address is not allowed");
+        require(_keyProtokolValues != address(0), "zero address is not allowed");
         usdc = IERC20(_usdc);
         lndx = _lndx;
         keyProtocolValues = IKEYPROTOCOLVALUES(_keyProtokolValues);
@@ -171,19 +174,22 @@ contract RentFoundation is Context, Ownable {
     }
 
     function setXTokenRouter(address _router) public onlyOwner {
+        require(_router != address(0), "zero address is not allowed");
         xTokenRouter = IXTOKENROUTER(_router);
     }
 
     function setGrainPrices(address _grainPrices) public onlyOwner {
+        require(_grainPrices != address(0), "zero address is not allowed");
         grainPrices = IGRAINPRICES(_grainPrices);
     }
 
     // change the address of landxNFT.
     function changeLandXNFTAddress(address _newAddress) public onlyOwner {
+        require(_newAddress != address(0), "zero address is not allowed");
         landXNFT = ILANDXNFT(_newAddress);
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 }

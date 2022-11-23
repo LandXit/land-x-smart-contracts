@@ -86,6 +86,7 @@ contract LandXNFT is ERC1155, Ownable {
     }
 
     function setXTokenRouter(address _router) public onlyOwner {
+        require(_router != address(0), "zero address is not allowed");
         xTokenRouter = IXTOKENROUTER(_router);
     }
 

@@ -57,12 +57,16 @@ describe("Oracle Prices", function () {
 
     it("setXTokenPricee doesn't work (has no role)", async function () {
         console.log("try to set price for xToken by address with no PRICE_SETTER role")
-         expect(oraclePrices.setXTokenPrice(mockedXTokenContract.address, 6000000)).to.be.revertedWith("not price setter")
+        await expect(oraclePrices.setXTokenPrice(mockedXTokenContract.address, 6000000)).to.be.revertedWith("not price setter")
     })
 
     it("setXTokenPrice doesn't work (invalid value)", async function () {
         console.log("try to set TOO HIGH price for xToken")
-        expect(oraclePrices.connect(acc1).setXTokenPrice(mockedXTokenContract.address, 10000000000)).to.be.revertedWith("Invalid values")
+        await expect(oraclePrices.connect(acc1).setXTokenPrice(mockedXTokenContract.address, 10000000000)).to.be.revertedWith("Invalid values")
+    })
+
+    it("setXTokenPrice doesn't work, zero address", async function () {
+        await expect(oraclePrices.connect(acc1).setXTokenPrice(zeroAddress(), 6000000)).to.be.revertedWith("zero address is not allowed")
     })
 
     it("get xToken price (prelauch is true)", async function () {
