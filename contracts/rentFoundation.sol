@@ -100,19 +100,19 @@ contract RentFoundation is Context, Ownable {
             usdc.transferFrom(msg.sender, address(this), amount),
             "transfer failed"
         );
-        uint256 platformFee = (amount * keyProtocolValues.payRentFee()) / 10000;
+        uint256 platformFee = (amount * keyProtocolValues.payRentFee()) / 10000; // 100% = 10000
         uint256 validatorFee = (amount *
-            keyProtocolValues.validatorCommission()) / 10000;
+            keyProtocolValues.validatorCommission()) / 10000; // 100% = 10000
         usdc.transfer(
             keyProtocolValues.hedgeFundWallet(),
             ((amount - platformFee - validatorFee) *
-                keyProtocolValues.hedgeFundAllocation()) / 10000
+                keyProtocolValues.hedgeFundAllocation()) / 10000 // 100% = 10000
         );
         usdc.transfer(
             keyProtocolValues.validatorCommisionWallet(),
             validatorFee
         );
-        uint256 grainAmount = (amount - platformFee - validatorFee) * 10 ** 3 /
+        uint256 grainAmount = (amount - platformFee - validatorFee) * 10 ** 3 / //grainPrices.prices returns price per megatonne, so to get amount in KG we multiply by 10 ** 3 
             grainPrices.prices(landXNFT.crop(tokenID));
         feeDistributor(platformFee);
         deposits[tokenID].amount += grainAmount;
@@ -140,10 +140,10 @@ contract RentFoundation is Context, Ownable {
         uint256 elapsedSeconds = block.timestamp - deposits[tokenID].timestamp;
         uint256 delimeter = 365 * 1 days;
         uint256 rentPerSecond = (landXNFT.cropShare(tokenID) *
-            landXNFT.tillableArea(tokenID) * 10 ** 3) /  delimeter;
+            landXNFT.tillableArea(tokenID) * 10 ** 3) /  delimeter; // multiply by 10**3 to not loose precision
         return
             int256(deposits[tokenID].amount) -
-            int256(rentPerSecond * elapsedSeconds / 10 ** 7);
+            int256(rentPerSecond * elapsedSeconds / 10 ** 7); // landXNFT.tillableArea returns area in square meters(so we divide by 10 ** 4 to get Ha) and diivide by 10 ** 3 from previous step
     }
 
     function sellCToken(address account, uint256 amount) public {
@@ -151,7 +151,7 @@ contract RentFoundation is Context, Ownable {
         require(xTokenRouter.getCToken(crop) == msg.sender, "no valid cToken");
         uint256 usdcAmount = (amount * grainPrices.prices(crop)) / (10**9);
         uint256 cellTokenFee = (usdcAmount *
-            keyProtocolValues.cTokenSellFee()) / 10000;
+            keyProtocolValues.cTokenSellFee()) / 10000; // 100% = 10000
         usdc.transfer(account, usdcAmount - cellTokenFee);
         feeDistributor(cellTokenFee);
     }
@@ -160,7 +160,7 @@ contract RentFoundation is Context, Ownable {
         uint256 lndxFee = (_fee * keyProtocolValues.lndxHoldersPercentage()) /
             10000;
         uint256 operationalFee = (_fee *
-            keyProtocolValues.landXOpertationsPercentage()) / 10000;
+            keyProtocolValues.landXOpertationsPercentage()) / 10000; // 100% = 10000
         usdc.transfer(lndx, lndxFee);
         ILNDX(lndx).feeToDistribute(lndxFee);
         usdc.transfer(

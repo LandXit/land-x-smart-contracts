@@ -153,7 +153,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         rewardsPerGrant[recipient] +=
             (rewardSharesPerToken * veLNDXAmount) /
             1e6;
-        feePerGrant[recipient] += (feeSharesPerToken * veLNDXAmount) / 1e6;
+        feePerGrant[recipient] += (feeSharesPerToken * veLNDXAmount) / 1e6; // veLNDX has 6 decimals
 
         uint256 startTime = block.timestamp +
             (30 days * uint256(cliffInMonths));
@@ -320,7 +320,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
             feeNotDistributed += amount;
             return;
         }
-        feeSharesPerToken += (1e6 * (amount + feeNotDistributed)) / tokensCount;
+        feeSharesPerToken += (1e6 * (amount + feeNotDistributed)) / tokensCount; //USDC has 6 decimals
         feeNotDistributed = 0;
     }
 
@@ -346,10 +346,9 @@ contract LNDX is ERC20, Ownable, AccessControl {
 
         totalStaked += amount;
 
-        feePerStake[stakesCount] += (feeSharesPerToken * mintAmount) / 1e6;
+        feePerStake[stakesCount] += (feeSharesPerToken * mintAmount) / 1e6; //USDC has 6 decimals
         rewardsPerStake[stakesCount] +=
-            (rewardSharesPerToken * mintAmount) /
-            1e6;
+            (rewardSharesPerToken * mintAmount) / 1e6; //LNDX has 6 decimals
         emit Staked(msg.sender, amount, stakesCount);
     }
 
@@ -433,7 +432,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         return 6;
     }
 
-    function renounceOwnership() public override onlyOwner {
+    function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
     }
 }

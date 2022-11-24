@@ -358,7 +358,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
 
         // Valutations
         uint256 collateral;
-        collateral += ((xWheatBalance + xWheatStaked) * xWheatPrice) / 1e6;
+        collateral += ((xWheatBalance + xWheatStaked) * xWheatPrice) / 1e6; //USDC has 6 decimals
         collateral += ((xSoyBalance + xSoyStaked) * xSoyPrice) / 1e6;
         collateral += ((xRiceBalance + xRiceStaked) * xRicePrice) / 1e6;
         collateral += ((xCornBalance + xCornStaked) * xCornPrice) / 1e6;
@@ -385,7 +385,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         totalYield +=
             ((IERC20(cWheat).balanceOf(address(this)) + cWheatPending) *
                 cWheatPrice) /
-            1e9;
+            1e9;  // cTokenparices are per megatonne, 1 cTokenPrice = 1 price per kg, so we divide by 1e9
         totalYield +=
             ((IERC20(cSoy).balanceOf(address(this)) + cSoyPending) *
                 cSoyPrice) /
