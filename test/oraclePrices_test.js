@@ -66,7 +66,7 @@ describe("Oracle Prices", function () {
     })
 
     it("setXTokenPrice doesn't work, zero address", async function () {
-        await expect(oraclePrices.connect(acc1).setXTokenPrice(zeroAddress(), 6000000)).to.be.revertedWith("zero address is not allowed")
+        await expect(oraclePrices.connect(acc1).setXTokenPrice(zeroAddress(), 6000000)).to.be.revertedWith("xToken address can't be zero")
     })
 
     it("get xToken price (prelauch is true)", async function () {

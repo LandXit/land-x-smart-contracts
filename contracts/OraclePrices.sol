@@ -108,10 +108,10 @@ contract OraclePrices is Context, Ownable, AccessControlEnumerable {
         if (poolToken0 == usdc) {
             return
                 1e12 /
-                ((uint256(sqrtPriceX96) * uint256(sqrtPriceX96) * 1e6) >>
+                ((uint256(sqrtPriceX96) * uint256(sqrtPriceX96) * 1e6) >> // USDC and xToken has 6 deciamls
                     (96 * 2));
         }
-        return ((uint256(sqrtPriceX96) * uint256(sqrtPriceX96) * 1e6) >>
+        return ((uint256(sqrtPriceX96) * uint256(sqrtPriceX96) * 1e6) >> // USDC and xToken has 6 deciamls
             (96 * 2));
     }
 

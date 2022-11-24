@@ -185,14 +185,14 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
         uint256 shards = (landXNFT.tillableArea(_id) *
             (landXNFT.cropShare(_id)) *
-            (10**uint256(6))) / 10000;
+            (10**uint256(6))) / 10000; // xTokens has 6 decimal
         _mint(address(this), shards);
 
         uint256 fee = _calcFee(shards);
 
         uint256 annualRent = getAnnualRentAmount(_id);
         uint256 xTokensAnnualRent = ((annualRent * oraclePrices.prices(crop)) /
-            oraclePrices.getXTokenPrice(xTokenRouter.getXToken(crop))) * 1e3;
+            oraclePrices.getXTokenPrice(xTokenRouter.getXToken(crop))) * 1e3; // oraclePrices.prices returns price per megatonne, to to get value per KG we multiply by 10 ** 3
         uint256 toSecurityDepositsAmount = (xTokensAnnualRent / 12) *
             keyProtocolValues.securityDepositMonths();
 
@@ -246,7 +246,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
         uint256 shards = (landXNFT.tillableArea(_id) *
             landXNFT.cropShare(_id) *
-            (10**uint256(6))) / 10000;
+            (10**uint256(6))) / 10000; // xToken has 6 decimals
 
         //burns shards!
         burn(shards);
