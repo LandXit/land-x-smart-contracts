@@ -655,6 +655,9 @@ npm run deploy_v:mainnet
    </td>
   </tr>
 </table>
+<p>The function emit event:</p>
+<pre><code> event TokenStaked(address staker, uint256 amount);
+</code></pre>
 
 <h4 id="unstake"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L261-L267">unstake</a></h4>
 <pre><code>function unstake(uint256 amount) public
@@ -679,6 +682,9 @@ npm run deploy_v:mainnet
    </td>
   </tr>
 </table>
+<p>The function emit event:</p>
+<pre><code>event Unstaked(address staker, uint256 amount);
+</code></pre>
 
 <h4 id="claim"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/xToken.sol#L269-L281">claim</a></h4>
 <pre><code>function claim() public
@@ -707,6 +713,9 @@ npm run deploy_v:mainnet
    </td>
   </tr>
 </table>
+<p>The function emit event:</p>
+<pre><code>event YieldClaimed(address staker, uint256 amount);
+</code></pre>
 
 <p><strong>Return Value:</strong></p>
 <table>
@@ -1804,6 +1813,9 @@ npm run deploy_v:mainnet
    </td>
   </tr>
 </table>
+<p>The function emit event:</p>
+<pre><code>event AutoCompounded(uint256 xWheat, uint256 xSoy, uint256 xRice, uint256 xCorn);
+</code></pre>
 
 <h4 id="setxtokenprice"><a href="https://github.com/LandXit/land-x-smart-contracts/blob/a04e915ee9f5429d1d75eac5ce21b86e530ceefd/contracts/OraclePrices.sol#L80-L84">setXTokenPrice</a></h4>
 <pre><code>function setXTokenPrice(address xToken, uint256 price) public

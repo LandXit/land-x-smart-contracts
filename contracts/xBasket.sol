@@ -53,6 +53,8 @@ contract xBasket is ERC20, IERC4626, Ownable {
     address public cRice;
     address public usdc;
 
+    event AutoCompounded(uint256 xWheat, uint256 xSoy, uint256 xRice, uint256 xCorn);
+
     ISwapRouter public uniswapRouter;
 
     constructor(
@@ -448,6 +450,8 @@ contract xBasket is ERC20, IERC4626, Ownable {
         IXToken(xSoy).stake(xSoyBalance);
         IXToken(xRice).stake(xRiceBalance);
         IXToken(xCorn).stake(xCornBalance);
+
+        emit AutoCompounded(xWheatBalance, xSoyBalance, xRiceBalance, xCornBalance);
     }
 
     function convertToXToken(address xToken) internal returns (uint256) {
