@@ -117,6 +117,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     event Sharded(uint256 nftID, uint256 amount, string name);
     event BuyOut(uint256 nftID, uint256 amount, string name);
+    event TokenStaked(address staker, uint256 amount);
+    event Unstaked(address staker, uint256 amount);
+    event YieldClaimed(address staker, uint256 amount);
 
     constructor(
         address _landXNFT,
@@ -265,6 +268,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         TotalStaked.startTime = block.timestamp;
         TotalStaked.amount += amount;
         Staked[msg.sender].amount += amount;
+        emit TokenStaked(msg.sender, amount);
     }
 
     function unstake(uint256 amount) public {
@@ -273,6 +277,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         claim();
         Staked[msg.sender].amount -= amount;
         TotalStaked.amount -= amount;
+        emit Unstaked(msg.sender, amount);
     }
 
     function claim() public {
@@ -287,6 +292,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         Staked[msg.sender].startTime = block.timestamp;
         TotalStaked.startTime = block.timestamp;
         Yield[msg.sender] = 0;
+        emit YieldClaimed(msg.sender, yield);
     }
 
     function feeDistributor(uint256 _fee) internal {
