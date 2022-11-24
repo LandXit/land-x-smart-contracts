@@ -4,7 +4,6 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 interface IveLNDX {
@@ -15,9 +14,6 @@ interface IveLNDX {
 
 contract LNDX is ERC20, Ownable, AccessControl {
     bytes32 public constant FEE_DISTRIBUTOR = keccak256("FEE_DISTRIBUTOR");
-
-    using SafeMath for uint256;
-    using SafeMath for uint16;
 
     uint256 public constant MAX_MINTABLE_AMOUNT = 80000000000000;
     uint256 public constant MAX_REWARD_AMOUNT = 15600000000000;
@@ -182,8 +178,8 @@ contract LNDX is ERC20, Ownable, AccessControl {
         rewardsToDistribute();
 
         Grant storage grant = grants[msg.sender];
-        grant.daysClaimed = uint16(grant.daysClaimed.add(daysVested));
-        grant.totalClaimed = uint256(grant.totalClaimed.add(amountVested));
+        grant.daysClaimed = uint16(grant.daysClaimed + daysVested);
+        grant.totalClaimed = uint256(grant.totalClaimed + amountVested);
 
         uint256 veLNDXAmount = (amountVested * grant.veLndxClaimed) /
             grant.amount;
@@ -237,27 +233,22 @@ contract LNDX is ERC20, Ownable, AccessControl {
             rewardVested.vestingStartedAt = block.timestamp;
         }
 
-        uint256 elapsedDays = block
-            .timestamp
-            .sub(rewardVested.vestingStartedAt - 1 days)
-            .div(1 days);
+        uint256 elapsedDays = (block.timestamp - rewardVested.vestingStartedAt - 1 days) / 1 days;
 
         uint256 amountVested = 0;
         // If over vesting duration, all tokens vested
         if (elapsedDays >= rewardVestingDuration) {
-            amountVested = MAX_REWARD_AMOUNT.sub(rewardVested.amountVested);
+            amountVested = MAX_REWARD_AMOUNT - rewardVested.amountVested;
             _mint(address(this), amountVested);
             rewardVested.amountVested += amountVested;
             rewardVested.lastVestedAt = block.timestamp;
         } else {
             uint16 daysVested = uint16(
-                elapsedDays.sub(rewardVested.daysClaimed)
+                elapsedDays - rewardVested.daysClaimed
             );
             if (daysVested > 0) {
-                uint256 amountVestedPerDay = MAX_REWARD_AMOUNT.div(
-                    uint256(rewardVestingDuration)
-                );
-                amountVested = uint256(daysVested.mul(amountVestedPerDay));
+                uint256 amountVestedPerDay = MAX_REWARD_AMOUNT / rewardVestingDuration;
+                amountVested = daysVested * amountVestedPerDay;
                 _mint(address(this), amountVested);
                 rewardVested.amountVested += amountVested;
                 rewardVested.lastVestedAt = block.timestamp;
@@ -290,20 +281,16 @@ contract LNDX is ERC20, Ownable, AccessControl {
         }
 
         // Check cliff was reached
-        uint256 elapsedDays = block.timestamp.sub(grant.startTime - 1 days).div(
-            1 days
-        );
+        uint256 elapsedDays = (block.timestamp - grant.startTime - 1 days) / 1 days;
 
         // If over vesting duration, all tokens vested
         if (elapsedDays >= grant.vestingDuration) {
-            uint256 remainingGrant = grant.amount.sub(grant.totalClaimed);
+            uint256 remainingGrant = grant.amount - grant.totalClaimed;
             return (grant.vestingDuration, remainingGrant);
         } else {
-            uint16 daysVested = uint16(elapsedDays.sub(grant.daysClaimed));
-            uint256 amountVestedPerDay = grant.amount.div(
-                uint256(grant.vestingDuration)
-            );
-            uint256 amountVested = uint256(daysVested.mul(amountVestedPerDay));
+            uint16 daysVested = uint16(elapsedDays - grant.daysClaimed);
+            uint256 amountVestedPerDay = grant.amount / grant.vestingDuration;
+            uint256 amountVested = daysVested * amountVestedPerDay;
             return (daysVested, amountVested);
         }
     }
