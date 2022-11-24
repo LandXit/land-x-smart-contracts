@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.6;
+pragma solidity 0.8.16;
 
 import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
@@ -35,7 +34,7 @@ interface IKeyProtocolValues {
     function preLaunch() external pure returns (bool);
 }
 
-contract OraclePrices is Context, Ownable, AccessControlEnumerable {
+contract OraclePrices is Context, AccessControlEnumerable {
     bytes32 public constant PRICE_SETTER_ROLE = keccak256("PRICE_SETTER_ROLE");
 
     mapping(string => uint256) public prices; ///["SOY" = 560000, ...]
@@ -117,9 +116,5 @@ contract OraclePrices is Context, Ownable, AccessControlEnumerable {
 
     function getXtokenPool(address xToken) public view returns (address) {
         return IUniswapV3Factory(uniswapFactory).getPool(usdc, xToken, 3000);
-    }
-
-    function renounceOwnership() public view override onlyOwner {
-        revert ("can 't renounceOwnership here");
     }
 }
