@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity 0.8.6;
 
 //Service Contract for getting xToken/xBasket/cToken Contract
 //Before using should be initialized by contract owner
