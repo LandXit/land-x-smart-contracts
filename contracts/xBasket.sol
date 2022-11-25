@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@openzeppelin/contracts/interfaces/IERC4626.sol";
@@ -40,9 +41,14 @@ interface IXToken is IERC20 {
     function claim() external;
 }
 
+interface IKeyProtocolValues {
+    function buyXTokenSlippage() external pure returns (uint256);
+}
+
 contract xBasket is ERC20, IERC4626, Ownable {
     IxTokenRouter public xTokenRouter;
     IOraclePrices public oraclePrices;
+    IKeyProtocolValues public keyProtocolValues;
     address public xWheat;
     address public xSoy;
     address public xCorn;
@@ -56,17 +62,22 @@ contract xBasket is ERC20, IERC4626, Ownable {
     event AutoCompounded(uint256 xWheat, uint256 xSoy, uint256 xRice, uint256 xCorn);
 
     ISwapRouter public uniswapRouter;
+    IQuoter public quoter;
 
     constructor(
         address _xTokenRouter,
         address _oraclePrices,
-        address _uniswapRouter
+        address _keyProtocolValues,
+        address _uniswapRouter,
+        address _quoter
     ) ERC20("xBasket LandX Index Fund", "xBASKET") {
         require(_xTokenRouter != address(0), "zero address is not allowed");
         require(_oraclePrices != address(0), "zero address is not allowed");
+        require(_keyProtocolValues != address(0), "zero address is not allowed");
         require(_uniswapRouter != address(0), "zero address is not allowed");
         xTokenRouter = IxTokenRouter(_xTokenRouter);
         oraclePrices = IOraclePrices(_oraclePrices);
+        keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
         xWheat = xTokenRouter.getXToken("WHEAT");
         xSoy = xTokenRouter.getXToken("SOY");
         xRice = xTokenRouter.getXToken("RICE");
@@ -77,6 +88,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         cCorn = xTokenRouter.getCToken("CORN");
         usdc = oraclePrices.usdc();
         uniswapRouter = ISwapRouter(_uniswapRouter);
+        quoter = IQuoter(_quoter);
     }
 
     // We have 4 underlying tokens
@@ -454,9 +466,20 @@ contract xBasket is ERC20, IERC4626, Ownable {
         emit AutoCompounded(xWheatBalance, xSoyBalance, xRiceBalance, xCornBalance);
     }
 
+     function quoteAmountOut(uint _amount, address xToken) public returns (uint) {
+        uint amountOut = quoter.quoteExactInputSingle(usdc, xToken, 3000, _amount, 0);
+        return amountOut;
+    }
+
     function convertToXToken(address xToken) internal returns (uint256) {
         uint256 amountIn = IERC20(usdc).balanceOf(address(this));
+
+        uint256 slippage =  keyProtocolValues.buyXTokenSlippage();
+        uint256 predictedAmountOut = quoteAmountOut(amountIn, xToken);
+        uint256 minAmountOut = predictedAmountOut * 10000 / (10000 + slippage);
+
         TransferHelper.safeApprove(usdc, address(uniswapRouter), amountIn);
+
         ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
         .ExactInputSingleParams(
             usdc,
@@ -465,7 +488,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
             address(this),
             block.timestamp + 15,
             amountIn,
-            1,
+            minAmountOut,
             0
         );
         return uniswapRouter.exactInputSingle(params);

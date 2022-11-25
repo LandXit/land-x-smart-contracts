@@ -71,6 +71,36 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.connect(dao).updatePayRentFee(10001)).to.be.revertedWith("value can't be above 100%")
 	})
 
+	it("updateSellXTokenSlippage works", async function () {
+		console.log("updates pay rent fee")
+        await keyProtocolValues.connect(dao).updateSellXTokenSlippage(200)
+		expect(await keyProtocolValues.sellXTokenSlippage()).to.equal(200)
+	})
+
+	it("updateSellXTokenSlippage doesn't work (not dao)", async function () {
+		console.log("try to update pay rent fee when it is not allowed")
+        expect(keyProtocolValues.updateSellXTokenSlippage(200)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateSellXTokenSlippage doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateSellXTokenSlippage(10001)).to.be.revertedWith("value can't be above 100%")
+	})
+
+	it("updateBuyXTokenSlippage works", async function () {
+		console.log("updates pay rent fee")
+        await keyProtocolValues.connect(dao).updateBuyXTokenSlippage(200)
+		expect(await keyProtocolValues.buyXTokenSlippage()).to.equal(200)
+	})
+
+	it("updateBuyXTokenSlippage doesn't work (not dao)", async function () {
+		console.log("try to update pay rent fee when it is not allowed")
+        expect(keyProtocolValues.updateBuyXTokenSlippage(200)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateBuyXTokenSlippage doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateBuyXTokenSlippage(10001)).to.be.revertedWith("value can't be above 100%")
+	})
+
 	it("updateHedgeFundAllocation works", async function () {
 		console.log("updates hedge fund allocation percentage to 10%")
         await keyProtocolValues.connect(dao).updateHedgeFundAllocation(1000)
@@ -95,17 +125,6 @@ describe("Key Protocol Values", function () {
 	it("updateSecurityDepositMonths doesn't work (not dao)", async function () {
 		console.log("try to update size of security deposit when it is not allowed")
         expect(keyProtocolValues.updateSecurityDepositMonths(10)).to.be.revertedWith("only dao can change value")
-	})
-
-	it("updateMaxAllowableCropShare works", async function () {
-		console.log("updates max allowable crop share percentage")
-        await keyProtocolValues.connect(dao).updateMaxAllowableCropShare("SOY", 1500)
-		expect(await keyProtocolValues.maxAllowableCropShare("SOY")).to.equal(1500)
-	})
-
-	it("updateMaxAllowableCropShare doesn't work (not dao)", async function () {
-		console.log("try to update max allowable crop share percentage when it is not allowed")
-        expect(keyProtocolValues.updateMaxAllowableCropShare("SOY", 1500)).to.be.revertedWith("only dao can change value")
 	})
 
 	it("updateFeeDistributionPercentage works", async function () {

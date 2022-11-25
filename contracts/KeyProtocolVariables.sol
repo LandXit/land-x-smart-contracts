@@ -15,7 +15,8 @@ contract KeyProtocolVariables is Ownable {
 
     uint256 public validatorCommission = 25; // 0.25%
 
-    mapping(string => uint256) public maxAllowableCropShare;
+    uint256 public sellXTokenSlippage = 300; //3%
+    uint256 public buyXTokenSlippage = 300; //3%
 
     uint256 public hedgeFundAllocation = 1500; //15%
     uint8 public securityDepositMonths = 12; // 12 months
@@ -40,10 +41,6 @@ contract KeyProtocolVariables is Ownable {
         address _validatorCommisionWallet
     ) {
         dao = _dao;
-        maxAllowableCropShare["SOY"] = 1200;
-        maxAllowableCropShare["WHEAT"] = 1200;
-        maxAllowableCropShare["RICE"] = 1200;
-        maxAllowableCropShare["CORN"] = 1200;
 
         require(_hedgeFundWallet != address(0), "zero address is not allowed");
         require(_landxOperationalWallet != address(0), "zero address is not allowed");
@@ -70,17 +67,22 @@ contract KeyProtocolVariables is Ownable {
         cTokenSellFee = _fee;
     }
 
+    function updateSellXTokenSlippage(uint256 _slippage) public {
+        require(msg.sender == dao, "only dao can change value");
+        require(_slippage < 10000, "value can't be above 100%");
+        sellXTokenSlippage = _slippage;
+    }
+
+     function updateBuyXTokenSlippage(uint256 _slippage) public {
+        require(msg.sender == dao, "only dao can change value");
+        require(_slippage < 10000, "value can't be above 100%");
+        buyXTokenSlippage = _slippage;
+    }
+
     function updatePayRentFee(uint256 _fee) public {
         require(msg.sender == dao, "only dao can change value");
         require(_fee < 10000, "value can't be above 100%");
         payRentFee = _fee;
-    }
-
-    function updateMaxAllowableCropShare(string memory _crop, uint256 _macs)
-        public
-    {
-        require(msg.sender == dao, "only dao can change value");
-        maxAllowableCropShare[_crop] = _macs;
     }
 
     function updateHedgeFundAllocation(uint256 _allocation) public {

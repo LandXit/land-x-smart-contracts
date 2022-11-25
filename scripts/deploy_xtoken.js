@@ -37,6 +37,7 @@ async function main() {
 	let xTokenRouter = "" 
 	let rentFoundation = ""
 	let uniswapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+	let quoter = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
 	let keyProtocalValues = ""
 	let name = "xCORN"
 	let oraclePrices = ""
@@ -50,7 +51,7 @@ async function main() {
 		oraclePrices = "x84E7CaB66182791864C411E7dF16584FC1400A5a"
 	}
 
-	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, uniswapRouter, oraclePrices, name)
+	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, uniswapRouter, quoter, oraclePrices, name)
 
 	let dep = await deployed.deployed()
 
