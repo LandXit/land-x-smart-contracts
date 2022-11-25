@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
+import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 
 interface ILandxNFT {
     function tillableArea(uint256 id) external view returns (uint256);
@@ -81,6 +82,8 @@ interface IKeyProtocolValues {
     function hedgeFundWallet() external pure returns (address);
 
     function preLaunch() external pure returns (bool);
+
+    function sellXTokenSlippage() external pure returns (uint256);
 }
 
 //xToken NFT in = shards. xToken in = NFT
@@ -98,6 +101,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     IKeyProtocolValues public keyProtocolValues;
 
     ISwapRouter public uniswapRouter;
+    IQuoter public quoter;
 
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
@@ -129,6 +133,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         address _xTokenRouter,
         address _keyProtocolValues,
         address _uniswapRouter,
+        address _quoter,
         address _oraclePrices,
         string memory _crop// "SOY, CORN etc"
     ) ERC20Permit(string(abi.encodePacked("x", _crop))) ERC20("LandX xToken", string(abi.encodePacked("x", _crop))) {
@@ -148,6 +153,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         xTokenRouter = IXTokenRouter(_xTokenRouter);
         keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
         uniswapRouter = ISwapRouter(_uniswapRouter);
+        quoter = IQuoter(_quoter);
         oraclePrices = IOraclePrices(_oraclePrices);
     }
 
@@ -382,7 +388,16 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         return (rent * area) / 10000;
     }
 
+    function quoteAmountOut(uint _amount) public returns (uint) {
+        uint amountOut = quoter.quoteExactInputSingle(address(this), usdc, 3000, _amount, 0);
+        return amountOut;
+    }
+
     function convertToUsdc(uint256 amount) internal returns (uint256) {
+        uint256 slippage =  keyProtocolValues.sellXTokenSlippage();
+        uint256 predictedAmountOut = quoteAmountOut(amount);
+        uint256 minAmountOut = predictedAmountOut * 10000 / (10000 + slippage);
+
         TransferHelper.safeApprove(
             address(this),
             address(uniswapRouter),
@@ -396,7 +411,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             address(this),
             block.timestamp + 15,
             amount,
-            1,
+            minAmountOut,
             0
         );
         return uniswapRouter.exactInputSingle(params);

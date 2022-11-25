@@ -31,9 +31,12 @@ async function main() {
 	let oraclePrices = "" //mainnet
 	let xTokenRouter = ""
 	let uniswapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
+	let quoter = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+	let keyProtocalValues = ""
 	if (network === "goerli") {
 		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99"
 		oraclePrices = "0x9D6EEe708a84BDa3aEb5b8C30Fc9Ee83Edd01929"
+		keyProtocalValues ="0x84E7CaB66182791864C411E7dF16584FC1400A5a"
 	}
 
 	console.log(
@@ -41,7 +44,7 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await GrainPrices.deploy(xTokenRouter, oraclePrices, uniswapRouter)
+	let deployed = await GrainPrices.deploy(xTokenRouter, oraclePrices, keyProtocalValues, uniswapRouter, quoter)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)

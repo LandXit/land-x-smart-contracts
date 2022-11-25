@@ -7,7 +7,7 @@ const { zeroAddress } = require("ethereumjs-util");
 
 let xToken, NFTContract, nft
 let mockedUSDCContract, mockedKeyProtocolVariablesContract, mockedXTokenRouterContract, mockedRentFoundationContract
-let mockedUniswapRouter, mockedLndxContract, mockedOraclePricesContract, mockedCTokenContract
+let mockedUniswapRouter, mockedLndxContract, mockedOraclePricesContract, mockedCTokenContract, mockedUniswapQuoter
 let xTokenMintFee
 let owner, acc1, acc2, acc3, landxOperationalWallet, xTokensSecurityWallet, xSOY
 
@@ -26,8 +26,13 @@ describe("xToken", function () {
 		mockedKeyProtocolVariablesContract = await deployMockContract(owner, keyProtocolVariablesContract.abi)
         const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
+        const uniswapQuoterContract = require("../node_modules/@uniswap/v3-periphery/artifacts/contracts/interfaces/IQuoter.sol/IQuoter.json")
+		mockedUniswapQuoter = await deployMockContract(owner, uniswapQuoterContract.abi)
+
+
         const uniswapRouterContract = require("../node_modules/@uniswap/v3-periphery/artifacts/contracts/interfaces/ISwapRouter.sol/ISwapRouter.json")
 		mockedUniswapRouter= await deployMockContract(owner, uniswapRouterContract.abi)
+
         const cTokenContract = require("../artifacts/contracts/cToken.sol/CToken.json")
         mockedCTokenContract = await deployMockContract(owner, cTokenContract.abi)
 		
@@ -44,6 +49,7 @@ describe("xToken", function () {
 			mockedXTokenRouterContract.address, 
 			mockedKeyProtocolVariablesContract.address,
             mockedUniswapRouter.address,
+            mockedUniswapQuoter.address,
             mockedOraclePricesContract.address,
             "CORN"
 		)
@@ -89,8 +95,14 @@ describe("xToken", function () {
         await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(false)
         await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 27000000000, 1, 0]).returns(100000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 53029629000, 1, 0]).returns(2000000000)
+        await mockedKeyProtocolVariablesContract.mock.sellXTokenSlippage.withArgs().returns(300)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(xToken.address,  mockedUSDCContract.address, 3000, 27000000000, 0).returns(100000000)
+        //let bTime = (await time.latest()).toNumber()
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 27000000000, 97087378, 0]).returns(100000000)
+        await mockedKeyProtocolVariablesContract.mock.sellXTokenSlippage.withArgs().returns(300)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(xToken.address,  mockedUSDCContract.address, 3000, 53029629000, 0).returns(2000000000)
+        //bTime = (await time.latest()).toNumber()
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 53029629000, 1941747572, 0]).returns(2000000000)
         await mockedKeyProtocolVariablesContract.mock.hedgeFundAllocation.withArgs().returns(1500)
         await mockedKeyProtocolVariablesContract.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 300000000).returns(true)
