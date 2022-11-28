@@ -24,6 +24,9 @@ contract OracleMulti is ChainlinkClient, ConfirmedOwner {
     uint256 public soy;
     uint256 public rice;
     uint256 public corn;
+
+    event PriceSet(uint256 price, string name);
+    event FailedPriceSet(uint256 price, string name);
     
     constructor() ConfirmedOwner(msg.sender) {
         setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
@@ -70,19 +73,19 @@ contract OracleMulti is ChainlinkClient, ConfirmedOwner {
     /* Chainlink Fulfill Functions */
     function fulfillWheat(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {
         wheat = _price;
-        try oraclePrices.setGrainPrice('WHEAT', _price) {} catch {}
+        try oraclePrices.setGrainPrice('WHEAT', _price) {emit PriceSet(_price, 'WHEAT');} catch {emit FailedPriceSet(_price, 'WHEAT');}
     }
     function fulfillSoy(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {
         soy = _price;
-        try oraclePrices.setGrainPrice('SOY', _price) {} catch {}
+        try oraclePrices.setGrainPrice('SOY', _price) {emit PriceSet(_price, 'SOY');} catch {emit FailedPriceSet(_price, 'SOY');}
     }
     function fulfillRice(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {
         rice = _price;
-        try oraclePrices.setGrainPrice('RICE', _price) {} catch {}
+        try oraclePrices.setGrainPrice('RICE', _price) {emit PriceSet(_price, 'RICE');} catch {emit FailedPriceSet(_price, 'RICE');}
     }
     function fulfillCorn(bytes32 _requestId, uint256 _price) public recordChainlinkFulfillment(_requestId) {
         corn = _price;
-        try oraclePrices.setGrainPrice('CORN', _price) {} catch {}
+        try oraclePrices.setGrainPrice('CORN', _price) {emit PriceSet(_price, 'CORN');} catch {emit FailedPriceSet(_price, 'CORN');}
     }
 
     function updateOraclePrices(address _opAddress) public onlyOwner {
