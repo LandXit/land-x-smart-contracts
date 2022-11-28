@@ -221,11 +221,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
     }
 
     function rewardsToDistribute() internal {
-        if (rewardVested.amountVested >= MAX_REWARD_AMOUNT) {
-            return;
-        }
-
-        if (rewardVested.lastVestedAt >= block.timestamp) {
+      if (rewardVested.amountVested >= MAX_REWARD_AMOUNT) {
             return;
         }
 
@@ -233,27 +229,30 @@ contract LNDX is ERC20, Ownable, AccessControl {
             rewardVested.vestingStartedAt = block.timestamp;
         }
 
-        uint256 elapsedDays = (block.timestamp - rewardVested.vestingStartedAt - 1 days) / 1 days;
+         if (rewardVested.lastVestedAt == 0) {
+            rewardVested.lastVestedAt = block.timestamp;
+        }
+
+        uint256 elapsedDays = (block.timestamp - rewardVested.lastVestedAt) / 1 days;
 
         uint256 amountVested = 0;
-        // If over vesting duration, all tokens vested
-        if (elapsedDays >= rewardVestingDuration) {
-            amountVested = MAX_REWARD_AMOUNT - rewardVested.amountVested;
-            _mint(address(this), amountVested);
-            rewardVested.amountVested += amountVested;
-            rewardVested.lastVestedAt = block.timestamp;
-        } else {
-            uint16 daysVested = uint16(
-                elapsedDays - rewardVested.daysClaimed
-            );
-            if (daysVested > 0) {
-                uint256 amountVestedPerDay = MAX_REWARD_AMOUNT / rewardVestingDuration;
-                amountVested = daysVested * amountVestedPerDay;
-                _mint(address(this), amountVested);
+
+        if (elapsedDays > 0) {
+            uint256 amountVestedPerDay = MAX_REWARD_AMOUNT / uint256(rewardVestingDuration);
+            amountVested = amountVestedPerDay * elapsedDays;
+
+            if ((amountVested + rewardVested.amountVested) > MAX_REWARD_AMOUNT) {
+                amountVested = MAX_REWARD_AMOUNT - rewardVested.amountVested;
+                elapsedDays = rewardVestingDuration - rewardVested.daysClaimed;
+            }
+                
+                rewardVested.daysClaimed += elapsedDays;
                 rewardVested.amountVested += amountVested;
                 rewardVested.lastVestedAt = block.timestamp;
-                rewardVested.daysClaimed += daysVested;
-                uint256 tokensCount = IERC20(veLNDX).totalSupply();
+
+                 _mint(address(this), amountVested);
+
+                 uint256 tokensCount = IERC20(veLNDX).totalSupply();
                 if (tokensCount == 0) {
                     rewardNotDistributed += amountVested;
                     return;
@@ -262,7 +261,6 @@ contract LNDX is ERC20, Ownable, AccessControl {
                     (1e6 * (amountVested + rewardNotDistributed)) /
                     tokensCount;
                 rewardNotDistributed = 0;
-            }
         }
     }
 
