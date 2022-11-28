@@ -344,26 +344,10 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         _transfer(_from, xBasketContract, amount);
     }
 
-    // change the address of landxNFT.
-    function changeLandXNFTAddress(address _newAddress) public onlyOwner {
-        require(_newAddress != address(0), "zero address is not allowed");
-        landXNFT = ILandxNFT(_newAddress);
-    }
-
     // change the address of xBasket.
     function changeXBasketAddress(address _newAddress) public onlyOwner {
         require(_newAddress != address(0), "zero address is not allowed");
         xBasketContract = _newAddress;
-    }
-
-    function setRentFoundation(address _address) public onlyOwner {
-        require(_address != address(0), "zero address is not allowed");
-        rentFoundation = IRentFoundation(_address);
-    }
-
-    function setOraclePrices(address _oraclePrices) public onlyOwner {
-        require(_oraclePrices != address(0), "zero address is not allowed");
-        oraclePrices = IOraclePrices(_oraclePrices);
     }
 
     function _calcFee(uint256 amount) internal view returns (uint256) {
