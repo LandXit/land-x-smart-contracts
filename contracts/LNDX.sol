@@ -283,7 +283,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         // If over vesting duration, all tokens vested
         if (elapsedDays >= grant.vestingDuration) {
             uint256 remainingGrant = grant.amount - grant.totalClaimed;
-            return (grant.vestingDuration, remainingGrant);
+            return (grant.vestingDuration - grant.daysClaimed, remainingGrant);
         } else {
             uint256 daysVested = elapsedDays - grant.daysClaimed;
             uint256 amountVestedPerDay = grant.amount / grant.vestingDuration;
