@@ -362,6 +362,56 @@ describe("LNDX", function () {
         expect(await usdc.balanceOf(acc1.address)).to.equal(3333332)
      })
 
+     it("Unstake Preview", async function () {
+        await LNDX.grantLNDX(acc1.address, 100000000, 0, 0)
+        expect(await LNDX.balanceOf(acc1.address)).to.equal(100000000)
+ 
+        await LNDX.connect(acc1).stakeLNDX(10000000, 0)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(2500000)
+ 
+        time.increase(259200)
+        await LNDX.connect(acc1).stakeLNDX(10000000, 1)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(7500000)
+
+        await usdc.mint(feeDistributor.address, 10000000)
+        await usdc.connect(feeDistributor).transfer(LNDX.address, 10000000)
+        await LNDX.connect(feeDistributor).feeToDistribute(10000000)
+ 
+        time.increase(259200)
+        await LNDX.connect(acc1).stakeLNDX(10000000, 2)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(17500000)
+ 
+        time.increase(7257600)
+        expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
+        expect((await LNDX.unstakePreview(1))[1]).to.equal(3333332)
+        expect((await LNDX.unstakePreview(1))[2]).to.equal(114786692752)
+     })
+
+     it("Unstake Preview", async function () {
+        await LNDX.grantLNDX(acc1.address, 100000000, 0, 0)
+        expect(await LNDX.balanceOf(acc1.address)).to.equal(100000000)
+ 
+        await LNDX.connect(acc1).stakeLNDX(10000000, 0)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(2500000)
+ 
+        await usdc.mint(feeDistributor.address, 10000000)
+        await usdc.connect(feeDistributor).transfer(LNDX.address, 10000000)
+        await LNDX.connect(feeDistributor).feeToDistribute(10000000)
+ 
+        time.increase(259200)
+        await LNDX.connect(acc1).stakeLNDX(10000000, 1)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(7500000)
+ 
+        time.increase(259200)
+        await LNDX.connect(acc1).stakeLNDX(10000000, 2)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(17500000)
+ 
+        time.increase(7257600)
+        expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
+        expect((await LNDX.unstakePreview(1))[1]).to.equal(10000000)
+        expect((await LNDX.unstakePreview(1))[2]).to.equal(114786692752)
+     })
+
     it("Unstake impossible, already unstaked", async function () {
         await LNDX.grantLNDX(acc1.address, 100000000, 0, 0)
         expect(await LNDX.balanceOf(acc1.address)).to.equal(100000000)
