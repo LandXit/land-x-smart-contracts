@@ -335,11 +335,11 @@ describe("xBasket", function () {
         await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
         await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
         await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
-        let bTime = (await time.latest()).toNumber()
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  bTime + 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, bTime + 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 29126213, 0]).returns(30000000)
+
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, (await time.latest()).toNumber() + 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, (await time.latest()).toNumber() + 15, 5000000, 29126213, 0]).returns(30000000)
         
         await expect(xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)).not.to.be.reverted
         expect(await xBasket.balanceOf(acc1.address)).to.equal(998647)
@@ -453,10 +453,10 @@ describe("xBasket", function () {
         await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
 
         let bTime = (await time.latest()).toNumber()
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  bTime + 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, bTime + 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
 
         await xBasket.connect(acc1).redeem(1000000, acc1.address, acc1.address)
         expect(await xBasket.balanceOf(acc1.address)).to.equal(0)

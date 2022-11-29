@@ -97,12 +97,9 @@ describe("xToken", function () {
         await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
         await mockedKeyProtocolVariablesContract.mock.sellXTokenSlippage.withArgs().returns(300)
         await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(xToken.address,  mockedUSDCContract.address, 3000, 27000000000, 0).returns(100000000)
-        //let bTime = (await time.latest()).toNumber()
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 27000000000, 97087378, 0]).returns(100000000)
         await mockedKeyProtocolVariablesContract.mock.sellXTokenSlippage.withArgs().returns(300)
         await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(xToken.address,  mockedUSDCContract.address, 3000, 53029629000, 0).returns(2000000000)
-        //bTime = (await time.latest()).toNumber()
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 53029629000, 1941747572, 0]).returns(2000000000)
+        
         await mockedKeyProtocolVariablesContract.mock.hedgeFundAllocation.withArgs().returns(1500)
         await mockedKeyProtocolVariablesContract.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 300000000).returns(true)
@@ -116,6 +113,9 @@ describe("xToken", function () {
         await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 5000000).returns(true)
         await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
         await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 27000000000, 97087378, 0]).returns(100000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 53029629000, 1941747572, 0]).returns(2000000000)
         await expect(xToken.connect(acc2).getShards(1)).not.to.reverted
         expect(await xToken.balanceOf(acc2.address)).to.equal(766940742000)
         expect(await xToken.balanceOf(xTokensSecurityWallet.address)).to.equal(53029629000)
