@@ -364,6 +364,47 @@ contract LNDX is ERC20, Ownable, AccessControl {
         emit Unstaked(msg.sender, s.amount, stakeID);
     }
 
+    function _rewardsToDistributePreview() internal  view returns (uint256){
+      if (rewardVested.amountVested >= MAX_REWARD_AMOUNT) {
+            return 0;
+        }
+
+        uint256 vestingStartedAt = rewardVested.vestingStartedAt;
+        uint256 lastVestedAt = rewardVested.lastVestedAt;
+
+        if (vestingStartedAt == 0) {
+              vestingStartedAt = block.timestamp;
+        }
+
+         if (lastVestedAt == 0) {
+            lastVestedAt = block.timestamp;
+        }
+
+        uint256 elapsedDays = (block.timestamp - lastVestedAt) / 1 days;
+
+        uint256 amountVested = 0;
+
+        if (elapsedDays > 0) {
+            uint256 amountVestedPerDay = MAX_REWARD_AMOUNT / uint256(rewardVestingDuration);
+            amountVested = amountVestedPerDay * elapsedDays;
+
+            if ((amountVested + rewardVested.amountVested) > MAX_REWARD_AMOUNT) {
+                amountVested = MAX_REWARD_AMOUNT - rewardVested.amountVested;
+                elapsedDays = rewardVestingDuration - rewardVested.daysClaimed;
+            }
+
+                 uint256 tokensCount = IERC20(veLNDX).totalSupply();
+                 uint256  _rewardNotDistributed = rewardNotDistributed;
+                if (tokensCount == 0) {
+                    _rewardNotDistributed += amountVested;
+                    return 0;
+                }
+                return (rewardSharesPerToken +
+                    (1e6 * (amountVested + _rewardNotDistributed)) /
+                    tokensCount);
+        }
+    }
+
     function unstakePreview(uint256 stakeID)
         external
         view
@@ -376,8 +417,9 @@ contract LNDX is ERC20, Ownable, AccessControl {
         require(stakes[stakeID].unstaked == false, "already unstaked");
 
         Stake storage s = stakes[stakeID];
+        uint256 _rewardSharesPerToken = _rewardsToDistributePreview();
 
-        uint256 rewards = computeStakeReward(stakeID);
+        uint256 rewards = (s.veLndxClaimed * _rewardSharesPerToken) / 1e6 - rewardsPerStake[stakeID];
         uint256 fee = computeStakeFee(stakeID);
 
         return (s.amount, fee, rewards);
