@@ -42,8 +42,11 @@ interface IXTokenRouter {
 
 interface IRentFoundation {
     function initialRentApplied(uint256 tokenID) external view returns (bool);
-
+    function spentSecurityDeposit(uint256 tokenID) external view returns (bool);
     function payInitialRent(uint256 tokenID, uint256 amount) external;
+    function payRentBySecurityDeposit(uint256 tokenID, uint256 amount) external; 
+    function buyOutPreview(uint256 tokenID) external view returns(bool, uint256);
+    function buyOut(uint256 tokenID) external returns(uint256);
 }
 
 interface ILNDX {
@@ -84,6 +87,9 @@ interface IKeyProtocolValues {
     function preLaunch() external pure returns (bool);
 
     function sellXTokenSlippage() external pure returns (uint256);
+   
+    function buyXTokenSlippage() external pure returns (uint256);
+    
 }
 
 //xToken NFT in = shards. xToken in = NFT
@@ -115,6 +121,8 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     mapping(address => Stake) public Staked;
     mapping(address => uint256) public Yield;
+
+    mapping(uint256 => uint256) public SecurityDepositedAmount;
 
     Stake public TotalStaked;
     uint256 public TotalYield;
@@ -242,6 +250,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             msg.sender,
             shards - fee - xTokensAnnualRent - toSecurityDepositsAmount
         );
+        SecurityDepositedAmount[_id] = toSecurityDepositsAmount;
         rentFoundation.payInitialRent(_id, annualRent);
         emit Sharded(_id, shards, symbol());
     }
@@ -253,17 +262,55 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             "only initial owner can redeem the NFT"
         );
 
+        uint256 remainingRentUSDC;
+        remainingRentUSDC = rentFoundation.buyOut(_id);
+
+        uint256 securityDepositedAmount = SecurityDepositedAmount[_id];
+        if (rentFoundation.spentSecurityDeposit(_id)) {
+            securityDepositedAmount = 0;
+        }
+
+        uint256 xTokens = 0;
+        if (remainingRentUSDC > 0) {
+            xTokens = convertToXToken(remainingRentUSDC);
+        }
+
         uint256 shards = (landXNFT.tillableArea(_id) *
             landXNFT.cropShare(_id) *
             (10**uint256(6))) / 10000; // xToken has 6 decimals
 
+        //approval required for xTokensSecurityWalle
+        _burn(keyProtocolValues.xTokensSecurityWallet(), securityDepositedAmount);
+        _burn(address(this), xTokens);
+        
         //burns shards!
-        burn(shards);
+        burn(shards - securityDepositedAmount - xTokens);
 
         //transfer the NFTs
         landXNFT.safeTransferFrom(address(this), msg.sender, _id, 1, "");
         emit BuyOut(_id, shards, symbol());
     }
+
+    function getTheNFTPreview(uint256 _id) public view returns(uint256) {
+        bool allow;
+        uint256 remainingRentUSDC;
+        (allow, remainingRentUSDC) = rentFoundation.buyOutPreview(_id);
+        require(allow, "there is a debt");
+
+        uint256 securityDepositedAmount = SecurityDepositedAmount[_id];
+        if (rentFoundation.spentSecurityDeposit(_id)) {
+            securityDepositedAmount = 0;
+        }
+
+        uint256 xTokens = remainingRentUSDC * 1e6 / oraclePrices.getXTokenPrice(address(this)); //xToken has 6 decimals
+
+        uint256 shards = (landXNFT.tillableArea(_id) *
+            landXNFT.cropShare(_id) *
+            (10**uint256(6))) / 10000; // xToken has 6 decimals
+
+        return (shards - securityDepositedAmount - xTokens);
+    }
+
 
     function stake(uint256 amount) public {
         _transfer(msg.sender, address(this), amount);
@@ -375,6 +422,27 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     function quoteAmountOut(uint _amount) public returns (uint) {
         uint amountOut = quoter.quoteExactInputSingle(address(this), usdc, 3000, _amount, 0);
         return amountOut;
+    }
+
+    function convertToXToken(uint256 amount) internal returns (uint256) {
+        uint256 slippage =  keyProtocolValues.buyXTokenSlippage();
+        uint256 predictedAmountOut = quoter.quoteExactInputSingle(usdc, address(this), 3000, amount, 0);
+        uint256 minAmountOut = predictedAmountOut * 10000 / (10000 + slippage);
+
+        TransferHelper.safeApprove(usdc, address(uniswapRouter), amount);
+
+        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter
+        .ExactInputSingleParams(
+            usdc,
+            address(this),
+            3000,
+            address(this),
+            block.timestamp + 15,
+            amount,
+            minAmountOut,
+            0
+        );
+        return uniswapRouter.exactInputSingle(params);
     }
 
     function convertToUsdc(uint256 amount) internal returns (uint256) {

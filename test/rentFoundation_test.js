@@ -7,12 +7,12 @@ const { time, BN, ether } = require("@openzeppelin/test-helpers");
 
 
 let mockedXTokenRouterContract, mockedUSDCContract, mockedKeyProtocalValues, xSOY, cSOY, mockedOraclePricesContract, mockedNFTContract, mockedLNDXTokenContract
-let rentFoundationContract, owner, acc1, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner
+let rentFoundationContract, owner, acc1, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner, xTokensSecurityWallet
 
 describe("RentFoundation", function () {
 	beforeEach(async function () {
         console.log("", '\n')
-		;[owner, acc1, acc2, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner] = await ethers.getSigners()
+		;[owner, acc1, acc2, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner, xTokensSecurityWallet] = await ethers.getSigners()
 		
         const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
@@ -140,6 +140,7 @@ describe("RentFoundation", function () {
     it("pay rent, not enough USDC to transfer", async function () {
         console.log("try to pay 1000000 USDC of rent for NFT with ID=1 but account has not enaough of USDC")
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(acc2.address)
         await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
         await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
 
@@ -176,9 +177,266 @@ describe("RentFoundation", function () {
         await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
         await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(acc2.address)
         
         await expect(rentFoundationContract.connect(acc1).payRent(1, 100000000)).not.to.be.reverted
         expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        expect((await rentFoundationContract.spentSecurityDeposit(1))).to.be.equal(false)
+    })
+
+    it("pay rent, security deposit", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+
+        await mockedUSDCContract.mock.transferFrom.withArgs(xTokensSecurityWallet.address, rentFoundationContract.address, 100000000).returns(true)
+        await mockedKeyProtocalValues.mock.payRentFee.withArgs().returns(150)
+        await mockedKeyProtocalValues.mock.validatorCommission.withArgs().returns(25)
+        await mockedKeyProtocalValues.mock.hedgeFundAllocation.withArgs().returns(1500)
+        await mockedKeyProtocalValues.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
+        await mockedKeyProtocalValues.mock.validatorCommisionWallet.withArgs().returns(validatorCommisionWallet.address)
+        
+        await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 14737500).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(validatorCommisionWallet.address, 250000).returns(true)
+
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
+
+        await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
+        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
+
+        await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
+        await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        
+        await expect(rentFoundationContract.connect(xTokensSecurityWallet).payRent(1, 100000000)).not.to.be.reverted
+        expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        expect((await rentFoundationContract.spentSecurityDeposit(1))).to.be.equal(true)
+    })
+
+    it("impossible pay rent, security deposit", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+
+        await mockedUSDCContract.mock.transferFrom.withArgs(xTokensSecurityWallet.address, rentFoundationContract.address, 100000000).returns(true)
+        await mockedKeyProtocalValues.mock.payRentFee.withArgs().returns(150)
+        await mockedKeyProtocalValues.mock.validatorCommission.withArgs().returns(25)
+        await mockedKeyProtocalValues.mock.hedgeFundAllocation.withArgs().returns(1500)
+        await mockedKeyProtocalValues.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
+        await mockedKeyProtocalValues.mock.validatorCommisionWallet.withArgs().returns(validatorCommisionWallet.address)
+        
+        await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 14737500).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(validatorCommisionWallet.address, 250000).returns(true)
+
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
+
+        await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
+        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
+
+        await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
+        await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        
+        await expect(rentFoundationContract.connect(xTokensSecurityWallet).payRent(1, 100000000)).not.to.be.reverted
+        expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        await expect(rentFoundationContract.connect(xTokensSecurityWallet).payRent(1, 100000000)).to.be.revertedWith("securityDeposit is already spent")
+    })
+
+    it("Buy Out reverts", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+
+        await mockedUSDCContract.mock.transferFrom.withArgs(acc1.address, rentFoundationContract.address, 100000000).returns(true)
+        await mockedKeyProtocalValues.mock.payRentFee.withArgs().returns(150)
+        await mockedKeyProtocalValues.mock.validatorCommission.withArgs().returns(25)
+        await mockedKeyProtocalValues.mock.hedgeFundAllocation.withArgs().returns(1500)
+        await mockedKeyProtocalValues.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
+        await mockedKeyProtocalValues.mock.validatorCommisionWallet.withArgs().returns(validatorCommisionWallet.address)
+        
+        await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 14737500).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(validatorCommisionWallet.address, 250000).returns(true)
+
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
+
+        await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
+        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
+
+        await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
+        await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(acc2.address)
+        
+        await expect(rentFoundationContract.connect(acc1).payRent(1, 100000000)).not.to.be.reverted
+        expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        expect((await rentFoundationContract.spentSecurityDeposit(1))).to.be.equal(false)
+
+        time.increase(32832000)
+        await mockedNFTContract.mock.cropShare.withArgs(1).returns(900)
+        await mockedNFTContract.mock.tillableArea.withArgs(1).returns(900000)
+        await expect(rentFoundationContract.connect(xTokenContractAddress).buyOut(1)).to.be.revertedWith("NFT has a debt")
+    })
+
+    it("Buy Out, reverts not initial payer", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+        await expect(rentFoundationContract.connect(acc1).buyOut(1)).to.be.revertedWith("not initial payer")
+    })
+
+    it("Buy Out, reverts not initial rent applied", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await expect(rentFoundationContract.connect(acc1).buyOut(1)).to.be.revertedWith("Initial Paymant isn't applied")
+    })
+
+    it("Buy Out", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+    
+        await mockedUSDCContract.mock.transferFrom.withArgs(acc1.address, rentFoundationContract.address, 100000000).returns(true)
+        await mockedKeyProtocalValues.mock.payRentFee.withArgs().returns(150)
+        await mockedKeyProtocalValues.mock.validatorCommission.withArgs().returns(25)
+        await mockedKeyProtocalValues.mock.hedgeFundAllocation.withArgs().returns(1500)
+        await mockedKeyProtocalValues.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
+        await mockedKeyProtocalValues.mock.validatorCommisionWallet.withArgs().returns(validatorCommisionWallet.address)
+        
+        await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 14737500).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(validatorCommisionWallet.address, 250000).returns(true)
+
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
+        await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
+        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
+
+        await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
+        await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(acc2.address)
+        
+        await expect(rentFoundationContract.connect(acc1).payRent(1, 100000000)).not.to.be.reverted
+        expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        expect((await rentFoundationContract.spentSecurityDeposit(1))).to.be.equal(false)
+
+        time.increase(432000)
+        await mockedNFTContract.mock.cropShare.withArgs(1).returns(900)
+        await mockedNFTContract.mock.tillableArea.withArgs(1).returns(90000)
+        await mockedUSDCContract.mock.transfer.withArgs(xTokenContractAddress.address, 92359133).returns(true)
+        await rentFoundationContract.connect(xTokenContractAddress).buyOut(1)
+        expect((await rentFoundationContract.deposits(1))[0]).to.be.equal(0)
+        expect((await rentFoundationContract.deposits(1))[1]).to.be.equal(0)
+        expect(await rentFoundationContract.initialRentApplied(1)).to.be.equal(false)
+    })
+
+    it("Buy Out Preview, reverts not initial payer", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+        await expect(rentFoundationContract.connect(acc1).buyOutPreview(1)).to.be.revertedWith("not initial payer")
+    })
+
+    it("Buy Out, reverts not initial rent applied", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await expect(rentFoundationContract.connect(acc1).buyOutPreview(1)).to.be.revertedWith("Initial Paymant isn't applied")
+    })
+
+    it("Buy Out Preview", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+    
+        await mockedUSDCContract.mock.transferFrom.withArgs(acc1.address, rentFoundationContract.address, 100000000).returns(true)
+        await mockedKeyProtocalValues.mock.payRentFee.withArgs().returns(150)
+        await mockedKeyProtocalValues.mock.validatorCommission.withArgs().returns(25)
+        await mockedKeyProtocalValues.mock.hedgeFundAllocation.withArgs().returns(1500)
+        await mockedKeyProtocalValues.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
+        await mockedKeyProtocalValues.mock.validatorCommisionWallet.withArgs().returns(validatorCommisionWallet.address)
+        
+        await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 14737500).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(validatorCommisionWallet.address, 250000).returns(true)
+
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
+        await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
+        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
+
+        await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
+        await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(acc2.address)
+        
+        await expect(rentFoundationContract.connect(acc1).payRent(1, 100000000)).not.to.be.reverted
+        expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        expect((await rentFoundationContract.spentSecurityDeposit(1))).to.be.equal(false)
+
+        time.increase(432000)
+        await mockedNFTContract.mock.cropShare.withArgs(1).returns(900)
+        await mockedNFTContract.mock.tillableArea.withArgs(1).returns(90000)
+    
+        let data =  await rentFoundationContract.connect(xTokenContractAddress).buyOutPreview(1)
+        expect(data[0]).to.be.equal(true)
+        expect(data[1]).to.be.equal(92359133)
+    })
+
+    it("Buy Out Preview", async function () {
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress.address)
+        await rentFoundationContract.connect(xTokenContractAddress).payInitialRent(1, 100)
+    
+        await mockedUSDCContract.mock.transferFrom.withArgs(acc1.address, rentFoundationContract.address, 100000000).returns(true)
+        await mockedKeyProtocalValues.mock.payRentFee.withArgs().returns(150)
+        await mockedKeyProtocalValues.mock.validatorCommission.withArgs().returns(25)
+        await mockedKeyProtocalValues.mock.hedgeFundAllocation.withArgs().returns(1500)
+        await mockedKeyProtocalValues.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
+        await mockedKeyProtocalValues.mock.validatorCommisionWallet.withArgs().returns(validatorCommisionWallet.address)
+        
+        await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 14737500).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(validatorCommisionWallet.address, 250000).returns(true)
+
+        await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
+        await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
+        await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
+        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
+
+        await mockedUSDCContract.mock.transfer.withArgs(mockedLNDXTokenContract.address, 975000).returns(true)
+        await mockedLNDXTokenContract.mock.feeToDistribute.withArgs(975000).returns();
+        await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 450000).returns(true)
+        await mockedUSDCContract.mock.transfer.withArgs(landxChoiceWallet.address, 75000).returns(true)
+        await mockedKeyProtocalValues.mock.xTokensSecurityWallet.withArgs().returns(acc2.address)
+        
+        await expect(rentFoundationContract.connect(acc1).payRent(1, 100000000)).not.to.be.reverted
+        expect((await rentFoundationContract.deposits(1))["amount"]).to.be.equal(270)
+        expect((await rentFoundationContract.spentSecurityDeposit(1))).to.be.equal(false)
+
+        time.increase(32832000)
+        await mockedNFTContract.mock.cropShare.withArgs(1).returns(900)
+        await mockedNFTContract.mock.tillableArea.withArgs(1).returns(90000)
+    
+        let data =  await rentFoundationContract.connect(xTokenContractAddress).buyOutPreview(1)
+        expect(data[0]).to.be.equal(false)
+        expect(data[1]).to.be.equal(0)
     })
 
     it("get deposit balance", async function () {
