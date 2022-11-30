@@ -36,6 +36,8 @@ interface IKEYPROTOCOLVALUES {
 
     function landxChoiceWallet() external pure returns (address);
 
+    function xTokensSecurityWallet() external pure returns (address);
+
     function landXOpertationsPercentage() external pure returns (uint256);
 
     function landXChoicePercentage() external pure returns (uint256);
@@ -80,6 +82,8 @@ contract RentFoundation is Context, Ownable {
 
     mapping(uint256 => bool) public initialRentApplied;
 
+    mapping(uint256 => bool) public spentSecurityDeposit;
+
     constructor(
         address _usdc,
         address _lndx,
@@ -96,6 +100,10 @@ contract RentFoundation is Context, Ownable {
     // deposit rent for token ID, in USDC
     function payRent(uint256 tokenID, uint256 amount) public {
         require(initialRentApplied[tokenID], "Initial rent was not applied");
+        if (msg.sender == keyProtocolValues.xTokensSecurityWallet()) {
+            require(!spentSecurityDeposit[tokenID], "securityDeposit is already spent");
+            spentSecurityDeposit[tokenID] = true;
+        }
         require(
             usdc.transferFrom(msg.sender, address(this), amount),
             "transfer failed"
@@ -133,6 +141,7 @@ contract RentFoundation is Context, Ownable {
         deposits[tokenID].timestamp = block.timestamp;
         deposits[tokenID].amount = amount;
         initialRentApplied[tokenID] = true;
+        spentSecurityDeposit[tokenID] = false;
         emit initialRentPaid(tokenID, amount);
     }
 
@@ -144,6 +153,58 @@ contract RentFoundation is Context, Ownable {
         return
             int256(deposits[tokenID].amount) -
             int256(rentPerSecond * elapsedSeconds / 10 ** 7); // landXNFT.tillableArea returns area in square meters(so we divide by 10 ** 4 to get Ha) and diivide by 10 ** 3 from previous step
+    }
+
+    // Check and return remainig rent paid
+    function buyOut(uint256 tokenID) external returns(uint256) {
+        string memory crop = landXNFT.crop(tokenID);
+        require(
+            initialRentApplied[tokenID],
+            "Initial Paymant isn't applied"
+        );
+        require(
+            xTokenRouter.getXToken(crop) == msg.sender,
+            "not initial payer"
+        );
+
+        int256 depositBalance = getDepositBalance(tokenID);  //KG
+
+        if (depositBalance < 0) {
+            revert("NFT has a debt");
+        }
+
+        uint256 usdcAmount = (uint256(depositBalance) * grainPrices.prices(crop)) / (10**3); // price per megatonne and usdc has 6 decimals (10**6 / 10**9)
+
+
+        deposits[tokenID].depositBalance = 0;
+        deposits[tokenID].amount = 0;
+        deposits[tokenID].timestamp = 0;
+        initialRentApplied[tokenID] = false;
+
+        usdc.transfer(msg.sender, usdcAmount);
+        return usdcAmount;
+    }
+
+     function buyOutPreview(uint256 tokenID) external view returns(bool, uint256) {
+        string memory crop = landXNFT.crop(tokenID);
+        require(
+            initialRentApplied[tokenID],
+            "Initial Paymant isn't applied"
+        );
+        require(
+            xTokenRouter.getXToken(crop) == msg.sender,
+            "not initial payer"
+        );
+
+        int256 depositBalance = getDepositBalance(tokenID);  //KG
+
+        if (depositBalance < 0) {
+            return (false, 0);
+        }
+
+        uint256 usdcAmount = (uint256(depositBalance) * grainPrices.prices(crop)) / (10**3); // price per megatonne and usdc has 6 decimals (10**6 / 10**9)
+
+        return (true, usdcAmount);
     }
 
     function sellCToken(address account, uint256 amount) public {

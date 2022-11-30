@@ -119,6 +119,7 @@ describe("xToken", function () {
         await expect(xToken.connect(acc2).getShards(1)).not.to.reverted
         expect(await xToken.balanceOf(acc2.address)).to.equal(766940742000)
         expect(await xToken.balanceOf(xTokensSecurityWallet.address)).to.equal(53029629000)
+        expect(await xToken.SecurityDepositedAmount(1)).to.equal(53029629000)
     })
 
     it("impossible to get Shards (not initial owner)", async function () {
@@ -216,11 +217,153 @@ describe("xToken", function () {
         await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
         await xToken.connect(acc2).getShards(1)
 
-        await xToken.connect(landxOperationalWallet).transfer(acc2.address, 80029629000)
-        await xToken.connect(xTokensSecurityWallet).transfer(acc2.address, 53029629000)
+        await xToken.connect(landxOperationalWallet).transfer(xToken.address, 80029629000)
+
+        await xToken.connect(xTokensSecurityWallet).approve(xToken.address, 53029629000)
+        await mockedRentFoundationContract.mock.buyOut.withArgs(1).returns(92359133)
+        await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(false)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xToken.address, 3000, 92359133, 0).returns(80029629000)
+
+        await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 92359133).returns(true)
+
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xToken.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 92359133, 77698668932, 0]).returns(80029629000)
         await expect(xToken.connect(acc2).getTheNFT(1)).not.to.reverted
         expect(await xToken.balanceOf(acc2.address)).to.equal(0)
         expect(await nft.balanceOf(acc2.address, 1)).to.equal(1)
+    })
+
+    it("Get NFT back, security deposit is applied", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+
+        await xToken.connect(landxOperationalWallet).transfer(xToken.address, 80029629000)
+        await xToken.connect(xTokensSecurityWallet).transfer(acc2.address, 53029629000)
+
+        //await xToken.connect(xTokensSecurityWallet).approve(xToken.address, 53029629000)
+        await mockedRentFoundationContract.mock.buyOut.withArgs(1).returns(92359133)
+        await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xToken.address, 3000, 92359133, 0).returns(80029629000)
+
+        await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 92359133).returns(true)
+
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xToken.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 92359133, 77698668932, 0]).returns(80029629000)
+        await expect(xToken.connect(acc2).getTheNFT(1)).not.to.reverted
+        expect(await xToken.balanceOf(acc2.address)).to.equal(0)
+        expect(await nft.balanceOf(acc2.address, 1)).to.equal(1)
+    })
+
+    it("Get NFT back, remaining rent is 0", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+
+        await xToken.connect(landxOperationalWallet).transfer(acc2.address, 80029629000)
+
+        await xToken.connect(xTokensSecurityWallet).approve(xToken.address, 53029629000)
+        await mockedRentFoundationContract.mock.buyOut.withArgs(1).returns(0)
+        await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(false)
+        
+        await expect(xToken.connect(acc2).getTheNFT(1)).not.to.reverted
+        expect(await xToken.balanceOf(acc2.address)).to.equal(0)
+        expect(await nft.balanceOf(acc2.address, 1)).to.equal(1)
+    })
+
+    it("Cant' get NFT back, there is a debt", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+
+        await xToken.connect(landxOperationalWallet).transfer(acc2.address, 80029629000)
+
+        await xToken.connect(xTokensSecurityWallet).approve(xToken.address, 53029629000)
+        await mockedRentFoundationContract.mock.buyOut.withArgs(1).revertsWithReason("NFT has a debt")
+        await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(false)
+        
+        await expect(xToken.connect(acc2).getTheNFT(1)).to.be.revertedWith("NFT has a debt")
+    })
+
+    it("Get NFT back Preview", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+
+        await mockedRentFoundationContract.mock.buyOutPreview.withArgs(1).returns(true, 92359133)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(false)
+        
+        expect(await xToken.getTheNFTPreview(1)).to.be.equal(846949522438)
+    })
+
+    it("Get NFT back Preview, security deposit applied", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+
+        await mockedRentFoundationContract.mock.buyOutPreview.withArgs(1).returns(true, 92359133)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(true)
+        
+        expect(await xToken.getTheNFTPreview(1)).to.be.equal(899979151438)
+    })
+
+    it("Get NFT back Preview, there is a debt", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+
+        await mockedRentFoundationContract.mock.buyOutPreview.withArgs(1).returns(false, 92359133)
+        await expect(xToken.getTheNFTPreview(1)).to.be.revertedWith("there is a debt")
     })
 
     it("Can't get NFT back (not owner)", async function () {
