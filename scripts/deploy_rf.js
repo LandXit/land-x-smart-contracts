@@ -31,6 +31,7 @@ async function main() {
 	let usdcTokenAddress = "0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841"
 	let Lndx = "0x3931C703BEdB4f00f602f3F5F7838801F0b5BEb0"
 	let kv = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
+	let distributor = ""
 
 	//let usdcTokenAddress = "0x......" //mainnet
 	if (network === "rinkeby") {
@@ -43,13 +44,13 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await RentFoundation.deploy(usdcTokenAddress, Lndx, kv)
+	let deployed = await RentFoundation.deploy(usdcTokenAddress, Lndx, kv, distributor)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [usdcTokenAddress, Lndx, kv],
+		constructorArguments: [usdcTokenAddress, Lndx, kv, distributor],
 		contract: "contracts/rentFoundation.sol:RentFoundation"
 	})
 
