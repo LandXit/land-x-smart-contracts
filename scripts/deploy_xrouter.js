@@ -17,7 +17,7 @@ async function main() {
 
 	// We get the contract to deploy
 	const Consumer = await hre.ethers.getContractFactory("xTokenRouter")
-	console.log("Deploying ApiConsumerTest Contract...")
+	console.log("Deploying xTokenRouter Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
 	console.log(">-> Network is set to " + network)

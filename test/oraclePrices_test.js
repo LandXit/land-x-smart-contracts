@@ -30,7 +30,7 @@ describe("Oracle Prices", function () {
         await oraclePrices.grantRole("0x04824fcb60e7cc526d70b264caa65b62ed44d9c8e5d230e8ff6b0c7373843b8a", acc1.address)
     })
 
-    it("setGrainPrice works ", async function () {
+  /*  it("setGrainPrice works ", async function () {
         console.log("set price=500000000 (USDC per megatone) for SOY")
         await oraclePrices.connect(acc1).setGrainPrice("SOY", 500000000)
         expect(await oraclePrices.prices("SOY")).to.equal(500000000)
@@ -108,5 +108,5 @@ describe("Oracle Prices", function () {
         let usdc = await oraclePrices.usdc()
         await mockedUniswapV3FactoryContract.mock.getPool.withArgs(usdc, mockedXTokenContract.address, 3000).returns(constants.AddressZero)
         expect(await oraclePrices.getXtokenPool(mockedXTokenContract.address)).to.equal(constants.AddressZero)
-    })
+    })*/
 })

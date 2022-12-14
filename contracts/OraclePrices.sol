@@ -44,22 +44,22 @@ contract OraclePrices is Context, AccessControlEnumerable {
     IKeyProtocolValues public keyProtocolValues;
 
     IUniswapV3Factory public uniswapFactory;
-    address public usdc = address(0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841); // to be changed for mainnet
+    address public usdc = address(0xCd869cbCA8E597a10b6e1AEbF12aBFD693e542f2); // to be changed for mainnet
 
     constructor(
         address _address,
-        address _xWheat,
+       /* address _xWheat,
         address _xSoy,
         address _xCorn,
-        address _xRice,
+        address _xRice,*/
         address _keyProtocolValue,
         address _uniswapFactory
     ) {
         require(_address != address(0), "zero address is not allowed");
-        require(_xWheat != address(0), "zero address is not allowed");
+       /* require(_xWheat != address(0), "zero address is not allowed");
         require(_xSoy != address(0), "zero address is not allowed");
         require(_xRice != address(0), "zero address is not allowed");
-        require(_xCorn != address(0), "zero address is not allowed");
+        require(_xCorn != address(0), "zero address is not allowed");*/
         require(_keyProtocolValue != address(0), "zero address is not allowed");
         require(_uniswapFactory != address(0), "zero address is not allowed");
         _setupRole(DEFAULT_ADMIN_ROLE, _address);
@@ -69,10 +69,10 @@ contract OraclePrices is Context, AccessControlEnumerable {
         prices["RICE"] = 336008409;
         prices["CORN"] = 261023622;
 
-        xTokenPrices[_xWheat] = 5000000;
+        /*xTokenPrices[_xWheat] = 5000000;
         xTokenPrices[_xCorn] = 4430000;
         xTokenPrices[_xSoy] = 8140000;
-        xTokenPrices[_xRice] = 6000000;
+        xTokenPrices[_xRice] = 6000000;*/
         keyProtocolValues = IKeyProtocolValues(_keyProtocolValue);
         uniswapFactory = IUniswapV3Factory(_uniswapFactory);
     }

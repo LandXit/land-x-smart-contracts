@@ -22,7 +22,7 @@ describe("Key Protocol Values", function () {
 		await keyProtocolValues.deployed()
 	})
 
-	it("updateXTokenMintFee works", async function () {
+	/*it("updateXTokenMintFee works", async function () {
 		console.log("updates xToken mint fee")
         await keyProtocolValues.connect(dao).updateXTokenMintFee(400)
 		expect(await keyProtocolValues.xTokenMintFee()).to.equal(400)
@@ -229,5 +229,5 @@ describe("Key Protocol Values", function () {
 	it("launch doesn't work (not dao)", async function () {
 		console.log("try to disable pre launch mode when it is not allowed")
         expect(keyProtocolValues.launch()).to.be.revertedWith("only dao can change value")
-	})
+	})*/
 })

@@ -39,11 +39,11 @@ async function main() {
 	}*/
 	if (network === "goerli") {
 		dao = "0x539D633D45eE0e16F425Ecd6127159805E11a3b8", 
-		hedgeFundWallet = "0x539D633D45eE0e16F425Ecd6127159805E11a3b8", 
-		landxOperationalWallet = "0x539D633D45eE0e16F425Ecd6127159805E11a3b8", 
-		landxChoiceWallet = "0x539D633D45eE0e16F425Ecd6127159805E11a3b8", 
-		xTokensSecurityWallet= "0x539D633D45eE0e16F425Ecd6127159805E11a3b8", 
-		validatorCommisionWallet = "0x539D633D45eE0e16F425Ecd6127159805E11a3b8"
+		hedgeFundWallet = "0x17534405A3cbB9df96ED839D0B36611220867EdE", 
+		landxOperationalWallet = "0xa685FDd06218DAb1D7B3245c3F84d026a66041C3", 
+		landxChoiceWallet = "0xE1b32161ee508582042575Bcd735817e706A8a0d", 
+		xTokensSecurityWallet= "0x289B06dffea39AF0A6c6cE94845c6F58A3Fe2445", 
+		validatorCommisionWallet = "0xca673Ee2177cd571f56F578c4a31A052EF80E289"
 	 }
 
 	console.log(

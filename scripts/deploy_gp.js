@@ -16,7 +16,7 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const GrainPrices = await hre.ethers.getContractFactory("OraclePrices")
+	const GrainPrices = await hre.ethers.getContractFactory("contracts/OraclePrices.sol:OraclePrices")
 	console.log("Deploying GrainPrices Contract...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
@@ -35,11 +35,11 @@ async function main() {
 	let kv = ""
 	let uniswapFactory = "0x1F98431c8aD98523631AE4a59f267346ea31F984"
 	if (network === "goerli") {
-		xSoy = "0x2c5Ef4A1c9862eEb45D610F160D613E69742ad24" //rinkeby
+		/*xSoy = "0x2c5Ef4A1c9862eEb45D610F160D613E69742ad24" //rinkeby
 		xWheat = "0x45569C76529697BBEfDe526E94938064bBC39C1E"
 		xCorn = "0x88917986f5E197D2767D3408F463179672e8E004"
-		xRice = "0x3C07bF2A989c0f69298Db454245b20e4e448b26f"
-		kv = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
+		xRice = "0x3C07bF2A989c0f69298Db454245b20e4e448b26f"*/
+		kv = "0x9363e1392706C8D17DF6926b10E1Fe2F25E6073a"
 		uniswapFactory = "0x1F98431c8aD98523631AE4a59f267346ea31F984"
 	}
 
@@ -48,13 +48,13 @@ async function main() {
 		"ETH"
 	)
 
-	let deployed = await GrainPrices.deploy(deployerAddress, xWheat, xSoy, xCorn, xRice, kv, uniswapFactory)
+	let deployed = await GrainPrices.deploy(deployerAddress, kv, uniswapFactory)
 	let dep = await deployed.deployed()
 
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [deployerAddress, xWheat, xSoy, xCorn, xRice, kv, uniswapFactory],
+		constructorArguments: [deployerAddress, kv, uniswapFactory],
 	})
 
 }

@@ -18,6 +18,10 @@ interface ILandxNFT {
 
     function crop(uint256 id) external view returns (string memory);
 
+    function validatorFee(uint256 id) external view returns (uint256);
+
+    function validator(uint256 id) external view returns (address);
+
     function initialOwner(uint256 id) external view returns (address);
 
     function balanceOf(address account, uint256 id)
@@ -143,8 +147,6 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         address _rentFoundation,
         address _xTokenRouter,
         address _keyProtocolValues,
-        address _uniswapRouter,
-        address _quoter,
         address _oraclePrices,
         string memory _crop// "SOY, CORN etc"
     ) ERC20Permit(string(abi.encodePacked("x", _crop))) ERC20("LandX xToken", string(abi.encodePacked("x", _crop))) {
@@ -154,8 +156,6 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         require(_rentFoundation != address(0), "zero address is not allowed");
         require(_xTokenRouter != address(0), "zero address is not allowed");
         require(_keyProtocolValues != address(0), "zero address is not allowed");
-        require(_uniswapRouter != address(0), "zero address is not allowed");
-        require(_oraclePrices != address(0), "zero address is not allowed");
         landXNFT = ILandxNFT(_landXNFT);
         crop = _crop;
         lndx = _lndx;
@@ -163,9 +163,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         rentFoundation = IRentFoundation(_rentFoundation);
         xTokenRouter = IXTokenRouter(_xTokenRouter);
         keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
-        uniswapRouter = ISwapRouter(_uniswapRouter);
-        quoter = IQuoter(_quoter);
         oraclePrices = IOraclePrices(_oraclePrices);
+        quoter = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
+        uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     }
 
     //deposits an NFT to get shards equivalence
@@ -209,6 +209,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         _mint(address(this), shards);
 
         uint256 fee = _calcFee(shards);
+        uint256 validatorFee = _validatorFee(_id, shards);
 
         uint256 annualRent = getAnnualRentAmount(_id);
         uint256 xTokensAnnualRent = ((annualRent * oraclePrices.prices(crop)) /
@@ -248,10 +249,13 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             keyProtocolValues.xTokensSecurityWallet(),
             toSecurityDepositsAmount
         );
+        if (landXNFT.validator(_id) != address(0)) {
+             _transfer(address(this), landXNFT.validator(_id), validatorFee);
+        }
         _transfer(
             address(this),
             msg.sender,
-            shards - fee - xTokensAnnualRent - toSecurityDepositsAmount
+            shards - fee - xTokensAnnualRent - toSecurityDepositsAmount - validatorFee
         );
         SecurityDepositedAmount[_id] = toSecurityDepositsAmount;
         rentFoundation.payInitialRent(_id, annualRent);
@@ -409,6 +413,17 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         return (amount * fee) / 10000;
     }
 
+    function _validatorFee(uint256 tokenID, uint256 amount) internal view returns(uint256) {
+        if (landXNFT.validator(tokenID) == address(0)) {
+            return 0;
+        }
+        uint256 validatorFee = landXNFT.validatorFee(tokenID);
+        if (validatorFee == 0) {
+            return 0;
+        }
+        return  (amount* validatorFee) / 10000;
+    }
+
     function setXTokenRouter(address _router) public onlyOwner {
         require(_router != address(0), "zero address is not allowed");
         xTokenRouter = IXTokenRouter(_router);
@@ -507,10 +522,11 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         uint256 toSecurityDepositsAmount = (xTokensAnnualRent / 12) *
             keyProtocolValues.securityDepositMonths();
         uint256 fee = _calcFee(shards);
+        uint256 validatorFee = _validatorFee(id, shards);
         uint256 toBeReceived = shards -
             fee -
             xTokensAnnualRent -
-            toSecurityDepositsAmount;
+            toSecurityDepositsAmount - validatorFee;
         return (
             shards,
             fee,

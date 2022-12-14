@@ -33,18 +33,18 @@ async function main() {
 		"ETH"
 	)
 
-	let xTokenRouter = "" //mainnet
-	let rentFoundation = ""
-	let crop = "CORN"
+	let xTokenRouter = "0x631878fCBAbB7499B4515EC115d3B2C0B9282a33" //mainnet
+	let rentFoundation = "0x02EfDeE67245883c0E26cfCC14C3b08027fbA6ba"
+	let crop = "SOY"
 	if (network === "goerli") {
-		xTokenRouter = "0xa9BA799B7C041c9530CA6e212371E80dc202e97B" //rinkeby
-		rentFoundation = "0xB26A5242655225d9Eccc0925bf907caCE98F1330"
+		xTokenRouter = "0x631878fCBAbB7499B4515EC115d3B2C0B9282a33" //rinkeby
+		rentFoundation = "0x02EfDeE67245883c0E26cfCC14C3b08027fbA6ba"
 	}
 
 	let deployed = await cToken.deploy(rentFoundation, xTokenRouter, crop)
 	let dep = await deployed.deployed()
 
-	await sleep(60000)
+	await sleep(70000)
 	await hre.run("verify:verify", {
 		address: dep.address,
 		constructorArguments: [rentFoundation, xTokenRouter, crop]

@@ -20,7 +20,7 @@ describe("NFT", function () {
 		await nft.deployed()
 	})
 
-	it("minting  works", async function () {
+	/*it("minting  works", async function () {
 		console.log("Minting nft for " + acc1.address + " with parameters")
 		await mockedXTokenRouterContract.mock.getXToken.withArgs("SOY").returns(xTokenContractAddress)
 		await nft.setDetailsAndMint(1, 3000000, 3000000, 3000, acc1.address, "0x2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824","SOY", acc2.address)
@@ -106,6 +106,6 @@ describe("NFT", function () {
 		console.log("try to get uri for NFT token by token ID that has no valid type(35h), should be reverted")
 		await nft.setBaseURI("some_url/")
 		await expect(nft.uri("35h")).to.be.reverted
-	})
+	})*/
 
 })

@@ -34,9 +34,9 @@ async function main() {
 	let quoter = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
 	let keyProtocalValues = ""
 	if (network === "goerli") {
-		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99"
-		oraclePrices = "0x9D6EEe708a84BDa3aEb5b8C30Fc9Ee83Edd01929"
-		keyProtocalValues ="0x84E7CaB66182791864C411E7dF16584FC1400A5a"
+		xTokenRouter = "0x50E5867D42f876ED75628940684ad510e9f40a5B"
+		oraclePrices = "0x356fEB4C02710984f69aFA4AeeE4eAfB3CE80A9A"
+		keyProtocalValues ="0x9363e1392706C8D17DF6926b10E1Fe2F25E6073a"
 	}
 
 	console.log(
@@ -50,7 +50,7 @@ async function main() {
 	await sleep(60000)
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [xTokenRouter, oraclePrices],
+		constructorArguments: [xTokenRouter, oraclePrices, keyProtocalValues, uniswapRouter, quoter],
 	})
 
 }

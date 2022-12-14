@@ -14,6 +14,7 @@ contract KeyProtocolVariables is Ownable {
     uint256 public payRentFee = 150; // 1.5%
 
     uint256 public validatorCommission = 25; // 0.25%
+    uint256 public maxValidatorFee = 1000;
 
     uint256 public sellXTokenSlippage = 300; //3%
     uint256 public buyXTokenSlippage = 300; //3%
@@ -67,13 +68,25 @@ contract KeyProtocolVariables is Ownable {
         cTokenSellFee = _fee;
     }
 
+    function updateValidatorCommission(uint256 _fee) public {
+        require(msg.sender == dao, "only dao can change value");
+        require(_fee < 10000, "value can't be above 100%");
+        validatorCommission = _fee;
+    }
+
+     function updateMaxValidatorFee(uint256 _fee) public {
+        require(msg.sender == dao, "only dao can change value");
+        require(_fee < 10000, "value can't be above 100%");
+        maxValidatorFee = _fee;
+    }
+
     function updateSellXTokenSlippage(uint256 _slippage) public {
         require(msg.sender == dao, "only dao can change value");
         require(_slippage < 10000, "value can't be above 100%");
         sellXTokenSlippage = _slippage;
     }
 
-     function updateBuyXTokenSlippage(uint256 _slippage) public {
+    function updateBuyXTokenSlippage(uint256 _slippage) public {
         require(msg.sender == dao, "only dao can change value");
         require(_slippage < 10000, "value can't be above 100%");
         buyXTokenSlippage = _slippage;

@@ -61,7 +61,7 @@ describe("xToken", function () {
         xTokenMintFee = 300
     })
 
-    it("check symbol value", async function () {
+   /* it("check symbol value", async function () {
         expect(await xToken.symbol()).to.equal("xCORN")
 	})
 
@@ -594,5 +594,5 @@ describe("xToken", function () {
         await xToken.connect(acc2).getShards(1)
         
         await expect(xToken.connect(owner).xBasketTransfer(acc2.address, 1000000)).to.be.reverted
-	})
+	})*/
 })

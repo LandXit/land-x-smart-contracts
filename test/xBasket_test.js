@@ -90,7 +90,7 @@ describe("xBasket", function () {
         await xRICE.mock.availableToClaim.withArgs(xBasket.address).returns(1000000)
     })
 
-    it("owner can't renounceOwnership", async function () {
+   /* it("owner can't renounceOwnership", async function () {
         await expect(xBasket.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
 	})
 
@@ -566,5 +566,5 @@ describe("xBasket", function () {
         await xCORN.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
 
         expect(await xBasket.totalAssets()).to.equal(733672552)
-    })
+    })*/
 })

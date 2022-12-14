@@ -47,7 +47,7 @@ describe("RentFoundation", function () {
         await rentFoundationContract.setXTokenRouter(mockedXTokenRouterContract.address)
     })
 
-    it("owner can't renounceOwnership", async function () {
+  /*  it("owner can't renounceOwnership", async function () {
         await expect(rentFoundationContract.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
 	})
 
@@ -505,5 +505,5 @@ describe("RentFoundation", function () {
         await mockedXTokenRouterContract.mock.getCToken.withArgs("SOY").returns(acc2.address)
        
         await expect(cToken.connect(acc1).burn(1000000)).to.be.revertedWith("no valid cToken")
-    })
+    })*/
 })

@@ -403,6 +403,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
                     (1e6 * (amountVested + _rewardNotDistributed)) /
                     tokensCount);
         }
+        return rewardSharesPerToken;
     }
 
     function unstakePreview(uint256 stakeID)
