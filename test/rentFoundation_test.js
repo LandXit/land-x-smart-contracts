@@ -7,12 +7,13 @@ const { time, BN, ether } = require("@openzeppelin/test-helpers");
 
 
 let mockedXTokenRouterContract, mockedUSDCContract, mockedKeyProtocalValues, xSOY, cSOY, mockedOraclePricesContract, mockedNFTContract, mockedLNDXTokenContract
-let rentFoundationContract, owner, acc1, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner, xTokensSecurityWallet
+let rentFoundationContract, owner, acc1, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner, xTokensSecurityWallet, distributor
 
 describe("RentFoundation", function () {
 	beforeEach(async function () {
         console.log("", '\n')
 		;[owner, acc1, acc2, xTokenContractAddress, validatorCommisionWallet, hedgeFundWallet, landxChoiceWallet, landxOperationalWallet, cSoySigner, xTokensSecurityWallet] = await ethers.getSigners()
+        distributor = ethers.Wallet.createRandom()
 		
         const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
@@ -36,7 +37,7 @@ describe("RentFoundation", function () {
         mockedNFTContract= await deployMockContract(owner, nft.abi)
 
         let rentFoundation = await ethers.getContractFactory("RentFoundation")
-        rentFoundationContract = await rentFoundation.deploy(mockedUSDCContract.address, mockedLNDXTokenContract.address, mockedKeyProtocalValues.address)
+        rentFoundationContract = await rentFoundation.deploy(mockedUSDCContract.address, mockedLNDXTokenContract.address, mockedKeyProtocalValues.address, distributor.address)
         await rentFoundationContract.deployed()
 
         await rentFoundationContract.changeLandXNFTAddress(mockedNFTContract.address)

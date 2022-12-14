@@ -31,6 +31,11 @@ interface ICrop {
     function crop() external pure returns (string memory);
 }
 
+interface IXTOKEN {
+     function previewNonDistributedYield() external view returns(uint256);
+     function getNonDistributedYield() external returns(uint256);
+}
+
 interface IKEYPROTOCOLVALUES {
     function landxOperationalWallet() external pure returns (address);
 
@@ -84,10 +89,14 @@ contract RentFoundation is Context, Ownable {
 
     mapping(uint256 => bool) public spentSecurityDeposit;
 
+    address public distributor;
+    string[] public crops = ["SOY", "WHEAT", "CORN", "RICE"];
+
     constructor(
         address _usdc,
         address _lndx,
-        address _keyProtokolValues
+        address _keyProtokolValues,
+        address _distributor
     ) {
         require(_usdc != address(0), "zero address is not allowed");
         require(_lndx != address(0), "zero address is not allowed");
@@ -95,6 +104,7 @@ contract RentFoundation is Context, Ownable {
         usdc = IERC20(_usdc);
         lndx = _lndx;
         keyProtocolValues = IKEYPROTOCOLVALUES(_keyProtokolValues);
+        distributor = _distributor;
     }
 
     // deposit rent for token ID, in USDC
@@ -232,6 +242,42 @@ contract RentFoundation is Context, Ownable {
             keyProtocolValues.landxChoiceWallet(),
             _fee - lndxFee - operationalFee
         );
+    }
+
+     function previewSurplusUSDC() public view returns(uint256) {
+        uint256 totalUsdcYield;
+        for (uint i=0; i<crops.length; i++) {
+            address xTokenAddress = xTokenRouter.getXToken(crops[i]);
+            uint amount = IXTOKEN(xTokenAddress).previewNonDistributedYield();
+            uint usdcYield = (amount * grainPrices.prices(crops[i])) / (10**9);
+            totalUsdcYield += usdcYield;
+        }
+        return totalUsdcYield;
+    }
+
+     function getSurplusUSDC() internal returns(uint256) {
+        uint totalUsdcYield;
+        for (uint i=0; i<crops.length; i++) {
+            address xTokenAddress = xTokenRouter.getXToken(crops[i]);
+            uint amount = IXTOKEN(xTokenAddress).getNonDistributedYield();
+            uint usdcYield = (amount * grainPrices.prices(crops[i])) / (10**9);
+            totalUsdcYield += usdcYield;
+        }
+        return totalUsdcYield;
+    }
+
+    function withdrawSurplusUSDC(uint _amount) public {
+        require(msg.sender == distributor, "only distributor can withdraw");
+        require(getSurplusUSDC() >= _amount && _amount < usdc.balanceOf(address(this)), "not enough surplus funds");
+        usdc.transfer(distributor, _amount);
+    }
+
+    function updateDistributor(address _distributor) public onlyOwner {
+        distributor = _distributor;
+    }
+
+    function updateCrops(string[] memory _crops) public onlyOwner {
+        crops = _crops;
     }
 
     function setXTokenRouter(address _router) public onlyOwner {

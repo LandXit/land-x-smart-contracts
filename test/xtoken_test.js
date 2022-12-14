@@ -120,6 +120,7 @@ describe("xToken", function () {
         expect(await xToken.balanceOf(acc2.address)).to.equal(766940742000)
         expect(await xToken.balanceOf(xTokensSecurityWallet.address)).to.equal(53029629000)
         expect(await xToken.SecurityDepositedAmount(1)).to.equal(53029629000)
+        expect((await xToken.NonStakedTokens())[0]).to.equal(900000000000)
     })
 
     it("impossible to get Shards (not initial owner)", async function () {
@@ -402,6 +403,34 @@ describe("xToken", function () {
         expect(await xToken.balanceOf(acc2.address)).to.equal(766939742000)
         expect((await xToken.Staked(acc2.address))[0]).to.equal(1000000)
         expect((await xToken.TotalStaked())[0]).to.equal(1000000)
+        expect((await xToken.NonStakedTokens())[0]).to.equal(899999000000)
+    })
+
+    it("Preview not distributed yield", async function () {
+        await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokenMintFee.withArgs().returns(xTokenMintFee)
+        await mockedOraclePricesContract.mock.prices.withArgs("CORN").returns(261023622)
+        await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xToken.address).returns(4430000)
+        await mockedKeyProtocolVariablesContract.mock.securityDepositMonths.withArgs().returns(12)
+        await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(true)
+        await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
+        await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
+        await mockedRentFoundationContract.mock.payInitialRent.withArgs(1, 900000).returns()
+        await mockedRentFoundationContract.mock.initialRentApplied.withArgs(1).returns(false)
+        await xToken.connect(acc2).getShards(1)
+    
+        await expect(xToken.connect(acc2).stake(1000000)).not.to.reverted
+        expect(await xToken.balanceOf(acc2.address)).to.equal(766939742000)
+        expect((await xToken.Staked(acc2.address))[0]).to.equal(1000000)
+        expect((await xToken.TotalStaked())[0]).to.equal(1000000)
+        expect((await xToken.NonStakedTokens())[0]).to.equal(899999000000)
+
+        time.increase(100000)
+        expect(await xToken.previewNonDistributedYield()).to.equal(2853878107)
+    })
+
+    it("Get not distributed yield reverted", async function () {
+        await expect(xToken.getNonDistributedYield()).to.be.revertedWith("only rentFoundation can take it")
     })
 
     it("Additional Stake works", async function () {

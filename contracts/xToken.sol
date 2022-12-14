@@ -127,6 +127,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     Stake public TotalStaked;
     uint256 public TotalYield;
 
+    Stake public NonStakedTokens;
+    uint256 public NonDistributedYield;
+
     event Sharded(uint256 nftID, uint256 amount, string name);
     event BuyOut(uint256 nftID, uint256 amount, string name);
     event TokenStaked(address staker, uint256 amount);
@@ -252,6 +255,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         );
         SecurityDepositedAmount[_id] = toSecurityDepositsAmount;
         rentFoundation.payInitialRent(_id, annualRent);
+        calculateNonDistributedYield();
         emit Sharded(_id, shards, symbol());
     }
 
@@ -285,6 +289,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         
         //burns shards!
         burn(shards - securityDepositedAmount - xTokens);
+        calculateNonDistributedYield();
 
         //transfer the NFTs
         landXNFT.safeTransferFrom(address(this), msg.sender, _id, 1, "");
@@ -321,6 +326,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         TotalStaked.startTime = block.timestamp;
         TotalStaked.amount += amount;
         Staked[msg.sender].amount += amount;
+        calculateNonDistributedYield();
         emit TokenStaked(msg.sender, amount);
     }
 
@@ -330,6 +336,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         claim();
         Staked[msg.sender].amount -= amount;
         TotalStaked.amount -= amount;
+        calculateNonDistributedYield();
         emit Unstaked(msg.sender, amount);
     }
 
@@ -510,6 +517,29 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             xTokensAnnualRent + toSecurityDepositsAmount,
             toBeReceived
         );
+    }
+
+    function calculateNonDistributedYield() internal {
+        uint256 elapsedSeconds = block.timestamp - NonStakedTokens.startTime;
+        uint256 delimeter = 365 * 1 days;
+        NonDistributedYield += NonStakedTokens.amount * elapsedSeconds / delimeter;
+        NonStakedTokens.amount = totalSupply() - TotalStaked.amount;
+        NonStakedTokens.startTime = block.timestamp;
+    }
+
+    function previewNonDistributedYield() external view returns(uint256) {
+        uint256 elapsedSeconds = block.timestamp - NonStakedTokens.startTime;
+        uint256 delimeter = 365 * 1 days;
+        return NonDistributedYield + NonStakedTokens.amount * elapsedSeconds / delimeter;
+    }
+
+    // returns cTokens amount
+    function getNonDistributedYield() external returns(uint256) {
+        require(msg.sender == address(rentFoundation), "only rentFoundation can take it");
+        calculateNonDistributedYield();
+        uint256 amount = NonDistributedYield;
+        NonDistributedYield = 0;
+        return amount;
     }
 
     function renounceOwnership() public view override onlyOwner {
