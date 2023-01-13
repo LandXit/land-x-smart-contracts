@@ -9,46 +9,15 @@ import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@openzeppelin/contracts/interfaces/IERC4626.sol";
-
-interface IxTokenRouter {
-    function getCToken(string memory _name) external view returns (address);
-
-    function getXToken(string memory _name) external view returns (address);
-}
-
-interface IOraclePrices {
-    function getXTokenPrice(address xToken) external view returns (uint256);
-
-    function prices(string memory) external view returns (uint256);
-
-    function usdc() external view returns (address);
-}
-
-interface IXToken is IERC20 {
-    function stake(uint256 amount) external;
-
-    function unstake(uint256 amount) external;
-
-    function xBasketTransfer(address _from, uint256 amount) external;
-
-    function Staked(address)
-        external
-        view
-        returns (uint256 amount, uint256 startTime); // Not
-
-    function availableToClaim(address account) external view returns (uint256);
-
-    function claim() external;
-}
-
-interface IKeyProtocolValues {
-    function buyXTokenSlippage() external pure returns (uint256);
-}
+import "./interfaces/IKeyProtocolVariables.sol";
+import "./interfaces/IxTokenRouter.sol";
+import "./interfaces/IOraclePrices.sol";
+import "./interfaces/IxToken.sol";
 
 contract xBasket is ERC20, IERC4626, Ownable {
     IxTokenRouter public xTokenRouter;
     IOraclePrices public oraclePrices;
-    IKeyProtocolValues public keyProtocolValues;
+    IKeyProtocolVariables public keyProtocolValues;
     address public xWheat;
     address public xSoy;
     address public xCorn;
@@ -59,10 +28,10 @@ contract xBasket is ERC20, IERC4626, Ownable {
     address public cRice;
     address public usdc;
 
-    event AutoCompounded(uint256 xWheat, uint256 xSoy, uint256 xRice, uint256 xCorn);
-
     ISwapRouter public uniswapRouter;
     IQuoter public quoter;
+
+    event AutoCompounded(uint256 xWheat, uint256 xSoy, uint256 xRice, uint256 xCorn);
 
     constructor(
         address _xTokenRouter,
@@ -77,7 +46,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         require(_uniswapRouter != address(0), "zero address is not allowed");
         xTokenRouter = IxTokenRouter(_xTokenRouter);
         oraclePrices = IOraclePrices(_oraclePrices);
-        keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
+        keyProtocolValues = IKeyProtocolVariables(_keyProtocolValues);
         xWheat = xTokenRouter.getXToken("WHEAT");
         xSoy = xTokenRouter.getXToken("SOY");
         xRice = xTokenRouter.getXToken("RICE");
@@ -297,10 +266,10 @@ contract xBasket is ERC20, IERC4626, Ownable {
         view
         returns (uint256)
     {
-        uint256 xWheatBalance = IXToken(xWheat).balanceOf(owner);
-        uint256 xSoyBalance = IXToken(xSoy).balanceOf(owner);
-        uint256 xRiceBalance = IXToken(xRice).balanceOf(owner);
-        uint256 xCornBalance = IXToken(xCorn).balanceOf(owner);
+        uint256 xWheatBalance = IxToken(xWheat).balanceOf(owner);
+        uint256 xSoyBalance = IxToken(xSoy).balanceOf(owner);
+        uint256 xRiceBalance = IxToken(xRice).balanceOf(owner);
+        uint256 xCornBalance = IxToken(xCorn).balanceOf(owner);
         uint256[4] memory balances = [
             xWheatBalance,
             xSoyBalance,
@@ -323,14 +292,14 @@ contract xBasket is ERC20, IERC4626, Ownable {
         uint256 assets,
         uint256 shares
     ) internal {
-        IXToken(xWheat).xBasketTransfer(caller, assets);
-        IXToken(xSoy).xBasketTransfer(caller, assets);
-        IXToken(xRice).xBasketTransfer(caller, assets);
-        IXToken(xCorn).xBasketTransfer(caller, assets);
-        IXToken(xWheat).stake(assets);
-        IXToken(xSoy).stake(assets);
-        IXToken(xRice).stake(assets);
-        IXToken(xCorn).stake(assets);
+        IxToken(xWheat).xBasketTransfer(caller, assets);
+        IxToken(xSoy).xBasketTransfer(caller, assets);
+        IxToken(xRice).xBasketTransfer(caller, assets);
+        IxToken(xCorn).xBasketTransfer(caller, assets);
+        IxToken(xWheat).stake(assets);
+        IxToken(xSoy).stake(assets);
+        IxToken(xRice).stake(assets);
+        IxToken(xCorn).stake(assets);
         _mint(receiver, shares);
         emit Deposit(caller, receiver, assets, shares);
     }
@@ -348,29 +317,29 @@ contract xBasket is ERC20, IERC4626, Ownable {
         autoCompoundRewards();
 
         _burn(owner, shares);
-        IXToken(xWheat).unstake(assets);
-        IXToken(xSoy).unstake(assets);
-        IXToken(xRice).unstake(assets);
-        IXToken(xCorn).unstake(assets);
-        IXToken(xWheat).transfer(receiver, assets);
-        IXToken(xSoy).transfer(receiver, assets);
-        IXToken(xRice).transfer(receiver, assets);
-        IXToken(xCorn).transfer(receiver, assets);
+        IxToken(xWheat).unstake(assets);
+        IxToken(xSoy).unstake(assets);
+        IxToken(xRice).unstake(assets);
+        IxToken(xCorn).unstake(assets);
+        IxToken(xWheat).transfer(receiver, assets);
+        IxToken(xSoy).transfer(receiver, assets);
+        IxToken(xRice).transfer(receiver, assets);
+        IxToken(xCorn).transfer(receiver, assets);
         emit Withdraw(caller, receiver, owner, assets, shares);
     }
 
     // calculate the value of the contracts xToken holdings in USDC
     function calculateCollateral() public view returns (uint256) {
         // xTokens Balances
-        uint256 xWheatBalance = IXToken(xWheat).balanceOf(address(this));
-        uint256 xSoyBalance = IXToken(xSoy).balanceOf(address(this));
-        uint256 xRiceBalance = IXToken(xRice).balanceOf(address(this));
-        uint256 xCornBalance = IXToken(xCorn).balanceOf(address(this));
+        uint256 xWheatBalance = IxToken(xWheat).balanceOf(address(this));
+        uint256 xSoyBalance = IxToken(xSoy).balanceOf(address(this));
+        uint256 xRiceBalance = IxToken(xRice).balanceOf(address(this));
+        uint256 xCornBalance = IxToken(xCorn).balanceOf(address(this));
 
-        (uint256 xWheatStaked, ) = IXToken(xWheat).Staked(address(this));
-        (uint256 xSoyStaked, ) = IXToken(xSoy).Staked(address(this));
-        (uint256 xRiceStaked, ) = IXToken(xRice).Staked(address(this));
-        (uint256 xCornStaked, ) = IXToken(xCorn).Staked(address(this));
+        (uint256 xWheatStaked, ) = IxToken(xWheat).Staked(address(this));
+        (uint256 xSoyStaked, ) = IxToken(xSoy).Staked(address(this));
+        (uint256 xRiceStaked, ) = IxToken(xRice).Staked(address(this));
+        (uint256 xCornStaked, ) = IxToken(xCorn).Staked(address(this));
 
         // USDC Prices - Note this assumes prices are stored in USDC with 6 decimals
         uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
@@ -380,20 +349,21 @@ contract xBasket is ERC20, IERC4626, Ownable {
 
         // Valutations
         uint256 collateral;
-        collateral += ((xWheatBalance + xWheatStaked) * xWheatPrice) / 1e6; //USDC has 6 decimals
-        collateral += ((xSoyBalance + xSoyStaked) * xSoyPrice) / 1e6;
-        collateral += ((xRiceBalance + xRiceStaked) * xRicePrice) / 1e6;
-        collateral += ((xCornBalance + xCornStaked) * xCornPrice) / 1e6;
+        collateral += (xWheatBalance + xWheatStaked) * xWheatPrice; 
+        collateral += (xSoyBalance + xSoyStaked) * xSoyPrice;
+        collateral += (xRiceBalance + xRiceStaked) * xRicePrice;
+        collateral += (xCornBalance + xCornStaked) * xCornPrice;
+        collateral = collateral / 1e6; //USDC has 6 decimals
         return collateral;
     }
 
     // calculate the value of the contracts cToken holdings in USDC
     function calculateYield() public view returns (uint256) {
         // Rewards Pending & USDC balance
-        uint256 cWheatPending = IXToken(xWheat).availableToClaim(address(this));
-        uint256 cSoyPending = IXToken(xSoy).availableToClaim(address(this));
-        uint256 cRicePending = IXToken(xRice).availableToClaim(address(this));
-        uint256 cCornPending = IXToken(xCorn).availableToClaim(address(this));
+        uint256 cWheatPending = IxToken(xWheat).availableToClaim(address(this));
+        uint256 cSoyPending = IxToken(xSoy).availableToClaim(address(this));
+        uint256 cRicePending = IxToken(xRice).availableToClaim(address(this));
+        uint256 cCornPending = IxToken(xCorn).availableToClaim(address(this));
         uint256 usdcBalance = IERC20(usdc).balanceOf(address(this));
 
         // USDC Prices - Note this assumes prices are stored in USDC with 6 decimals
@@ -444,35 +414,35 @@ contract xBasket is ERC20, IERC4626, Ownable {
 
     // claim rewards, sell cTokens, buy xTokens, stake new xTokens
     function autoCompoundRewards() public {
-        IXToken(xWheat).claim();
-        IXToken(xSoy).claim();
-        IXToken(xRice).claim();
-        IXToken(xCorn).claim();
+        IxToken(xWheat).claim();
+        IxToken(xSoy).claim();
+        IxToken(xRice).claim();
+        IxToken(xCorn).claim();
         uint256 cWheatBalance = IERC20(cWheat).balanceOf(address(this));
         uint256 cSoyBalance = IERC20(cSoy).balanceOf(address(this));
         uint256 cRiceBalance = IERC20(cRice).balanceOf(address(this));
         uint256 cCornBalance = IERC20(cCorn).balanceOf(address(this));
 
         ERC20Burnable(cWheat).burn(cWheatBalance); //Sell cWheat
-        convertToXToken(xWheat); //Buy xWheat
+        _convertToXToken(xWheat); //Buy xWheat
 
         ERC20Burnable(cSoy).burn(cSoyBalance); //Sell cSoy
-        convertToXToken(xSoy); //Buy xSoy
+        _convertToXToken(xSoy); //Buy xSoy
 
         ERC20Burnable(cRice).burn(cRiceBalance); //Sell cRice
-        convertToXToken(xRice); //Buy xRice
+        _convertToXToken(xRice); //Buy xRice
 
         ERC20Burnable(cCorn).burn(cCornBalance); //Sell cCorn
-        convertToXToken(xCorn); //Buy xCorn
+        _convertToXToken(xCorn); //Buy xCorn
 
-        uint256 xWheatBalance = IXToken(xWheat).balanceOf(address(this));
-        uint256 xSoyBalance = IXToken(xSoy).balanceOf(address(this));
-        uint256 xRiceBalance = IXToken(xRice).balanceOf(address(this));
-        uint256 xCornBalance = IXToken(xCorn).balanceOf(address(this));
-        IXToken(xWheat).stake(xWheatBalance);
-        IXToken(xSoy).stake(xSoyBalance);
-        IXToken(xRice).stake(xRiceBalance);
-        IXToken(xCorn).stake(xCornBalance);
+        uint256 xWheatBalance = IxToken(xWheat).balanceOf(address(this));
+        uint256 xSoyBalance = IxToken(xSoy).balanceOf(address(this));
+        uint256 xRiceBalance = IxToken(xRice).balanceOf(address(this));
+        uint256 xCornBalance = IxToken(xCorn).balanceOf(address(this));
+        IxToken(xWheat).stake(xWheatBalance);
+        IxToken(xSoy).stake(xSoyBalance);
+        IxToken(xRice).stake(xRiceBalance);
+        IxToken(xCorn).stake(xCornBalance);
 
         emit AutoCompounded(xWheatBalance, xSoyBalance, xRiceBalance, xCornBalance);
     }
@@ -482,7 +452,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         return amountOut;
     }
 
-    function convertToXToken(address xToken) internal returns (uint256) {
+    function _convertToXToken(address xToken) internal returns (uint256) {
         uint256 amountIn = IERC20(usdc).balanceOf(address(this));
 
         uint256 slippage =  keyProtocolValues.buyXTokenSlippage();

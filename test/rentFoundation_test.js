@@ -33,18 +33,12 @@ describe("RentFoundation", function () {
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         mockedOraclePricesContract = await deployMockContract(owner, oraclePricesContract.abi)
 
-        let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
+        let nft= require("../artifacts/contracts/LandXNFT.sol/LandXNFT.json")
         mockedNFTContract= await deployMockContract(owner, nft.abi)
 
         let rentFoundation = await ethers.getContractFactory("RentFoundation")
-        rentFoundationContract = await rentFoundation.deploy(mockedUSDCContract.address, mockedLNDXTokenContract.address, mockedKeyProtocalValues.address, distributor.address)
+        rentFoundationContract = await rentFoundation.deploy(mockedUSDCContract.address, mockedLNDXTokenContract.address, mockedOraclePricesContract.address, mockedNFTContract.address, mockedXTokenRouterContract.address, mockedKeyProtocalValues.address, distributor.address)
         await rentFoundationContract.deployed()
-
-        await rentFoundationContract.changeLandXNFTAddress(mockedNFTContract.address)
-
-        await rentFoundationContract.setGrainPrices(mockedOraclePricesContract.address)
-
-        await rentFoundationContract.setXTokenRouter(mockedXTokenRouterContract.address)
     })
 
     it("owner can't renounceOwnership", async function () {
@@ -53,7 +47,7 @@ describe("RentFoundation", function () {
 
     it("set NFT Contract", async function () {
         console.log("updates NFT contract by contract owner")
-        let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
+        let nft= require("../artifacts/contracts/LandXNFT.sol/LandXNFT.json")
         let mockedNFTContract2= await deployMockContract(owner, nft.abi)
         await rentFoundationContract.changeLandXNFTAddress(mockedNFTContract2.address)
         expect(await rentFoundationContract.landXNFT()).to.equal(mockedNFTContract2.address)
@@ -61,7 +55,7 @@ describe("RentFoundation", function () {
 
     it("impossible set NFT Contract", async function () {
         console.log("try to update NFT contract by NOT contract owner")
-        let nft= require("../artifacts/contracts/nft.sol/LandXNFT.json")
+        let nft= require("../artifacts/contracts/LandXNFT.sol/LandXNFT.json")
         let mockedNFTContract2 = await deployMockContract(owner, nft.abi)
         await expect(rentFoundationContract.connect(acc1).changeLandXNFTAddress(mockedNFTContract2.address)).to.be.reverted
 	})
@@ -170,7 +164,7 @@ describe("RentFoundation", function () {
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
 
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -204,7 +198,7 @@ describe("RentFoundation", function () {
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
 
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -238,7 +232,7 @@ describe("RentFoundation", function () {
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
 
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -272,7 +266,7 @@ describe("RentFoundation", function () {
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
 
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -322,7 +316,7 @@ describe("RentFoundation", function () {
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -376,7 +370,7 @@ describe("RentFoundation", function () {
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -417,7 +411,7 @@ describe("RentFoundation", function () {
         await mockedNFTContract.mock.crop.withArgs(1).returns("SOY")
         await mockedOraclePricesContract.mock.prices.withArgs("SOY").returns(577244585)
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 
@@ -483,7 +477,7 @@ describe("RentFoundation", function () {
        
         await mockedUSDCContract.mock.transfer.withArgs(acc1.address, 519520).returns(true)
         await mockedKeyProtocalValues.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocalValues.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocalValues.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocalValues.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocalValues.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
 

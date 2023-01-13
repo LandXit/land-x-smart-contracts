@@ -4,7 +4,7 @@ const { zeroAddress, isZeroAddress } = require("ethereumjs-util");
 const { constants, BigNumber } = require("ethers");
 const { ethers } = require("hardhat")
 
-let oraclePrices, mockedKeyProtocalValues, mockedXTokenContract, mockedUniswapV3FactoryContract
+let oraclePrices, mockedKeyProtocalValues, mockedXTokenContract, mockedUniswapV3FactoryContract, mockedUSDCContract
 let owner, acc1
 describe("Oracle Prices", function () {
 	beforeEach(async function () {
@@ -14,13 +14,16 @@ describe("Oracle Prices", function () {
 		mockedKeyProtocalValues= await deployMockContract(owner, keyProtocolVariablesContract.abi)
         const xTokenContract = require("../artifacts/contracts/xToken.sol/XToken.json")
 		mockedXTokenContract = await deployMockContract(owner, xTokenContract.abi)
+        const ERC20Contract = require("../artifacts/@openzeppelin/contracts/token/ERC20/ERC20.sol/ERC20.json")
+        mockedUSDCContract = await deployMockContract(owner, ERC20Contract.abi)
         const uniswapV3FactoryContract = require("../node_modules/@uniswap/v3-core/artifacts/contracts/interfaces/IUniswapV3Factory.sol/IUniswapV3Factory.json")
 		mockedUniswapV3FactoryContract = await deployMockContract(owner, uniswapV3FactoryContract.abi)
 		let oraclePricesContract = await ethers.getContractFactory("contracts/OraclePrices.sol:OraclePrices")
 		oraclePrices = await oraclePricesContract.deploy(
 			owner.address, 
 			mockedKeyProtocalValues.address,
-            mockedUniswapV3FactoryContract.address
+            mockedUniswapV3FactoryContract.address,
+            mockedUSDCContract.address
 		)
 		await oraclePrices.deployed()
         await oraclePrices.grantRole("0x04824fcb60e7cc526d70b264caa65b62ed44d9c8e5d230e8ff6b0c7373843b8a", acc1.address)

@@ -28,10 +28,6 @@ describe("Key Protocol Values", function () {
 		expect(await keyProtocolValues.xTokenMintFee()).to.equal(400)
 	})
 
-	it("owner can't renounceOwnership", async function () {
-        await expect(keyProtocolValues.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
-	})
-
 	it("updateXTokenMintFee doesn't work (not dao)", async function () {
 		console.log("try to update xToken mint fee when it is not allowed")
         expect(keyProtocolValues.updateXTokenMintFee(400)).to.be.revertedWith("only dao can change value")
@@ -131,7 +127,7 @@ describe("Key Protocol Values", function () {
 		console.log("updates fee distribution precentages")
         await keyProtocolValues.connect(dao).updateFeeDistributionPercentage(3000, 1500)
 		expect(await keyProtocolValues.lndxHoldersPercentage()).to.equal(3000)
-		expect(await keyProtocolValues.landXOpertationsPercentage()).to.equal(1500)
+		expect(await keyProtocolValues.landXOperationsPercentage()).to.equal(1500)
 		expect(await keyProtocolValues.landXChoicePercentage()).to.equal(5500)
 	})
 

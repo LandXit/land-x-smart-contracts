@@ -12,7 +12,7 @@ describe("cToken", function () {
 	beforeEach(async function () {
         console.log("", '\n')
 		;[owner, acc1, xTokenContractAddress] = await ethers.getSigners()
-		const RentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
+		const RentFoundationContract = require("../artifacts/contracts/RentFoundation.sol/RentFoundation.json")
 		mockedRentFoundationContract = await deployMockContract(owner, RentFoundationContract.abi)
 		const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
@@ -69,7 +69,7 @@ describe("cToken", function () {
 
     it("set RentFoundation contract", async function () {
         console.log("updates RentFoundationcontract by contract owner")
-        let rentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
+        let rentFoundationContract = require("../artifacts/contracts/RentFoundation.sol/RentFoundation.json")
         let mockedRentFoundationContract = await deployMockContract(owner, rentFoundationContract.abi)
         await cToken.setRentFoundation(mockedRentFoundationContract.address)
         expect(await cToken.rentFoundation()).to.equal(mockedRentFoundationContract.address)
@@ -77,7 +77,7 @@ describe("cToken", function () {
 
     it("it is not possible to set RentFoundation contract (not owner contract)", async function () {
         console.log("try to update RentFoundation contract by NOT contract owner")
-        let rentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
+        let rentFoundationContract = require("../artifacts/contracts/RentFoundation.sol/RentFoundation.json")
         let mockedRentFoundationContract = await deployMockContract(owner, rentFoundationContract.abi)
         await expect(cToken.connect(acc1).setRentFoundation(mockedRentFoundationContract.address)).to.be.reverted
 	})
