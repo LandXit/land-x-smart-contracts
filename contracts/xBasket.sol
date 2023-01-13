@@ -118,9 +118,13 @@ contract xBasket is ERC20, IERC4626, Ownable {
         uint256 usdVaultValuation = calculateTVL();
         uint256 circulatingSupply = totalSupply();
         if (circulatingSupply == 0) {
-            shares = assets; // initially 1 xBasket = 0.25 of all 4 xTokens
+            shares = 4 * assets; // initially 1 xBasket = 0.25 of all 4 xTokens
         } else {
-            shares = (assets * circulatingSupply) / usdVaultValuation;
+            uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
+            uint256 xSoyPrice = oraclePrices.getXTokenPrice(xSoy);
+            uint256 xRicePrice = oraclePrices.getXTokenPrice(xRice);
+            uint256 xCornPrice = oraclePrices.getXTokenPrice(xCorn);
+            shares = assets *(xWheatPrice + xSoyPrice + xCornPrice + xRicePrice) * circulatingSupply / usdVaultValuation / 1e6;
         }
         return shares;
     }
@@ -138,9 +142,13 @@ contract xBasket is ERC20, IERC4626, Ownable {
         uint256 usdVaultValuation = calculateTVL();
         uint256 circulatingSupply = totalSupply();
         if (circulatingSupply == 0) {
-            return shares;
+            return shares / 4;
         }
-        uint256 redeemAmount = (shares * usdVaultValuation) / circulatingSupply;
+        uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
+        uint256 xSoyPrice = oraclePrices.getXTokenPrice(xSoy);
+        uint256 xRicePrice = oraclePrices.getXTokenPrice(xRice);
+        uint256 xCornPrice = oraclePrices.getXTokenPrice(xCorn);
+        uint256 redeemAmount =  1e6 * shares * usdVaultValuation / circulatingSupply / (xWheatPrice + xSoyPrice + xRicePrice + xCornPrice);
         return redeemAmount;
     }
 
@@ -427,6 +435,9 @@ contract xBasket is ERC20, IERC4626, Ownable {
     function pricePerToken() public view returns (uint256) {
         uint256 tvl = calculateTVL();
         uint256 circulatingSupply = totalSupply();
+        if (circulatingSupply == 0) {
+            return 0;
+        }
         uint256 xBasketPrice = (tvl * 1e6) / circulatingSupply; // price is usdc (6 decimals) for 1 xBasket
         return xBasketPrice;
     }

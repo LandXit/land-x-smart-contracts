@@ -90,7 +90,7 @@ describe("xBasket", function () {
         await xRICE.mock.availableToClaim.withArgs(xBasket.address).returns(1000000)
     })
 
-   /* it("owner can't renounceOwnership", async function () {
+    it("owner can't renounceOwnership", async function () {
         await expect(xBasket.connect(owner).renounceOwnership()).to.be.revertedWith("can 't renounceOwnership here")
 	})
 
@@ -103,11 +103,11 @@ describe("xBasket", function () {
     }) 
 
     it("convert to shares, total supply 0", async function () {
-        expect(await xBasket.convertToShares(1000000)).to.equal(1000000)
+        expect(await xBasket.convertToShares(1000000)).to.equal(4000000)
     }) 
 
     it("convert to assets, total supply 0", async function () {
-        expect(await xBasket.convertToAssets(1000000)).to.equal(1000000)
+        expect(await xBasket.convertToAssets(1000000)).to.equal(250000)
     }) 
 
     it("deposit, total supply 0", async function () {
@@ -127,7 +127,7 @@ describe("xBasket", function () {
         await xWHEAT.mock.stake.withArgs(assets).returns()
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(4000000)
     }) 
 
     it("deposit, total supply > 0", async function () {
@@ -148,7 +148,7 @@ describe("xBasket", function () {
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1039886)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(7760478)
     }) 
 
     it("deposit, total supply > 0, not enough assets", async function () {
@@ -169,12 +169,12 @@ describe("xBasket", function () {
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
         await expect(xBasket.connect(acc1).deposit(2000000, acc1.address)).to.be.revertedWith("ERC4626: deposit more than max")
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(4000000)
     }) 
 
     it("mint, total supply 0", async function () {
         let assets = 1000000
-        let shares = 1000000
+        let shares = 4000000
         await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
@@ -195,7 +195,7 @@ describe("xBasket", function () {
 
     it("mint, total supply > 0", async function () {
         let assets = 1000000
-        let shares = 39886
+        let shares = 999994
         await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
@@ -212,27 +212,27 @@ describe("xBasket", function () {
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
 
-        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
-        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
-        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
-        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
+        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, 265921).returns()
+        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, 265921).returns()
+        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, 265921).returns()
+        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, 265921).returns()
 
-        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(assets)
-        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(assets)
-        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(assets)
-        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(265922)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(265922)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(265922)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(265922)
 
-        await xCORN.mock.stake.withArgs(999992).returns()
-        await xSOY.mock.stake.withArgs(999992).returns()
-        await xWHEAT.mock.stake.withArgs(999992).returns()
-        await xRICE.mock.stake.withArgs(999992).returns()
+        await xCORN.mock.stake.withArgs(265921).returns()
+        await xSOY.mock.stake.withArgs(265921).returns()
+        await xWHEAT.mock.stake.withArgs(265921).returns()
+        await xRICE.mock.stake.withArgs(265921).returns()
         await xBasket.connect(acc1).mint(shares, acc1.address)
-       expect(await xBasket.balanceOf(acc1.address)).to.equal(shares + 1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(shares + 4000000)
     }) 
 
     it("mint, total supply > 0, not enough fund", async function () {
         let assets = 1000000
-        let shares = 39886
+        let shares = 10000000
         await xCORN.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xSOY.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
@@ -248,23 +248,15 @@ describe("xBasket", function () {
         await xWHEAT.mock.stake.withArgs(assets).returns()
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        
-        await xCORN.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
-        await xSOY.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
-        await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
-        await xRICE.mock.xBasketTransfer.withArgs(acc1.address, 999992).returns()
 
         await xCORN.mock.balanceOf.withArgs(acc1.address).returns(50000)
         await xSOY.mock.balanceOf.withArgs(acc1.address).returns(50000)
         await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(50000)
         await xRICE.mock.balanceOf.withArgs(acc1.address).returns(50000)
 
-        await xCORN.mock.stake.withArgs(999992).returns()
-        await xSOY.mock.stake.withArgs(999992).returns()
-        await xWHEAT.mock.stake.withArgs(999992).returns()
-        await xRICE.mock.stake.withArgs(999992).returns()
         await expect(xBasket.connect(acc1).mint(shares, acc1.address)).to.be.revertedWith("ERC4626: mint more than max")
     }) 
+    
 
     it("withdraw", async function () {
         let assets = 1000000
@@ -283,7 +275,7 @@ describe("xBasket", function () {
         await xWHEAT.mock.stake.withArgs(assets).returns()
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(4000000)
         
         await xCORN.mock.claim.returns()
         await xSOY.mock.claim.returns()
@@ -298,18 +290,22 @@ describe("xBasket", function () {
         await cWHEAT.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
         
         await cSOY.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)  
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
 
         await cRICE.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xRICE.address, 3000, 5000000, 0).returns(30000000)
        
         await cCORN.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
 
         await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
         await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
@@ -331,19 +327,15 @@ describe("xBasket", function () {
         await xWHEAT.mock.transfer.withArgs(acc1.address, 1000000).returns(true)
         await xRICE.mock.transfer.withArgs(acc1.address, 1000000).returns(true)
         await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xRICE.address, 3000, 5000000, 0).returns(30000000)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
-
+        
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, (await time.latest()).toNumber() + 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, (await time.latest()).toNumber() + 15, 5000000, 29126213, 0]).returns(30000000)
-        
-        await expect(xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)).not.to.be.reverted
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(998647)
+        await xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(3872366)
     }) 
+    
 
     it("get xBasket price", async function () {
         let assets = 1000000
@@ -378,7 +370,7 @@ describe("xBasket", function () {
         await xSOY.mock.stake.withArgs(999992).returns()
         await xWHEAT.mock.stake.withArgs(999992).returns()
         await xRICE.mock.stake.withArgs(999992).returns()
-        expect(await xBasket.pricePerToken()).to.equal(25071275)
+        expect(await xBasket.pricePerToken()).to.equal(6267818)
     }) 
 
     it("redeem", async function () {
@@ -388,17 +380,17 @@ describe("xBasket", function () {
         await xWHEAT.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
         await xRICE.mock.xBasketTransfer.withArgs(acc1.address, assets).returns()
 
-        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(1000000)
-        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(1000000)
-        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(1000000)
-        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(1000000)
+        await xCORN.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xSOY.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xWHEAT.mock.balanceOf.withArgs(acc1.address).returns(assets)
+        await xRICE.mock.balanceOf.withArgs(acc1.address).returns(assets)
 
         await xCORN.mock.stake.withArgs(assets).returns()
         await xSOY.mock.stake.withArgs(assets).returns()
         await xWHEAT.mock.stake.withArgs(assets).returns()
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(4000000)
         
         await xCORN.mock.claim.returns()
         await xSOY.mock.claim.returns()
@@ -410,21 +402,27 @@ describe("xBasket", function () {
         await cRICE.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
         await cCORN.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
 
+        await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
+
         await cWHEAT.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
         
         await cSOY.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
-        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)  
+        await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
 
         await cRICE.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xRICE.address, 3000, 5000000, 0).returns(30000000)
        
         await cCORN.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
+        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
 
         await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
         await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
@@ -436,30 +434,23 @@ describe("xBasket", function () {
         await xRICE.mock.stake.withArgs(30000000).returns()
         await xCORN.mock.stake.withArgs(30000000).returns()
        
-        await xWHEAT.mock.unstake.withArgs(738672552).returns()
-        await xCORN.mock.unstake.withArgs(738672552).returns()
-        await xSOY.mock.unstake.withArgs(738672552).returns()
-        await xRICE.mock.unstake.withArgs(738672552).returns()
+        await xWHEAT.mock.unstake.withArgs(7834880).returns()
+        await xCORN.mock.unstake.withArgs(7834880).returns()
+        await xSOY.mock.unstake.withArgs(7834880).returns()
+        await xRICE.mock.unstake.withArgs(7834880).returns()
         
-        await xCORN.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
-        await xSOY.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
-        await xWHEAT.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
-        await xRICE.mock.transfer.withArgs(acc1.address, 738672552).returns(true)
+        await xCORN.mock.transfer.withArgs(acc1.address, 7834880).returns(true)
+        await xSOY.mock.transfer.withArgs(acc1.address, 7834880).returns(true)
+        await xWHEAT.mock.transfer.withArgs(acc1.address, 7834880).returns(true)
+        await xRICE.mock.transfer.withArgs(acc1.address, 7834880).returns(true)
 
-        await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xRICE.address, 3000, 5000000, 0).returns(30000000)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
-
-        let bTime = (await time.latest()).toNumber()
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)  
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xRICE.address, 3000, xBasket.address,  (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
 
         await xBasket.connect(acc1).redeem(1000000, acc1.address, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(0)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(3000000)
     }) 
 
     it("can't redeem, ERC4626: redeem more than max", async function () {
@@ -479,7 +470,7 @@ describe("xBasket", function () {
         await xWHEAT.mock.stake.withArgs(assets).returns()
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(4000000)
         
         await xCORN.mock.claim.returns()
         await xSOY.mock.claim.returns()
@@ -533,7 +524,7 @@ describe("xBasket", function () {
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, bTime + 15, 5000000, 1, 0]).returns(30000000)
 
-        await expect(xBasket.connect(acc1).redeem(2000000, acc1.address, acc1.address)).to.be.revertedWith("ERC4626: redeem more than max")
+        await expect(xBasket.connect(acc1).redeem(5000000, acc1.address, acc1.address)).to.be.revertedWith("ERC4626: redeem more than max")
     }) 
 
     it("get total assets", async function () {
@@ -553,7 +544,7 @@ describe("xBasket", function () {
         await xWHEAT.mock.stake.withArgs(assets).returns()
         await xRICE.mock.stake.withArgs(assets).returns()
         await xBasket.connect(acc1).deposit(1000000, acc1.address)
-        expect(await xBasket.balanceOf(acc1.address)).to.equal(1000000)
+        expect(await xBasket.balanceOf(acc1.address)).to.equal(4000000)
 
         await cWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
         await cSOY.mock.balanceOf.withArgs(xBasket.address).returns(1000000)
@@ -566,5 +557,5 @@ describe("xBasket", function () {
         await xCORN.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
 
         expect(await xBasket.totalAssets()).to.equal(733672552)
-    })*/
+    })
 })
