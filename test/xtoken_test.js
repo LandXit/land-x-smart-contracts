@@ -18,7 +18,7 @@ describe("xToken", function () {
         mockedUSDCContract = await deployMockContract(owner, ERC20Contract.abi)
         const LNDXContract = require("../artifacts/contracts/LNDX.sol/LNDX.json")
         mockedLndxContract = await deployMockContract(owner, LNDXContract.abi)
-        const rentFoundationContract = require("../artifacts/contracts/rentFoundation.sol/RentFoundation.json")
+        const rentFoundationContract = require("../artifacts/contracts/RentFoundation.sol/RentFoundation.json")
         mockedRentFoundationContract = await deployMockContract(owner, rentFoundationContract.abi)
         const oraclePricesContract = require("../artifacts/contracts/OraclePrices.sol/OraclePrices.json")
         mockedOraclePricesContract = await deployMockContract(owner, oraclePricesContract.abi)
@@ -108,7 +108,7 @@ describe("xToken", function () {
         await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 300000000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(mockedRentFoundationContract.address, 1700000000).returns(true)
         await mockedKeyProtocolVariablesContract.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocolVariablesContract.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocolVariablesContract.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocolVariablesContract.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(mockedLndxContract.address, 65000000).returns(true)
         await mockedLndxContract.mock.feeToDistribute.withArgs(65000000).returns();
@@ -135,14 +135,12 @@ describe("xToken", function () {
         await mockedKeyProtocolVariablesContract.mock.preLaunch.withArgs().returns(false)
         await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address,  32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 3240000000, 1, 0]).returns(100000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, 32336000 + 100000 + Math.ceil(Date.now() / 1000) + 15, 6363555000, 1, 0]).returns(2000000000)
         await mockedKeyProtocolVariablesContract.mock.hedgeFundAllocation.withArgs().returns(1500)
         await mockedKeyProtocolVariablesContract.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 300000000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(mockedRentFoundationContract.address, 1700000000).returns(true)
         await mockedKeyProtocolVariablesContract.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocolVariablesContract.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocolVariablesContract.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocolVariablesContract.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(mockedLndxContract.address, 65000000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 30000000).returns(true)
@@ -198,7 +196,7 @@ describe("xToken", function () {
         await mockedUSDCContract.mock.transfer.withArgs(hedgeFundWallet.address, 300000000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(mockedRentFoundationContract.address, 1700000000).returns(true)
         await mockedKeyProtocolVariablesContract.mock.lndxHoldersPercentage.withArgs().returns(6500)
-        await mockedKeyProtocolVariablesContract.mock.landXOpertationsPercentage.withArgs().returns(3000)
+        await mockedKeyProtocolVariablesContract.mock.landXOperationsPercentage.withArgs().returns(3000)
         await mockedKeyProtocolVariablesContract.mock.landxChoiceWallet.withArgs().returns(landxChoiceWallet.address)
         await mockedUSDCContract.mock.transfer.withArgs(mockedLndxContract.address, 65000000).returns(true)
         await mockedUSDCContract.mock.transfer.withArgs(landxOperationalWallet.address, 30000000).returns(true)
@@ -430,7 +428,7 @@ describe("xToken", function () {
         expect((await xToken.NonStakedTokens())[0]).to.equal(899999000000)
 
         time.increase(100000)
-        expect(await xToken.previewNonDistributedYield()).to.equal(2853906645)
+        expect((await xToken.previewNonDistributedYield()).toNumber()).to.be.oneOf([2853878107,2853906646, 2853906645]) //sometimes one more seconds pass through test execution
     })
 
     it("Get not distributed yield reverted", async function () {

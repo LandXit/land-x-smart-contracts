@@ -10,116 +10,39 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
-
-interface ILandxNFT {
-    function tillableArea(uint256 id) external view returns (uint256);
-
-    function cropShare(uint256 id) external view returns (uint256);
-
-    function crop(uint256 id) external view returns (string memory);
-
-    function validatorFee(uint256 id) external view returns (uint256);
-
-    function validator(uint256 id) external view returns (address);
-
-    function initialOwner(uint256 id) external view returns (address);
-
-    function balanceOf(address account, uint256 id)
-        external
-        view
-        returns (uint256);
-
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) external;
-}
-
-interface IXTokenRouter {
-    function getXToken(string memory _name) external view returns (address);
-
-    function getCToken(string memory _name) external view returns (address);
-}
-
-interface IRentFoundation {
-    function initialRentApplied(uint256 tokenID) external view returns (bool);
-    function spentSecurityDeposit(uint256 tokenID) external view returns (bool);
-    function payInitialRent(uint256 tokenID, uint256 amount) external;
-    function payRentBySecurityDeposit(uint256 tokenID, uint256 amount) external; 
-    function buyOutPreview(uint256 tokenID) external view returns(bool, uint256);
-    function buyOut(uint256 tokenID) external returns(uint256);
-}
-
-interface ILNDX {
-    function feeToDistribute(uint256 amount) external;
-}
-
-interface ICToken {
-    function mint(address account, uint256 amount) external;
-}
-
-interface IOraclePrices {
-    function prices(string memory grain) external pure returns (uint256);
-
-    function getXTokenPrice(address xToken) external view returns (uint256);
-}
-
-interface IKeyProtocolValues {
-    function xTokenMintFee() external pure returns (uint256);
-
-    function securityDepositMonths() external pure returns (uint8);
-
-    function xTokensSecurityWallet() external pure returns (address);
-
-    function landxOperationalWallet() external pure returns (address);
-
-    function landxChoiceWallet() external pure returns (address);
-
-    function landXOpertationsPercentage() external pure returns (uint256);
-
-    function landXChoicePercentage() external pure returns (uint256);
-
-    function lndxHoldersPercentage() external pure returns (uint256);
-
-    function hedgeFundAllocation() external pure returns (uint256);
-
-    function hedgeFundWallet() external pure returns (address);
-
-    function preLaunch() external pure returns (bool);
-
-    function sellXTokenSlippage() external pure returns (uint256);
-   
-    function buyXTokenSlippage() external pure returns (uint256);
-    
-}
+import "./interfaces/IKeyProtocolVariables.sol";
+import "./interfaces/ILandXNFT.sol";
+import "./interfaces/IxTokenRouter.sol";
+import "./interfaces/IOraclePrices.sol";
+import "./interfaces/IRentFoundation.sol";
+import "./interfaces/IcToken.sol";
+import "./interfaces/IxToken.sol";
+import "./interfaces/ILNDX.sol";
 
 //xToken NFT in = shards. xToken in = NFT
 //1 xToken = (tillableArea * cropShare) /  10000
-contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
+contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder, IxToken {
+     struct Stake {
+        uint256 amount;
+        uint256 startTime;
+    }
+
     string public crop;
     address public xBasketContract;
     address public lndx;
     address public usdc;
 
-    ILandxNFT public landXNFT; //address of landXNFT
-    IXTokenRouter public xTokenRouter; // address of xTokenRouter
+    ILandXNFT public landXNFT; //address of landXNFT
+    IxTokenRouter public xTokenRouter; // address of xTokenRouter
     IRentFoundation public rentFoundation;
     IOraclePrices public oraclePrices;
-    IKeyProtocolValues public keyProtocolValues;
+    IKeyProtocolVariables public keyProtocolValues;
 
     ISwapRouter public uniswapRouter;
     IQuoter public quoter;
 
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
-
-    struct Stake {
-        uint256 amount;
-        uint256 startTime;
-    }
 
     mapping(address => uint256) public Claimed;
 
@@ -156,13 +79,13 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         require(_rentFoundation != address(0), "zero address is not allowed");
         require(_xTokenRouter != address(0), "zero address is not allowed");
         require(_keyProtocolValues != address(0), "zero address is not allowed");
-        landXNFT = ILandxNFT(_landXNFT);
+        landXNFT = ILandXNFT(_landXNFT);
         crop = _crop;
         lndx = _lndx;
         usdc = _usdc;
         rentFoundation = IRentFoundation(_rentFoundation);
-        xTokenRouter = IXTokenRouter(_xTokenRouter);
-        keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
+        xTokenRouter = IxTokenRouter(_xTokenRouter);
+        keyProtocolValues = IKeyProtocolVariables(_keyProtocolValues);
         oraclePrices = IOraclePrices(_oraclePrices);
         quoter = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
         uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
@@ -213,7 +136,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
         uint256 annualRent = getAnnualRentAmount(_id);
         uint256 xTokensAnnualRent = ((annualRent * oraclePrices.prices(crop)) /
-            oraclePrices.getXTokenPrice(xTokenRouter.getXToken(crop))) * 1e3; // oraclePrices.prices returns price per megatonne, to to get value per KG we multiply by 10 ** 3
+            oraclePrices.getXTokenPrice(address(this))) * 1e3; // oraclePrices.prices returns price per megatonne, to to get value per KG we multiply by 10 ** 3
         uint256 toSecurityDepositsAmount = (xTokensAnnualRent / 12) *
             keyProtocolValues.securityDepositMonths();
 
@@ -230,8 +153,8 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             );
         } else {
             // transfer xTokens to securityDeposit
-            uint256 usdcFee = convertToUsdc(fee);
-            uint256 usdcAnnualRent = convertToUsdc(xTokensAnnualRent);
+            uint256 usdcFee = _convertToUsdc(fee);
+            uint256 usdcAnnualRent = _convertToUsdc(xTokensAnnualRent);
             uint256 toHedgeFund = (usdcAnnualRent *
                 keyProtocolValues.hedgeFundAllocation()) / 10000;
             ERC20(usdc).transfer(
@@ -242,7 +165,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
                 address(rentFoundation),
                 usdcAnnualRent - toHedgeFund
             );
-            feeDistributor(usdcFee);
+            _feeDistributor(usdcFee);
         }
         _transfer(
             address(this),
@@ -259,11 +182,11 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         );
         SecurityDepositedAmount[_id] = toSecurityDepositsAmount;
         rentFoundation.payInitialRent(_id, annualRent);
-        calculateNonDistributedYield();
+        _calculateNonDistributedYield();
         emit Sharded(_id, shards, symbol());
     }
 
-    //returns the NFT after you deposit back the shards. requires allowance!
+    //returns the NFT after if caller has enough xTokens to burn. requires allowance!
     function getTheNFT(uint256 _id) external {
         require(
             initialOwner[_id] == msg.sender,
@@ -280,7 +203,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
         uint256 xTokens = 0;
         if (remainingRentUSDC > 0) {
-            xTokens = convertToXToken(remainingRentUSDC);
+            xTokens = _convertToXToken(remainingRentUSDC);
         }
 
         uint256 shards = landXNFT.tillableArea(_id) *
@@ -296,7 +219,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         
         //burns shards!
         burn(shards - securityDepositedAmount - xTokens);
-        calculateNonDistributedYield();
+        _calculateNonDistributedYield();
 
         //transfer the NFTs
         landXNFT.safeTransferFrom(address(this), msg.sender, _id, 1, "");
@@ -326,14 +249,14 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     function stake(uint256 amount) public {
         _transfer(msg.sender, address(this), amount);
-        uint256 yield = calculateYield(Staked[msg.sender]);
-        TotalYield += calculateTotalYield();
+        uint256 yield = _calculateYield(Staked[msg.sender]);
+        TotalYield += _calculateTotalYield();
         Yield[msg.sender] += yield;
         Staked[msg.sender].startTime = block.timestamp;
         TotalStaked.startTime = block.timestamp;
         TotalStaked.amount += amount;
         Staked[msg.sender].amount += amount;
-        calculateNonDistributedYield();
+        _calculateNonDistributedYield();
         emit TokenStaked(msg.sender, amount);
     }
 
@@ -343,18 +266,18 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         claim();
         Staked[msg.sender].amount -= amount;
         TotalStaked.amount -= amount;
-        calculateNonDistributedYield();
+        _calculateNonDistributedYield();
         emit Unstaked(msg.sender, amount);
     }
 
     function claim() public {
         address cToken = xTokenRouter.getCToken(crop);
-        uint256 yield = calculateYield(Staked[msg.sender]);
+        uint256 yield = _calculateYield(Staked[msg.sender]);
         TotalYield =
             TotalYield +
-            calculateTotalYield() -
+            _calculateTotalYield() -
             (Yield[msg.sender] + yield);
-        ICToken(cToken).mint(msg.sender, (Yield[msg.sender] + yield));
+        IcToken(cToken).mint(msg.sender, (Yield[msg.sender] + yield));
         Claimed[msg.sender] += (Yield[msg.sender] + yield);
         Staked[msg.sender].startTime = block.timestamp;
         TotalStaked.startTime = block.timestamp;
@@ -362,11 +285,11 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         emit YieldClaimed(msg.sender, yield);
     }
 
-    function feeDistributor(uint256 _fee) internal {
+    function _feeDistributor(uint256 _fee) internal {
         uint256 lndxFee = (_fee * keyProtocolValues.lndxHoldersPercentage()) /
             10000;
         uint256 operationalFee = (_fee *
-            keyProtocolValues.landXOpertationsPercentage()) / 10000;
+            keyProtocolValues.landXOperationsPercentage()) / 10000;
         ERC20(usdc).transfer(lndx, lndxFee);
         ILNDX(lndx).feeToDistribute(lndxFee);
         ERC20(usdc).transfer(
@@ -380,21 +303,21 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     }
 
     function availableToClaim(address account) public view returns (uint256) {
-        return Yield[account] + calculateYield(Staked[account]);
+        return Yield[account] + _calculateYield(Staked[account]);
     }
 
     function totalAvailableToClaim() public view returns (uint256) {
-        return TotalYield + calculateTotalYield();
+        return TotalYield + _calculateTotalYield();
     }
 
     // calculate cTokanes amount generated since amount was staked
-    function calculateYield(Stake storage s) internal view returns (uint256) {
+    function _calculateYield(Stake storage s) internal view returns (uint256) {
         uint256 elapsedSeconds = block.timestamp - s.startTime;
         uint256 delimeter = 365 * 1 days;
         return (s.amount * elapsedSeconds) / delimeter;
     }
 
-    function calculateTotalYield() internal view returns (uint256) {
+    function _calculateTotalYield() internal view returns (uint256) {
         uint256 elapsedSeconds = block.timestamp - TotalStaked.startTime;
         uint256 delimeter = 365 * 1 days;
         return (TotalStaked.amount * elapsedSeconds) / delimeter;
@@ -429,7 +352,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     function setXTokenRouter(address _router) public onlyOwner {
         require(_router != address(0), "zero address is not allowed");
-        xTokenRouter = IXTokenRouter(_router);
+        xTokenRouter = IxTokenRouter(_router);
     }
 
     // return annual rent amount in kg
@@ -449,7 +372,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         return amountOut;
     }
 
-    function convertToXToken(uint256 amount) internal returns (uint256) {
+    function _convertToXToken(uint256 amount) internal returns (uint256) {
         uint256 slippage =  keyProtocolValues.buyXTokenSlippage();
         uint256 predictedAmountOut = quoter.quoteExactInputSingle(usdc, address(this), 3000, amount, 0);
         uint256 minAmountOut = predictedAmountOut * 10000 / (10000 + slippage);
@@ -470,7 +393,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         return uniswapRouter.exactInputSingle(params);
     }
 
-    function convertToUsdc(uint256 amount) internal returns (uint256) {
+    function _convertToUsdc(uint256 amount) internal returns (uint256) {
         uint256 slippage =  keyProtocolValues.sellXTokenSlippage();
         uint256 predictedAmountOut = quoteAmountOut(amount);
         uint256 minAmountOut = predictedAmountOut * 10000 / (10000 + slippage);
@@ -538,7 +461,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         );
     }
 
-    function calculateNonDistributedYield() internal {
+    function _calculateNonDistributedYield() internal {
         uint256 elapsedSeconds = block.timestamp - NonStakedTokens.startTime;
         uint256 delimeter = 365 * 1 days;
         NonDistributedYield += NonStakedTokens.amount * elapsedSeconds / delimeter;
@@ -555,7 +478,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     // returns cTokens amount
     function getNonDistributedYield() external returns(uint256) {
         require(msg.sender == address(rentFoundation), "only rentFoundation can take it");
-        calculateNonDistributedYield();
+        _calculateNonDistributedYield();
         uint256 amount = NonDistributedYield;
         NonDistributedYield = 0;
         return amount;

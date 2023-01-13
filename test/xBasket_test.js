@@ -332,6 +332,7 @@ describe("xBasket", function () {
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xWHEAT.address, 3000, xBasket.address, (await time.latest()).toNumber()+ 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xSOY.address, 3000, xBasket.address, (await time.latest()).toNumber() + 15, 5000000, 29126213, 0]).returns(30000000)
         await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xCORN.address, 3000, xBasket.address, (await time.latest()).toNumber() + 15, 5000000, 29126213, 0]).returns(30000000)
+
         await xBasket.connect(acc1).withdraw(1000000, acc1.address, acc1.address)
         expect(await xBasket.balanceOf(acc1.address)).to.equal(3872366)
     }) 

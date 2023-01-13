@@ -4,26 +4,19 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-
-interface IXTOKENROUTER {
-    function getXToken(string memory _name) external view returns (address);
-}
-
-interface IKeyProtocolValues {
-    function maxValidatorFee() external pure returns (uint256);
-}
+import "./interfaces/IKeyProtocolVariables.sol";
+import "./interfaces/IxTokenRouter.sol";
 
 contract LandXNFT is ERC1155, Ownable, AccessControl {
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
-    IXTOKENROUTER public xTokenRouter;
-    IKeyProtocolValues public keyProtocolValues;
+    IxTokenRouter public xTokenRouter;
+    IKeyProtocolVariables public keyProtocolValues;
 
     // other parameters
     string private _baseTokenURI =
         "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/";
 
-    mapping(uint256 => uint256) public totalSupply;
     mapping(uint256 => uint256) public landArea; // total area in square-meters
     mapping(uint256 => uint256) public tillableArea; // tillable area in square-meters
     mapping(uint256 => uint256) public cropShare; //crop share
@@ -37,8 +30,8 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
     constructor(address _xTokenRouter, address _keyProtocolValues, string memory _uri)
         ERC1155(_baseTokenURI)
     {
-        xTokenRouter = IXTOKENROUTER(_xTokenRouter);
-        keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
+        xTokenRouter = IxTokenRouter(_xTokenRouter);
+        keyProtocolValues = IKeyProtocolVariables(_keyProtocolValues);
         _baseTokenURI = _uri;
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(MINTER_ROLE, msg.sender);
@@ -57,7 +50,7 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
         address _to,
         string memory _uri
     ) public onlyRole(MINTER_ROLE) {
-        require(totalSupply[_index] == 0, "tokenID already minted");
+        require(initialOwner[_index] == address(0), "tokenID already minted");
         require(
             xTokenRouter.getXToken(_crop) != address(0),
             "xToken is not defined"
@@ -69,11 +62,10 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
         crop[_index] = _crop;
         validator[_index] = _validator;
         lienAgreementHash[_index] = _lienAgreementHash;
-        totalSupply[_index] = totalSupply[_index] + 1;
         initialOwner[_index] = _to;
         validatorFee[_index] = _validatorFee;
         metadataUri[_index] = _uri;
-        _mint(_to, _index, 1, "0x0000");
+        _mint(_to, _index, 1, "");
     }
 
     //burns one token
@@ -87,7 +79,7 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
             "ERC1155: caller is not owner nor approved"
         );
         _burn(account, id, value);
-        totalSupply[id] = totalSupply[id] - 1;
+        initialOwner[id] = address(0);
     }
 
     function setBaseURI(string memory newuri) public onlyOwner {
@@ -101,7 +93,7 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
 
     function setXTokenRouter(address _router) public onlyOwner {
         require(_router != address(0), "zero address is not allowed");
-        xTokenRouter = IXTOKENROUTER(_router);
+        xTokenRouter = IxTokenRouter(_router);
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {

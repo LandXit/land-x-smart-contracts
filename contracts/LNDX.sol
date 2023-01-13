@@ -1,34 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./interfaces/IveLNDX.sol";
+import "./interfaces/ILNDX.sol";
 
-interface IveLNDX {
-    function mint(address account, uint256 amount) external;
-
-    function burn(address account, uint256 amount) external;
-}
-
-contract LNDX is ERC20, Ownable, AccessControl {
-    bytes32 public constant FEE_DISTRIBUTOR = keccak256("FEE_DISTRIBUTOR");
-
-    uint256 public constant MAX_MINTABLE_AMOUNT = 80000000000000;
-    uint256 public constant MAX_REWARD_AMOUNT = 15600000000000;
-    uint256 public totalGranted = 0;
-
-    address usdc;
-    address veLNDX;
-
+contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
     enum StakePeriods {
         MONTHS_3,
         MONTHS_12,
         MONTHS_48
     }
-
-    mapping(StakePeriods => uint8) public coefficients;
 
     struct Grant {
         uint256 createdTime;
@@ -50,16 +35,28 @@ contract LNDX is ERC20, Ownable, AccessControl {
         bool unstaked;
     }
 
+    struct RewardVesting {
+        uint256 amountVested;
+        uint256 vestingStartedAt;
+        uint256 lastVestedAt;
+        uint256 daysClaimed;
+    }
+
+    bytes32 public constant FEE_DISTRIBUTOR = keccak256("FEE_DISTRIBUTOR");
+
+    uint256 public constant MAX_MINTABLE_AMOUNT = 80000000000000;
+    uint256 public constant MAX_REWARD_AMOUNT = 15600000000000;
+    uint256 public totalGranted = 0;
+
+    address usdc;
+    address veLNDX;
+   
+    mapping(StakePeriods => uint8) public coefficients;
+
     mapping(uint256 => Stake) public stakes;
-    uint256 public stakesCount = 0;
+    uint256 public stakesCount;
 
     mapping(address => Grant) public grants;
-
-    event GrantAdded(address recipient, uint256 amount, uint256 cliffEndAt, uint256 vestingEndAt);
-    event GrantTokensClaimed(address recipient, uint256 amountClaimed);
-
-    event Staked(address user, uint256 amount, uint256 stakeId, uint256 endAt);
-    event Unstaked(address user, uint256 amount, uint256 stakeId);
 
     mapping(address => uint256) public feePerGrant;
     mapping(address => uint256) public rewardsPerGrant;
@@ -81,14 +78,13 @@ contract LNDX is ERC20, Ownable, AccessControl {
 
     uint16 public rewardVestingDuration; // reward vesting duration in days;
 
-    struct RewardVesting {
-        uint256 amountVested;
-        uint256 vestingStartedAt;
-        uint256 lastVestedAt;
-        uint256 daysClaimed;
-    }
-
     RewardVesting public rewardVested;
+
+    event GrantAdded(address recipient, uint256 amount, uint256 cliffEndAt, uint256 vestingEndAt);
+    event GrantTokensClaimed(address recipient, uint256 amountClaimed);
+
+    event Staked(address user, uint256 amount, uint256 stakeId, uint256 endAt);
+    event Unstaked(address user, uint256 amount, uint256 stakeId);
 
     constructor(
         address _usdc,
@@ -120,7 +116,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         uint256 cliffInMonths,
         uint256 vestingDurationInMonths
     ) external onlyOwner {
-        rewardsToDistribute();
+        _rewardsToDistribute();
         require(
             (totalGranted + amount) <= (MAX_MINTABLE_AMOUNT - MAX_REWARD_AMOUNT),
             "Mint limit amount exceeded"
@@ -136,12 +132,14 @@ contract LNDX is ERC20, Ownable, AccessControl {
         require(vestingDurationInMonths <= 60, "duration greater than 5 years");
         uint256 totalPeriod = cliffInMonths + vestingDurationInMonths;
 
-        uint8 coefficient = coefficients[StakePeriods.MONTHS_3];
-        if (totalPeriod >= 12 && totalPeriod < 48) {
-            coefficient = coefficients[StakePeriods.MONTHS_12];
-        }
+        uint8 coefficient;
         if (totalPeriod >= 48) {
             coefficient = coefficients[StakePeriods.MONTHS_48];
+        }
+        else if (totalPeriod >= 12) {
+            coefficient = coefficients[StakePeriods.MONTHS_12];
+        } else {
+            coefficient = coefficients[StakePeriods.MONTHS_3];
         }
 
         _mint(address(this), amount);
@@ -178,7 +176,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         uint256 amountVested;
         (daysVested, amountVested) = calculateGrantClaim(msg.sender);
         require(amountVested > 0, "wait one day or vested is 0");
-        rewardsToDistribute();
+        _rewardsToDistribute();
         Grant storage grant = grants[msg.sender];
         grant.daysClaimed += daysVested;
         grant.totalClaimed += amountVested;
@@ -225,7 +223,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
             feePerGrant[recipient];
     }
 
-    function rewardsToDistribute() internal {
+    function _rewardsToDistribute() internal {
       if (rewardVested.amountVested >= MAX_REWARD_AMOUNT) {
             return;
         }
@@ -313,12 +311,12 @@ contract LNDX is ERC20, Ownable, AccessControl {
         _transfer(msg.sender, address(this), amount);
         uint256 mintAmount = (amount * coefficients[period]) / 100; //veLNDX amount to mint
         IveLNDX(veLNDX).mint(msg.sender, mintAmount);
-        rewardsToDistribute();
+        _rewardsToDistribute();
         Stake memory stake = Stake({
             staker: msg.sender,
             amount: amount,
             startTime: block.timestamp,
-            endTime: calculateEndDate(period),
+            endTime: _calculateEndDate(period),
             unstaked: false,
             veLndxClaimed: mintAmount
         });
@@ -345,7 +343,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
         totalStaked -= s.amount;
         staked[msg.sender] -= s.amount;
 
-        rewardsToDistribute();
+        _rewardsToDistribute();
 
         uint256 rewards = computeStakeReward(stakeID);
         uint256 fee = computeStakeFee(stakeID);
@@ -442,7 +440,7 @@ contract LNDX is ERC20, Ownable, AccessControl {
             feePerStake[stakeID];
     }
 
-    function calculateEndDate(StakePeriods period)
+    function _calculateEndDate(StakePeriods period)
         internal
         view
         returns (uint256)

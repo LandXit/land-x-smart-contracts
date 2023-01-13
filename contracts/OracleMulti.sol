@@ -15,10 +15,11 @@ interface OraclePrices {
 
 contract OracleMulti is ChainlinkClient, ConfirmedOwner {
     using Chainlink for Chainlink.Request;
-    bytes32 private jobId = 'ca98366cc7314957b8c012c72f05aeeb';
-    uint256 private fee = (1 * LINK_DIVISIBILITY) / 10; // 0.1 LINK
+    bytes32 private constant jobId = 'ca98366cc7314957b8c012c72f05aeeb';
+    uint256 private constant fee = (1 * LINK_DIVISIBILITY) / 10; // 0.1 LINK
     int256 private constant timesAmount = 1;
-    OraclePrices private oraclePrices = OraclePrices(0xf2eCe499109B46f36DaefDD8351F85AC7b116107);
+    string private constant uri = 'https://api-testnet.landx.fi/api/public/commodities';
+    OraclePrices private oraclePrices;
  
     uint256 public wheat;
     uint256 public soy;
@@ -28,9 +29,13 @@ contract OracleMulti is ChainlinkClient, ConfirmedOwner {
     event PriceSet(uint256 price, string name);
     event FailedPriceSet(uint256 price, string name);
     
-    constructor() ConfirmedOwner(msg.sender) {
-        setChainlinkToken(0x326C977E6efc84E512bB9C30f76E30c160eD06FB);
-        setChainlinkOracle(0xCC79157eb46F5624204f47AB42b3906cAA40eaB7);
+    constructor(address _oraclePrices, address _chainlinkToken, address _chainlinkOracle) ConfirmedOwner(msg.sender) {
+        require(_oraclePrices != address(0), "zero address is not allowed");
+        require(_chainlinkToken != address(0), "zero address is not allowed");
+        require(_chainlinkOracle != address(0), "zero address is not allowed");
+        oraclePrices = OraclePrices(_oraclePrices);
+        setChainlinkToken(_chainlinkToken);
+        setChainlinkOracle(_chainlinkOracle);
     }
 
     function requestAll() external {
@@ -40,34 +45,26 @@ contract OracleMulti is ChainlinkClient, ConfirmedOwner {
         requestCorn();
     }
 
+    function _request(string memory path, bytes4 selector) internal {
+        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), selector);
+        req.add('get', uri);
+        req.add('path', path);
+        req.addInt('times', timesAmount);
+        sendChainlinkRequest(req, fee);
+    }
+
     /* Chainlink Request Functions */
     function requestWheat() public {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillWheat.selector);
-        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities');
-        req.add('path', 'WHEAT');
-        req.addInt('times', timesAmount);
-        sendChainlinkRequest(req, fee);
+        _request('WHEAT', this.fulfillWheat.selector);
     }
     function requestSoy() public {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillSoy.selector);
-        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities');
-        req.add('path', 'SOY');
-        req.addInt('times', timesAmount);
-        sendChainlinkRequest(req, fee);
+        _request('SOY', this.fulfillSoy.selector);
     }
     function requestRice() public {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillRice.selector);
-        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities');
-        req.add('path', 'RICE');
-        req.addInt('times', timesAmount);
-        sendChainlinkRequest(req, fee);
+        _request('RICE', this.fulfillRice.selector);
     }
     function requestCorn() public {
-        Chainlink.Request memory req = buildChainlinkRequest(jobId, address(this), this.fulfillCorn.selector);
-        req.add('get', 'https://api-testnet.landx.fi/api/public/commodities');
-        req.add('path', 'CORN');
-        req.addInt('times', timesAmount);
-        sendChainlinkRequest(req, fee);
+        _request('CORN',  this.fulfillCorn.selector);
     }
 
     /* Chainlink Fulfill Functions */

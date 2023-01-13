@@ -1,9 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/IKeyProtocolVariables.sol";
 
-contract KeyProtocolVariables is Ownable {
+contract KeyProtocolVariables is IKeyProtocolVariables {
     address public dao;
 
     bool public preLaunch = true;
@@ -22,7 +22,7 @@ contract KeyProtocolVariables is Ownable {
     uint256 public hedgeFundAllocation = 1500; //15%
     uint8 public securityDepositMonths = 12; // 12 months
 
-    uint256 public landXOpertationsPercentage = 3000;
+    uint256 public landXOperationsPercentage = 3000;
     uint256 public landXChoicePercentage = 500;
     uint256 public lndxHoldersPercentage = 6500;
 
@@ -119,11 +119,11 @@ contract KeyProtocolVariables is Ownable {
             "inconsistent values"
         );
         lndxHoldersPercentage = _lndxHoldersPercentage;
-        landXOpertationsPercentage = _landxOperationPercentage;
+        landXOperationsPercentage = _landxOperationPercentage;
         landXChoicePercentage =
             10000 -
             lndxHoldersPercentage -
-            landXOpertationsPercentage;
+            landXOperationsPercentage;
     }
 
     function updateHedgeFundWallet(address _wallet) public {
@@ -159,9 +159,5 @@ contract KeyProtocolVariables is Ownable {
     function launch() public {
         require(msg.sender == dao, "only dao can change value");
         preLaunch = false;
-    }
-
-    function renounceOwnership() public view override onlyOwner {
-        revert ("can 't renounceOwnership here");
     }
 }

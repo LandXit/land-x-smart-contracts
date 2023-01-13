@@ -1,68 +1,46 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.16;
 
-import "@openzeppelin/contracts/utils/Context.sol";
+
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Factory.sol";
+import "@uniswap/v3-core/contracts/interfaces/IUniswapV3Pool.sol";
+import "./interfaces/IKeyProtocolVariables.sol";
+import "./interfaces/IOraclePrices.sol";
 
-interface IUniswapV3Factory {
-    function getPool(
-        address tokenA,
-        address tokenB,
-        uint24 fee
-    ) external view returns (address pool);
-}
-
-interface IUniswapPool {
-    function slot0()
-        external
-        view
-        returns (
-            uint160,
-            int24,
-            uint16,
-            uint16,
-            uint16,
-            uint8,
-            bool
-        );
-
-    function token0() external view returns (address);
-}
-
-interface IKeyProtocolValues {
-    function preLaunch() external pure returns (bool);
-}
-
-contract OraclePrices is Context, AccessControlEnumerable {
+contract OraclePrices is IOraclePrices, Context, AccessControlEnumerable {
     bytes32 public constant PRICE_SETTER_ROLE = keccak256("PRICE_SETTER_ROLE");
 
     mapping(string => uint256) public prices; ///["SOY" = 560000, ...]
 
     mapping(address => uint256) internal xTokenPrices;
 
-    IKeyProtocolValues public keyProtocolValues;
+    IKeyProtocolVariables public keyProtocolValues;
 
     IUniswapV3Factory public uniswapFactory;
-    address public usdc = address(0x78d581B48275DD87179D578c42F246B7263fA6da); // to be changed for mainnet
+    address public immutable usdc; 
 
     constructor(
-        address _address,
+        address _admin,
         address _keyProtocolValue,
-        address _uniswapFactory
+        address _uniswapFactory,
+        address _usdc
     ) {
-        require(_address != address(0), "zero address is not allowed");
+        require(_admin != address(0), "zero address is not allowed");
         require(_keyProtocolValue != address(0), "zero address is not allowed");
         require(_uniswapFactory != address(0), "zero address is not allowed");
-        _setupRole(DEFAULT_ADMIN_ROLE, _address);
+        _setupRole(DEFAULT_ADMIN_ROLE, _admin);
 
         prices["SOY"] = 543072881;
         prices["WHEAT"] = 315324900;
         prices["RICE"] = 350771520;
         prices["CORN"] = 257086614;
 
-        keyProtocolValues = IKeyProtocolValues(_keyProtocolValue);
+        keyProtocolValues = IKeyProtocolVariables(_keyProtocolValue);
         uniswapFactory = IUniswapV3Factory(_uniswapFactory);
+        usdc = _usdc;
     }
 
     function setGrainPrice(string memory grain, uint256 price) public {
@@ -88,10 +66,10 @@ contract OraclePrices is Context, AccessControlEnumerable {
             revert("Pool not found");
         }
 
-        address poolToken0 = IUniswapPool(pool).token0();
+        address poolToken0 = IUniswapV3Pool(pool).token0();
         uint160 sqrtPriceX96;
 
-        (sqrtPriceX96, , , , , , ) = IUniswapPool(pool).slot0();
+        (sqrtPriceX96, , , , , , ) = IUniswapV3Pool(pool).slot0();
         if (poolToken0 == usdc) {
             return
                 1e12 /

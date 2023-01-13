@@ -4,10 +4,11 @@ pragma solidity 0.8.16;
 //Service Contract for getting xToken/xBasket/cToken Contract
 //Before using should be initialized by contract owner
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./interfaces/IxTokenRouter.sol";
 
-contract xTokenRouter is Ownable {
+contract xTokenRouter is IxTokenRouter, Ownable {
     struct Token {
         address xToken;
         address cToken;
