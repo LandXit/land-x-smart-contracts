@@ -32,7 +32,7 @@ module.exports = {
 			url: "http://127.0.0.1:7545",
 			blockGasLimit: 10000000,
 		},
-		goerli: {
+	/*	goerli: {
 			url: process.env.GOERLI_RPC,
 			network_id: 5,
 			gas: 1500000,
@@ -40,7 +40,7 @@ module.exports = {
 			timeout: 15000,
 			accounts: [process.env.PRIVATE_KEY_GOERLI],
 	},
-	/*	mainnet: {
+	mainnet: {
 			url: process.env.MAINNET_RPC,
 			gas: 1500000,
 			gasPrice: 87000000000, //87 gwei
