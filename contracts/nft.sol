@@ -4,7 +4,6 @@ pragma solidity 0.8.16;
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/utils/Strings.sol";
 
 interface IXTOKENROUTER {
     function getXToken(string memory _name) external view returns (address);
@@ -15,7 +14,6 @@ interface IKeyProtocolValues {
 }
 
 contract LandXNFT is ERC1155, Ownable, AccessControl {
-    using Strings for string;
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     IXTOKENROUTER public xTokenRouter;
@@ -98,7 +96,7 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
     }
 
     function uri(uint256 tokenId) public view override returns (string memory) {
-        return string(abi.encodePacked(_baseTokenURI, uint2str(tokenId)));
+        return string(abi.encodePacked(_baseTokenURI, metadataUri[tokenId]));
     }
 
     function setXTokenRouter(address _router) public onlyOwner {
@@ -108,35 +106,5 @@ contract LandXNFT is ERC1155, Ownable, AccessControl {
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155, AccessControl) returns (bool) {
         return super.supportsInterface(interfaceId);
-    }
-
-    //**
-    // ------------ OTHER NON IMPORTANT THINGS ------------
-    //**
-
-    function uint2str(uint256 _i)
-        internal
-        pure
-        returns (string memory _uintAsString)
-    {
-        if (_i == 0) {
-            return "0";
-        }
-        uint256 j = _i;
-        uint256 len;
-        while (j != 0) {
-            len++;
-            j /= 10;
-        }
-        bytes memory bstr = new bytes(len);
-        uint256 k = len;
-        while (_i != 0) {
-            k = k - 1;
-            uint8 temp = (48 + uint8(_i - (_i / 10) * 10));
-            bytes1 b1 = bytes1(temp);
-            bstr[k] = b1;
-            _i /= 10;
-        }
-        return string(bstr);
     }
 }
