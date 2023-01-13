@@ -148,7 +148,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         address _xTokenRouter,
         address _keyProtocolValues,
         address _oraclePrices,
-        string memory _crop// "SOY, CORN etc"
+        string memory _crop// "SOY, CORN etc",
     ) ERC20Permit(string(abi.encodePacked("x", _crop))) ERC20("LandX xToken", string(abi.encodePacked("x", _crop))) {
         require(_landXNFT != address(0), "zero address is not allowed");
         require(_lndx != address(0), "zero address is not allowed");
@@ -203,9 +203,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         //transfers the nft. must have setApprovalForAll
         landXNFT.safeTransferFrom(msg.sender, address(this), _id, 1, "");
 
-        uint256 shards = (landXNFT.tillableArea(_id) *
+        uint256 shards = landXNFT.tillableArea(_id) *
             (landXNFT.cropShare(_id)) *
-            (10**uint256(6))) / 10000; // xTokens has 6 decimal
+            (1e6) / 10000; // xTokens has 6 decimal
         _mint(address(this), shards);
 
         uint256 fee = _calcFee(shards);
@@ -283,12 +283,15 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             xTokens = convertToXToken(remainingRentUSDC);
         }
 
-        uint256 shards = (landXNFT.tillableArea(_id) *
+        uint256 shards = landXNFT.tillableArea(_id) *
             landXNFT.cropShare(_id) *
-            (10**uint256(6))) / 10000; // xToken has 6 decimals
+            1e6 / 10000; // xToken has 6 decimals
 
         //approval required for xTokensSecurityWalle
-        _burn(keyProtocolValues.xTokensSecurityWallet(), securityDepositedAmount);
+        if (securityDepositedAmount > 0) {
+            _burn(keyProtocolValues.xTokensSecurityWallet(), securityDepositedAmount);
+        }
+        
         _burn(address(this), xTokens);
         
         //burns shards!
@@ -313,9 +316,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
         uint256 xTokens = remainingRentUSDC * 1e6 / oraclePrices.getXTokenPrice(address(this)); //xToken has 6 decimals
 
-        uint256 shards = (landXNFT.tillableArea(_id) *
+        uint256 shards = landXNFT.tillableArea(_id) *
             landXNFT.cropShare(_id) *
-            (10**uint256(6))) / 10000; // xToken has 6 decimals
+            1e6 / 10000; // xToken has 6 decimals
 
         return (shards - securityDepositedAmount - xTokens);
     }
@@ -560,6 +563,12 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
+    }
+
+    // for test only purposes
+    function updateUniswapContracts(address _quoter, address _uniswapRouter) public onlyOwner {
+        quoter = IQuoter(_quoter);
+        uniswapRouter = ISwapRouter(_uniswapRouter);
     }
 
     function decimals() public pure override returns (uint8) {
