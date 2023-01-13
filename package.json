@@ -52,7 +52,7 @@
 		"@openzeppelin/test-helpers": "^0.5.10",
 		"chai": "^4.3.4",
 		"dotenv": "^8.2.0",
-		"ethereum-waffle": "^3.3.0",
+		"ethereum-waffle": "^3.4.4",
 		"ethers": "^5.0.32",
 		"hardhat": "^2.1.2",
 		"hardhat-gas-reporter": "^1.0.4",

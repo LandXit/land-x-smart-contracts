@@ -28,7 +28,7 @@ describe("LNDX", function () {
 
     })
 
-   /* it("Grant LNDX with cliff=0 and vesting=0", async function () {
+    it("Grant LNDX with cliff=0 and vesting=0", async function () {
         await LNDX.grantLNDX(acc1.address, 100000000, 0, 0)
         expect(await LNDX.balanceOf(acc1.address)).to.equal(100000000)
         expect(await veLNDX.balanceOf(acc1.address)).to.equal(0)
@@ -178,7 +178,6 @@ describe("LNDX", function () {
 
         expect(await LNDX.balanceOf(LNDX.address)).to.equal(100000000 * 3  + 15600000000000)
     })
-    */
 
     it("impossible claim when cliff is not over", async function () {
         await LNDX.grantLNDX(acc1.address, 100000000, 12, 36)
@@ -372,17 +371,14 @@ describe("LNDX", function () {
         expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
         expect((await LNDX.unstakePreview(1))[1]).to.equal(0)
         expect((await LNDX.unstakePreview(1))[2]).to.equal(0)
-        console.log((await LNDX.rewardSharesPerToken()).toNumber());
-        console.log((await LNDX.rewardsPerStake(1)).toNumber());
- 
+       
         time.increase(259200)
         await LNDX.connect(acc1).stakeLNDX(10000000, 1)
         expect(await veLNDX.balanceOf(acc1.address)).to.equal(7500000)
         expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
         expect((await LNDX.unstakePreview(1))[1]).to.equal(0)
         expect((await LNDX.unstakePreview(1))[2]).to.equal(8547945205)
-        console.log((await LNDX.rewardSharesPerToken()).toNumber());
-        console.log((await LNDX.rewardsPerStake(1)).toNumber());
+        
 
         await usdc.mint(feeDistributor.address, 10000000)
         await usdc.connect(feeDistributor).transfer(LNDX.address, 10000000)
@@ -391,14 +387,11 @@ describe("LNDX", function () {
         time.increase(259200)
         await LNDX.connect(acc1).stakeLNDX(10000000, 2)
         expect(await veLNDX.balanceOf(acc1.address)).to.equal(17500000)
-        console.log((await LNDX.rewardSharesPerToken()).toNumber());
-        console.log((await LNDX.rewardsPerStake(2)).toNumber());
  
         time.increase(7257600)
         expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
         expect((await LNDX.unstakePreview(1))[1]).to.equal(3333332)
         expect((await LNDX.unstakePreview(1))[2]).to.equal(114786692752)
-        console.log((await LNDX.rewardSharesPerToken()).toNumber());
      })
 
      it("Unstake Preview", async function () {

@@ -21,7 +21,7 @@ describe("cToken", function () {
 		await cToken.deployed()
 	})
 
-   /* it("check symbol value", async function () {
+    it("check symbol value", async function () {
         expect(await cToken.symbol()).to.equal("cCORN")
 	})
 
@@ -111,5 +111,5 @@ describe("cToken", function () {
         await mockedRentFoundationContract.mock.sellCToken.withArgs(acc1.address, 2000000).reverted
         await expect(cToken.connect(acc1).burn(2000000)).to.be.reverted
         expect(await cToken.balanceOf(acc1.address)).to.equal(1000000)
-	})*/
+	})
 })
