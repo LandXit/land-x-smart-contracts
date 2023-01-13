@@ -32,9 +32,10 @@ async function main() {
 		"ETH"
 	)
 
-	let xTokenRouter = "0x9c325E1eef04A15ceBcd80db864Fc7CE88642d9C"
+	let xTokenRouter = "0x50E5867D42f876ED75628940684ad510e9f40a5B"
+	let kv = "0x9363e1392706C8D17DF6926b10E1Fe2F25E6073a"
 	let uri = "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/"
-	const deployed = await LandXNFTContract.deploy(xTokenRouter, uri)
+	const deployed = await LandXNFTContract.deploy(xTokenRouter, kv, uri)
 
 	let dep = await deployed.deployed()
 
@@ -43,7 +44,7 @@ async function main() {
 	await sleep(70000) //30 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [xTokenRouter, uri],
+		constructorArguments: [xTokenRouter, kv, uri],
 	})
 }
 

@@ -19,15 +19,15 @@ describe("Oracle Prices", function () {
 		let oraclePricesContract = await ethers.getContractFactory("contracts/OraclePrices.sol:OraclePrices")
 		oraclePrices = await oraclePricesContract.deploy(
 			owner.address, 
-			mockedXTokenContract.address, 
-			mockedXTokenContract.address, 
-			mockedXTokenContract.address, 
-			mockedXTokenContract.address, 
 			mockedKeyProtocalValues.address,
             mockedUniswapV3FactoryContract.address
 		)
 		await oraclePrices.deployed()
         await oraclePrices.grantRole("0x04824fcb60e7cc526d70b264caa65b62ed44d9c8e5d230e8ff6b0c7373843b8a", acc1.address)
+        await oraclePrices.connect(acc1).setXTokenPrice(mockedXTokenContract.address, 5000000)
+        await oraclePrices.connect(acc1).setXTokenPrice(mockedXTokenContract.address, 4430000)
+        await oraclePrices.connect(acc1).setXTokenPrice(mockedXTokenContract.address, 8140000)
+        await oraclePrices.connect(acc1).setXTokenPrice(mockedXTokenContract.address, 6000000)
     })
 
     it("setGrainPrice works ", async function () {

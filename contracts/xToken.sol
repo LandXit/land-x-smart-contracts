@@ -18,6 +18,10 @@ interface ILandxNFT {
 
     function crop(uint256 id) external view returns (string memory);
 
+    function validatorFee(uint256 id) external view returns (uint256);
+
+    function validator(uint256 id) external view returns (address);
+
     function initialOwner(uint256 id) external view returns (address);
 
     function balanceOf(address account, uint256 id)
@@ -143,10 +147,8 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         address _rentFoundation,
         address _xTokenRouter,
         address _keyProtocolValues,
-        address _uniswapRouter,
-        address _quoter,
         address _oraclePrices,
-        string memory _crop// "SOY, CORN etc"
+        string memory _crop// "SOY, CORN etc",
     ) ERC20Permit(string(abi.encodePacked("x", _crop))) ERC20("LandX xToken", string(abi.encodePacked("x", _crop))) {
         require(_landXNFT != address(0), "zero address is not allowed");
         require(_lndx != address(0), "zero address is not allowed");
@@ -154,8 +156,6 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         require(_rentFoundation != address(0), "zero address is not allowed");
         require(_xTokenRouter != address(0), "zero address is not allowed");
         require(_keyProtocolValues != address(0), "zero address is not allowed");
-        require(_uniswapRouter != address(0), "zero address is not allowed");
-        require(_oraclePrices != address(0), "zero address is not allowed");
         landXNFT = ILandxNFT(_landXNFT);
         crop = _crop;
         lndx = _lndx;
@@ -163,9 +163,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         rentFoundation = IRentFoundation(_rentFoundation);
         xTokenRouter = IXTokenRouter(_xTokenRouter);
         keyProtocolValues = IKeyProtocolValues(_keyProtocolValues);
-        uniswapRouter = ISwapRouter(_uniswapRouter);
-        quoter = IQuoter(_quoter);
         oraclePrices = IOraclePrices(_oraclePrices);
+        quoter = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
+        uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     }
 
     //deposits an NFT to get shards equivalence
@@ -203,12 +203,13 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         //transfers the nft. must have setApprovalForAll
         landXNFT.safeTransferFrom(msg.sender, address(this), _id, 1, "");
 
-        uint256 shards = (landXNFT.tillableArea(_id) *
+        uint256 shards = landXNFT.tillableArea(_id) *
             (landXNFT.cropShare(_id)) *
-            (10**uint256(6))) / 10000; // xTokens has 6 decimal
+            (1e6) / 10000; // xTokens has 6 decimal
         _mint(address(this), shards);
 
         uint256 fee = _calcFee(shards);
+        uint256 validatorFee = _validatorFee(_id, shards);
 
         uint256 annualRent = getAnnualRentAmount(_id);
         uint256 xTokensAnnualRent = ((annualRent * oraclePrices.prices(crop)) /
@@ -248,10 +249,13 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             keyProtocolValues.xTokensSecurityWallet(),
             toSecurityDepositsAmount
         );
+        if (landXNFT.validator(_id) != address(0)) {
+             _transfer(address(this), landXNFT.validator(_id), validatorFee);
+        }
         _transfer(
             address(this),
             msg.sender,
-            shards - fee - xTokensAnnualRent - toSecurityDepositsAmount
+            shards - fee - xTokensAnnualRent - toSecurityDepositsAmount - validatorFee
         );
         SecurityDepositedAmount[_id] = toSecurityDepositsAmount;
         rentFoundation.payInitialRent(_id, annualRent);
@@ -279,12 +283,15 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
             xTokens = convertToXToken(remainingRentUSDC);
         }
 
-        uint256 shards = (landXNFT.tillableArea(_id) *
+        uint256 shards = landXNFT.tillableArea(_id) *
             landXNFT.cropShare(_id) *
-            (10**uint256(6))) / 10000; // xToken has 6 decimals
+            1e6 / 10000; // xToken has 6 decimals
 
         //approval required for xTokensSecurityWalle
-        _burn(keyProtocolValues.xTokensSecurityWallet(), securityDepositedAmount);
+        if (securityDepositedAmount > 0) {
+            _burn(keyProtocolValues.xTokensSecurityWallet(), securityDepositedAmount);
+        }
+        
         _burn(address(this), xTokens);
         
         //burns shards!
@@ -309,9 +316,9 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
         uint256 xTokens = remainingRentUSDC * 1e6 / oraclePrices.getXTokenPrice(address(this)); //xToken has 6 decimals
 
-        uint256 shards = (landXNFT.tillableArea(_id) *
+        uint256 shards = landXNFT.tillableArea(_id) *
             landXNFT.cropShare(_id) *
-            (10**uint256(6))) / 10000; // xToken has 6 decimals
+            1e6 / 10000; // xToken has 6 decimals
 
         return (shards - securityDepositedAmount - xTokens);
     }
@@ -407,6 +414,17 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
     function _calcFee(uint256 amount) internal view returns (uint256) {
         uint256 fee = keyProtocolValues.xTokenMintFee();
         return (amount * fee) / 10000;
+    }
+
+    function _validatorFee(uint256 tokenID, uint256 amount) internal view returns(uint256) {
+        if (landXNFT.validator(tokenID) == address(0)) {
+            return 0;
+        }
+        uint256 validatorFee = landXNFT.validatorFee(tokenID);
+        if (validatorFee == 0) {
+            return 0;
+        }
+        return  (amount* validatorFee) / 10000;
     }
 
     function setXTokenRouter(address _router) public onlyOwner {
@@ -507,10 +525,11 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
         uint256 toSecurityDepositsAmount = (xTokensAnnualRent / 12) *
             keyProtocolValues.securityDepositMonths();
         uint256 fee = _calcFee(shards);
+        uint256 validatorFee = _validatorFee(id, shards);
         uint256 toBeReceived = shards -
             fee -
             xTokensAnnualRent -
-            toSecurityDepositsAmount;
+            toSecurityDepositsAmount - validatorFee;
         return (
             shards,
             fee,
@@ -544,6 +563,12 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder {
 
     function renounceOwnership() public view override onlyOwner {
         revert ("can 't renounceOwnership here");
+    }
+
+    // for test only purposes
+    function updateUniswapContracts(address _quoter, address _uniswapRouter) public onlyOwner {
+        quoter = IQuoter(_quoter);
+        uniswapRouter = ISwapRouter(_uniswapRouter);
     }
 
     function decimals() public pure override returns (uint8) {

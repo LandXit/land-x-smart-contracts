@@ -32,8 +32,8 @@ async function main() {
 		"ETH"
 	)
 
-	veLNDX = "0x0"
-	usdc = "0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841"
+	veLNDX = "0x7d84546a035B4AF0dd937F0306C77527A116Fbd5"
+	usdc = "0x115a8EdbA45E31ccB213Ddc98ece818327DaFd69"
 	//deployerAddress is minter
 	const deployed = await LNDXContract.deploy(usdc, veLNDX, 0)
 

@@ -27,7 +27,11 @@
 		"deploy_usdc:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_usdc.js",
 		"deploy_lndx:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_lndx.js",
 		"deploy_velndx:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_velndx.js",
-		"deploy_kv:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_kv.js"
+		"deploy_kv:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_kv.js",
+		"deploy_ts:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_tokensale.js",
+		"deploy_gov:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_lndx_gov.js",
+		"deploy_faucet:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_faucet.js",
+		"deploy_migration:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_migration.js"
 	},
 	"author": "LandX",
 	"license": "MIT",
@@ -48,7 +52,7 @@
 		"@openzeppelin/test-helpers": "^0.5.10",
 		"chai": "^4.3.4",
 		"dotenv": "^8.2.0",
-		"ethereum-waffle": "^3.3.0",
+		"ethereum-waffle": "^3.4.4",
 		"ethers": "^5.0.32",
 		"hardhat": "^2.1.2",
 		"hardhat-gas-reporter": "^1.0.4",

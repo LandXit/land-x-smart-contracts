@@ -2,8 +2,6 @@ const hre = require("hardhat")
 require("@nomiclabs/hardhat-web3")
 const fs = require("fs-extra")
 
-const { time } = require("@openzeppelin/test-helpers")
-
 function sleep(ms) {
 	return new Promise((resolve) => {
 		setTimeout(resolve, ms)
@@ -16,10 +14,11 @@ async function main() {
 	await hre.run("compile")
 
 	// We get the contract to deploy
-	const Consumer = await hre.ethers.getContractFactory("xTokenRouter")
-	console.log("Deploying xTokenRouter Contract...")
+	const lndxGOvContract = await hre.ethers.getContractFactory("LNDXGovernor")
+	console.log("Deploying LNDX gov...")
 
 	let network = process.env.NETWORK ? process.env.NETWORK : "rinkeby"
+
 	console.log(">-> Network is set to " + network)
 
 	// ethers is avaialble in the global scope
@@ -32,20 +31,22 @@ async function main() {
 		"Deployer Account " + deployerAddress + " has balance: " + web3.utils.fromWei(balance, "ether"),
 		"ETH"
 	)
+    let veLNDX = "0x5f109b813e5510D6C610deE79938A9D861a07963"
+	let tlController = "0xa9Bed6443d4D244B22e60F98B4001176F7bADF90"
+	//deployerAddress is minter
+	const deployed = await lndxGOvContract.deploy(veLNDX, tlController)
 
-	let deployed = await Consumer.deploy() //50% APR
 	let dep = await deployed.deployed()
 
-	await sleep(60000)
-	await hre.run("verify:verify", {
-		address: dep.address
-	})
+	console.log("Contract deployed to:", dep.address)
 
-	//change ownership to: 0x9b1a411a5b82a65f5f50aa603514935c7c9bf35a
+	await sleep(60000) //30 seconds sleep
+	await hre.run("verify:verify", {
+		address: dep.address,
+		constructorArguments: [veLNDX, tlController]
+	})
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
 main()
 	.then(() => process.exit(0))
 	.catch((error) => {

@@ -37,21 +37,20 @@ async function main() {
 	let xTokenRouter = "" 
 	let rentFoundation = ""
 	let uniswapRouter = "0xE592427A0AEce92De3Edee1F18E0157C05861564"
-	let quoter = "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
 	let keyProtocalValues = ""
-	let name = "xCORN"
+	let name = "SOY"
 	let oraclePrices = ""
 	if (network === "goerli") {
-		nftAddress = "0xAd968fcB7874c7502a51E5A5EFb4e96937425A72"
-		lndx = "0x3931C703BEdB4f00f602f3F5F7838801F0b5BEb0"
-		usdc = "0x4FEB71333c2A9fE81625a5727ab0Ed33dC77B841"
-		xTokenRouter = "0x4E0dD48F5E13229553a18c8A584ea6764eD5bC99" 
-		rentFoundation = "0x1D9aeA41741999e665A20391848EB86F0958b7F7"
-		keyProtocalValues ="0x84E7CaB66182791864C411E7dF16584FC1400A5a"
-		oraclePrices = "x84E7CaB66182791864C411E7dF16584FC1400A5a"
+		nftAddress = "0x37Fbbc42D085B0d819887a8B7A7eC858099a0c66"
+		lndx = "0x9AB379A11A45798f3e5fe962CbAA7577d39c9BBf"
+		usdc = "0xCd869cbCA8E597a10b6e1AEbF12aBFD693e542f2"
+		xTokenRouter = "0x50E5867D42f876ED75628940684ad510e9f40a5B" 
+		rentFoundation = "0xB5d8E18B03A01BB57BDb9901Fd4b2C0Fd80e5548"
+		keyProtocalValues ="0x9363e1392706C8D17DF6926b10E1Fe2F25E6073a"
+		oraclePrices = "0x356fEB4C02710984f69aFA4AeeE4eAfB3CE80A9A"
 	}
 
-	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, uniswapRouter, quoter, oraclePrices, name)
+	const deployed = await ShardManagerC.deploy(nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, oraclePrices, name)
 
 	let dep = await deployed.deployed()
 
@@ -60,7 +59,7 @@ async function main() {
 	await sleep(70000) //40 seconds sleep
 	await hre.run("verify:verify", {
 		address: dep.address,
-		constructorArguments: [nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, uniswapRouter, oraclePrices, name],
+		constructorArguments: [nftAddress, lndx, usdc, rentFoundation, xTokenRouter, keyProtocalValues, oraclePrices, name],
 	})
 }
 

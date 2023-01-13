@@ -220,6 +220,36 @@ describe("Key Protocol Values", function () {
         expect(keyProtocolValues.connect(dao).updateValidatorCommisionWallet(zeroAddress())).to.be.revertedWith("zero address is not allowed")
 	})
 
+	it("updateMaxValidatorFee works", async function () {
+		console.log("updates max validator fee")
+        await keyProtocolValues.connect(dao).updateMaxValidatorFee(800)
+		expect(await keyProtocolValues.maxValidatorFee()).to.equal(800)
+	})
+
+	it("updateMaxValidatorFee doesn't work (not dao)", async function () {
+		console.log("try to updates max validator fee when it is not allowed")
+        expect(keyProtocolValues.updateMaxValidatorFee(800)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("updateMaxValidatorFee doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateMaxValidatorFee(10001)).to.be.revertedWith("value can't be above 100%")
+	})
+
+	it("update validator commision fee works", async function () {
+		console.log("update validator commision fee")
+        await keyProtocolValues.connect(dao).updateValidatorCommission(800)
+		expect(await keyProtocolValues.validatorCommission()).to.equal(800)
+	})
+
+	it("update validator commision fee doesn't work (not dao)", async function () {
+		console.log("try to update validator commision fee when it is not allowed")
+        expect(keyProtocolValues.updateValidatorCommission(800)).to.be.revertedWith("only dao can change value")
+	})
+
+	it("update validator commision fee doesn't work (unsuitable value)", async function () {
+        expect(keyProtocolValues.connect(dao).updateValidatorCommission(10001)).to.be.revertedWith("value can't be above 100%")
+	})
+
 	it("launch works", async function () {
 		console.log("disable pre launch mode")
         await keyProtocolValues.connect(dao).launch()

@@ -368,10 +368,17 @@ describe("LNDX", function () {
  
         await LNDX.connect(acc1).stakeLNDX(10000000, 0)
         expect(await veLNDX.balanceOf(acc1.address)).to.equal(2500000)
- 
+        expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
+        expect((await LNDX.unstakePreview(1))[1]).to.equal(0)
+        expect((await LNDX.unstakePreview(1))[2]).to.equal(0)
+       
         time.increase(259200)
         await LNDX.connect(acc1).stakeLNDX(10000000, 1)
         expect(await veLNDX.balanceOf(acc1.address)).to.equal(7500000)
+        expect((await LNDX.unstakePreview(1))[0]).to.equal(10000000)
+        expect((await LNDX.unstakePreview(1))[1]).to.equal(0)
+        expect((await LNDX.unstakePreview(1))[2]).to.equal(8547945205)
+        
 
         await usdc.mint(feeDistributor.address, 10000000)
         await usdc.connect(feeDistributor).transfer(LNDX.address, 10000000)
