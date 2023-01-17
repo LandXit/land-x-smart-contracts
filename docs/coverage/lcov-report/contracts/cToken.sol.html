@@ -22,22 +22,22 @@
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Statements</span>
-        <span class='fraction'>5/5</span>
+        <span class='fraction'>10/10</span>
       </div>
       <div class='fl pad1y space-right2'>
-        <span class="strong">100% </span>
+        <span class="strong">81.25% </span>
         <span class="quiet">Branches</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>13/16</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Functions</span>
-        <span class='fraction'>6/6</span>
+        <span class='fraction'>7/7</span>
       </div>
       <div class='fl pad1y space-right2'>
         <span class="strong">100% </span>
         <span class="quiet">Lines</span>
-        <span class='fraction'>10/10</span>
+        <span class='fraction'>15/15</span>
       </div>
     </div>
   </div>
@@ -98,7 +98,9 @@
 53
 54
 55
-56</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+56
+57
+58</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -116,15 +118,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">36×</span>
-<span class="cline-any cline-yes">36×</span>
-<span class="cline-any cline-yes">36×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
+<span class="cline-any cline-yes">48×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -142,6 +140,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2×</span>
 <span class="cline-any cline-yes">1×</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -154,31 +158,27 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity 0.8.16;
 &nbsp;
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "./interfaces/IcToken.sol";
+import "./interfaces/IxTokenRouter.sol";
+import "./interfaces/IRentFoundation.sol";
 &nbsp;
-interface IRENTFOUNDATION {
-    function sellCToken(address account, uint256 amount) external;
-}
+contract CToken is IcToken, Context, ERC20Burnable, Ownable {
+    IRentFoundation public rentFoundation;
+    IxTokenRouter public xTokenRouter; // address of xTokenRouter
+    string public crop;
 &nbsp;
-interface IXTOKENROUTER {
-    function getXToken(string memory _name) external view returns (address);
-}
-&nbsp;
-contract CToken is Context, ERC20Burnable, Ownable {
-    IRENTFOUNDATION public rentFoundation;
-    IXTOKENROUTER public xTokenRouter; // address of xTokenRouter
-    string public crop = "CORN";
-&nbsp;
-    constructor(address _rentForndation, address _xTokenRouter, string memory _crop)
-        ERC20("LandX cToken", "cCORN")
+    constructor(address _rentFoundation, address _xTokenRouter, string memory _crop)
+        ERC20("LandX cToken", string(abi.encodePacked('c', _crop)))
     {
-        rentFoundation = IRENTFOUNDATION(_rentForndation);
-        xTokenRouter = IXTOKENROUTER(_xTokenRouter);
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_rentFoundation != address(0), "zero address is not allowed");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_xTokenRouter != address(0), "zero address is not allowed");
+        rentFoundation = IRentFoundation(_rentFoundation);
+        xTokenRouter = IxTokenRouter(_xTokenRouter);
         crop = _crop;
     }
 &nbsp;
@@ -197,15 +197,21 @@ contract CToken is Context, ERC20Burnable, Ownable {
     }
 &nbsp;
     function setRentFoundation(address _address) public onlyOwner {
-        rentFoundation = IRENTFOUNDATION(_address);
+        require(_address != address(0), "zero address is not allowed");
+        rentFoundation = IRentFoundation(_address);
     }
 &nbsp;
     function setXTokenRouter(address _router) public onlyOwner {
-        xTokenRouter = IXTOKENROUTER(_router);
+        require(_router != address(0), "zero address is not allowed");
+        xTokenRouter = IxTokenRouter(_router);
     }
 &nbsp;
     function decimals() public pure override returns (uint8) {
         return 6;
+    }
+&nbsp;
+     function renounceOwnership() public view override <span class="missing-if-branch" title="else path not taken" >E</span>onlyOwner {
+        revert ("can 't renounceOwnership here");
     }
 }
 &nbsp;</pre></td></tr>
@@ -214,7 +220,7 @@ contract CToken is Context, ERC20Burnable, Ownable {
 </div><!-- /wrapper -->
 <div class='footer quiet pad2 space-top1 center small'>
   Code coverage
-  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Mon Nov 07 2022 18:58:39 GMT+0300 (Moscow Standard Time)
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2023 12:01:24 GMT+0300 (Moscow Standard Time)
 </div>
 </div>
 <script src="../prettify.js"></script>

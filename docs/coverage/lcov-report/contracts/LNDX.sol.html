@@ -1,0 +1,1466 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Code coverage report for contracts/LNDX.sol</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../prettify.css" />
+    <link rel="stylesheet" href="../base.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+<body>
+<div class='wrapper'>
+  <div class='pad1'>
+    <h1>
+      <a href="../index.html">all files</a> / <a href="index.html">contracts/</a> LNDX.sol
+    </h1>
+    <div class='clearfix'>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">97.56% </span>
+        <span class="quiet">Statements</span>
+        <span class='fraction'>120/123</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">84.62% </span>
+        <span class="quiet">Branches</span>
+        <span class='fraction'>66/78</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">100% </span>
+        <span class="quiet">Functions</span>
+        <span class='fraction'>17/17</span>
+      </div>
+      <div class='fl pad1y space-right2'>
+        <span class="strong">94.94% </span>
+        <span class="quiet">Lines</span>
+        <span class='fraction'>169/178</span>
+      </div>
+    </div>
+  </div>
+  <div class='status-line high'></div>
+<pre><table class="coverage">
+<tr><td class="line-count quiet">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+95
+96
+97
+98
+99
+100
+101
+102
+103
+104
+105
+106
+107
+108
+109
+110
+111
+112
+113
+114
+115
+116
+117
+118
+119
+120
+121
+122
+123
+124
+125
+126
+127
+128
+129
+130
+131
+132
+133
+134
+135
+136
+137
+138
+139
+140
+141
+142
+143
+144
+145
+146
+147
+148
+149
+150
+151
+152
+153
+154
+155
+156
+157
+158
+159
+160
+161
+162
+163
+164
+165
+166
+167
+168
+169
+170
+171
+172
+173
+174
+175
+176
+177
+178
+179
+180
+181
+182
+183
+184
+185
+186
+187
+188
+189
+190
+191
+192
+193
+194
+195
+196
+197
+198
+199
+200
+201
+202
+203
+204
+205
+206
+207
+208
+209
+210
+211
+212
+213
+214
+215
+216
+217
+218
+219
+220
+221
+222
+223
+224
+225
+226
+227
+228
+229
+230
+231
+232
+233
+234
+235
+236
+237
+238
+239
+240
+241
+242
+243
+244
+245
+246
+247
+248
+249
+250
+251
+252
+253
+254
+255
+256
+257
+258
+259
+260
+261
+262
+263
+264
+265
+266
+267
+268
+269
+270
+271
+272
+273
+274
+275
+276
+277
+278
+279
+280
+281
+282
+283
+284
+285
+286
+287
+288
+289
+290
+291
+292
+293
+294
+295
+296
+297
+298
+299
+300
+301
+302
+303
+304
+305
+306
+307
+308
+309
+310
+311
+312
+313
+314
+315
+316
+317
+318
+319
+320
+321
+322
+323
+324
+325
+326
+327
+328
+329
+330
+331
+332
+333
+334
+335
+336
+337
+338
+339
+340
+341
+342
+343
+344
+345
+346
+347
+348
+349
+350
+351
+352
+353
+354
+355
+356
+357
+358
+359
+360
+361
+362
+363
+364
+365
+366
+367
+368
+369
+370
+371
+372
+373
+374
+375
+376
+377
+378
+379
+380
+381
+382
+383
+384
+385
+386
+387
+388
+389
+390
+391
+392
+393
+394
+395
+396
+397
+398
+399
+400
+401
+402
+403
+404
+405
+406
+407
+408
+409
+410
+411
+412
+413
+414
+415
+416
+417
+418
+419
+420
+421
+422
+423
+424
+425
+426
+427
+428
+429
+430
+431
+432
+433
+434
+435
+436
+437
+438
+439
+440
+441
+442
+443
+444
+445
+446
+447
+448
+449
+450
+451
+452
+453
+454
+455
+456
+457
+458
+459
+460
+461
+462
+463
+464
+465
+466
+467
+468</td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-yes">96×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">38×</span>
+<span class="cline-any cline-yes">38×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">37×</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-yes">11×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-yes">24×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-yes">22×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">66×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">65×</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">65×</span>
+<span class="cline-any cline-yes">28×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">65×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">65×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">65×</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">26×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">25×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">7×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-yes">2×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">5×</span>
+<span class="cline-any cline-yes">4×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-yes">3×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-yes">15×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">20×</span>
+<span class="cline-any cline-yes">8×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">12×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-yes">6×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1×</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">// SPDX-License-Identifier: MIT
+pragma solidity 0.8.16;
+&nbsp;
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "./interfaces/IveLNDX.sol";
+import "./interfaces/ILNDX.sol";
+&nbsp;
+contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
+    enum StakePeriods {
+        MONTHS_3,
+        MONTHS_12,
+        MONTHS_48
+    }
+&nbsp;
+    struct Grant {
+        uint256 createdTime;
+        uint256 startTime;
+        uint256 amount;
+        uint256 vestingDuration;
+        uint256 daysClaimed;
+        uint256 totalClaimed;
+        address recipient;
+        uint256 veLndxClaimed;
+    }
+&nbsp;
+    struct Stake {
+        address staker;
+        uint256 amount;
+        uint256 startTime;
+        uint256 endTime;
+        uint256 veLndxClaimed;
+        bool unstaked;
+    }
+&nbsp;
+    struct RewardVesting {
+        uint256 amountVested;
+        uint256 vestingStartedAt;
+        uint256 lastVestedAt;
+        uint256 daysClaimed;
+    }
+&nbsp;
+    bytes32 public constant FEE_DISTRIBUTOR = keccak256("FEE_DISTRIBUTOR");
+&nbsp;
+    uint256 public constant MAX_MINTABLE_AMOUNT = 80000000000000;
+    uint256 public constant MAX_REWARD_AMOUNT = 15600000000000;
+    uint256 public totalGranted = 0;
+&nbsp;
+    address usdc;
+    address veLNDX;
+   
+    mapping(StakePeriods =&gt; uint8) public coefficients;
+&nbsp;
+    mapping(uint256 =&gt; Stake) public stakes;
+    uint256 public stakesCount;
+&nbsp;
+    mapping(address =&gt; Grant) public grants;
+&nbsp;
+    mapping(address =&gt; uint256) public feePerGrant;
+    mapping(address =&gt; uint256) public rewardsPerGrant;
+&nbsp;
+    mapping(uint256 =&gt; uint256) public feePerStake;
+    mapping(uint256 =&gt; uint256) public rewardsPerStake;
+&nbsp;
+    uint256 public feeSharesPerToken;
+    uint256 public feeNotDistributed;
+&nbsp;
+    uint256 public rewardSharesPerToken;
+    uint256 public rewardNotDistributed;
+&nbsp;
+    uint256 public totalStaked;
+    uint256 public totalLocked;
+&nbsp;
+    mapping (address =&gt; uint256[2]) public stakerClaimed;
+    mapping (address =&gt; uint256) public staked;
+&nbsp;
+    uint16 public rewardVestingDuration; // reward vesting duration in days;
+&nbsp;
+    RewardVesting public rewardVested;
+&nbsp;
+    event GrantAdded(address recipient, uint256 amount, uint256 cliffEndAt, uint256 vestingEndAt);
+    event GrantTokensClaimed(address recipient, uint256 amountClaimed);
+&nbsp;
+    event Staked(address user, uint256 amount, uint256 stakeId, uint256 endAt);
+    event Unstaked(address user, uint256 amount, uint256 stakeId);
+&nbsp;
+    constructor(
+        address _usdc,
+        address _veLNDX,
+        uint16 _rewardVestingDuration
+    ) ERC20("LandX Governance Token", "LNDX") {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_usdc != address(0), "zero address is not allowed");
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(_veLNDX != address(0), "zero address is not allowed");
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        usdc = _usdc;
+        veLNDX = _veLNDX;
+        coefficients[StakePeriods.MONTHS_3] = 25;
+        coefficients[StakePeriods.MONTHS_12] = 50;
+        coefficients[StakePeriods.MONTHS_48] = 100;
+&nbsp;
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (_rewardVestingDuration == 0) {
+            rewardVestingDuration = 1825; // 5 years = 1825 days
+        } else {
+            rewardVestingDuration = _rewardVestingDuration;
+        }
+    }
+&nbsp;
+    /**
+        LNDX Vesting logic
+    */
+   function grantLNDX(
+        address recipient,
+        uint256 amount,
+        uint256 cliffInMonths,
+        uint256 vestingDurationInMonths
+    ) external onlyOwner {
+        _rewardsToDistribute();
+        require(
+            (totalGranted + amount) &lt;= (MAX_MINTABLE_AMOUNT - MAX_REWARD_AMOUNT),
+            "Mint limit amount exceeded"
+        );
+        if (cliffInMonths == 0 &amp;&amp; vestingDurationInMonths == 0) {
+            _mint(recipient, amount);
+             totalGranted += amount;
+            return;
+        }
+&nbsp;
+        require(grants[recipient].amount == 0, "grant already exists");
+        require(cliffInMonths &lt;= 60, "cliff greater than 5 year");
+        require(vestingDurationInMonths &lt;= 60, "duration greater than 5 years");
+        uint256 totalPeriod = cliffInMonths + vestingDurationInMonths;
+&nbsp;
+        uint8 coefficient;
+        if (totalPeriod &gt;= 48) {
+            coefficient = coefficients[StakePeriods.MONTHS_48];
+        }
+        else if (totalPeriod &gt;= 12) {
+            coefficient = coefficients[StakePeriods.MONTHS_12];
+        } else {
+            coefficient = coefficients[StakePeriods.MONTHS_3];
+        }
+&nbsp;
+        _mint(address(this), amount);
+        totalGranted += amount;
+        totalLocked += amount;
+&nbsp;
+        uint256 veLNDXAmount = (amount * coefficient) / 100;
+&nbsp;
+        IveLNDX(veLNDX).mint(recipient, veLNDXAmount);
+&nbsp;
+        rewardsPerGrant[recipient] += rewardSharesPerToken * veLNDXAmount / 1e6;
+        feePerGrant[recipient] += (feeSharesPerToken * veLNDXAmount) / 1e6;
+&nbsp;
+        uint256 startTime = block.timestamp +
+            (30 days * uint256(cliffInMonths));
+&nbsp;
+        Grant memory grant = Grant({
+            createdTime: block.timestamp,
+            startTime: startTime,
+            amount: amount,
+            vestingDuration: vestingDurationInMonths * 30,
+            daysClaimed: 0,
+            totalClaimed: 0,
+            recipient: recipient,
+            veLndxClaimed: veLNDXAmount
+        });
+&nbsp;
+        grants[recipient] = grant;
+        emit GrantAdded(recipient, amount, startTime, startTime + vestingDurationInMonths * 30 * 1 days);
+    }
+&nbsp;
+    function claimVestedTokens() external {
+        uint256 daysVested;
+        uint256 amountVested;
+        (daysVested, amountVested) = calculateGrantClaim(msg.sender);
+        require(amountVested &gt; 0, "wait one day or vested is 0");
+        _rewardsToDistribute();
+        Grant storage grant = grants[msg.sender];
+        grant.daysClaimed += daysVested;
+        grant.totalClaimed += amountVested;
+        uint256 veLNDXAmount = (amountVested * grant.veLndxClaimed) /
+            grant.amount;
+&nbsp;
+         if (grant.totalClaimed == grant.amount) {
+            veLNDXAmount = IERC20(veLNDX).balanceOf(msg.sender);
+         }
+&nbsp;
+        IveLNDX(veLNDX).burn(msg.sender, veLNDXAmount);
+&nbsp;
+        totalLocked -= amountVested;
+        uint256 totalFee = computeGrantFee(msg.sender);
+        uint256 fee = (veLNDXAmount * totalFee) / grant.veLndxClaimed;
+        feePerGrant[msg.sender] += fee;
+&nbsp;
+        uint256 totalRewards = computeGrantReward(msg.sender);
+        uint256 rewards = (veLNDXAmount * totalRewards) / grant.veLndxClaimed;
+        rewardsPerGrant[msg.sender] += rewards;
+&nbsp;
+        IERC20(usdc).transfer(msg.sender, fee);
+        _transfer(address(this), grant.recipient,  amountVested + rewards);
+        emit GrantTokensClaimed(grant.recipient, amountVested);
+    }
+&nbsp;
+    function computeGrantReward(address recipient)
+        public
+        view
+        returns (uint256)
+    {
+        Grant storage grant = grants[recipient];
+        return
+            (grant.veLndxClaimed * rewardSharesPerToken) /
+            1e6 -
+            rewardsPerGrant[recipient];
+    }
+&nbsp;
+    function computeGrantFee(address recipient) public view returns (uint256) {
+        Grant storage grant = grants[recipient];
+        return
+            (grant.veLndxClaimed * feeSharesPerToken) /
+            1e6 -
+            feePerGrant[recipient];
+    }
+&nbsp;
+    function _rewardsToDistribute() internal {
+      if (rewardVested.amountVested &gt;= MAX_REWARD_AMOUNT) {
+            return;
+        }
+&nbsp;
+        if (rewardVested.vestingStartedAt == 0) {
+            rewardVested.vestingStartedAt = block.timestamp;
+        }
+&nbsp;
+         if (rewardVested.lastVestedAt == 0) {
+            rewardVested.lastVestedAt = block.timestamp;
+        }
+&nbsp;
+        uint256 elapsedDays = (block.timestamp - rewardVested.lastVestedAt) / 1 days;
+&nbsp;
+        uint256 amountVested = 0;
+&nbsp;
+        if (elapsedDays &gt; 0) {
+            uint256 amountVestedPerDay = MAX_REWARD_AMOUNT / uint256(rewardVestingDuration);
+            amountVested = amountVestedPerDay * elapsedDays;
+&nbsp;
+            if ((amountVested + rewardVested.amountVested) &gt; MAX_REWARD_AMOUNT) {
+                amountVested = MAX_REWARD_AMOUNT - rewardVested.amountVested;
+                elapsedDays = rewardVestingDuration - rewardVested.daysClaimed;
+            }
+                
+                rewardVested.daysClaimed += elapsedDays;
+                rewardVested.amountVested += amountVested;
+                rewardVested.lastVestedAt = block.timestamp;
+&nbsp;
+                 _mint(address(this), amountVested);
+&nbsp;
+                 uint256 tokensCount = IERC20(veLNDX).totalSupply();
+                if (tokensCount == 0) {
+                    rewardNotDistributed += amountVested;
+                    return;
+                }
+                rewardSharesPerToken +=
+                    (1e6 * (amountVested + rewardNotDistributed)) /
+                    tokensCount;
+                rewardNotDistributed = 0;
+        }
+    }
+&nbsp;
+    function calculateGrantClaim(address _recipient) public view returns (uint256, uint256)  {
+        Grant storage grant = grants[_recipient];
+        require(grant.totalClaimed &lt; grant.amount, "grant fully claimed");
+        // For grants created with a future start date, that hasn't been reached, return 0, 0
+        if (block.timestamp &lt; grant.startTime) {
+            return (0, 0);
+        }
+&nbsp;
+        // Check cliff was reached
+        uint256 elapsedDays = (block.timestamp - grant.startTime) / 1 days;
+&nbsp;
+        // If over vesting duration, all tokens vested
+        if (elapsedDays &gt;= grant.vestingDuration) {
+            uint256 remainingGrant = grant.amount - grant.totalClaimed;
+            return (grant.vestingDuration - grant.daysClaimed, remainingGrant);
+        } else {
+            uint256 daysVested = elapsedDays - grant.daysClaimed;
+            uint256 amountVestedPerDay = grant.amount / grant.vestingDuration;
+            uint256 amountVested = daysVested * amountVestedPerDay;
+            return (daysVested, amountVested);
+        }
+    }
+&nbsp;
+    /**
+    Staking logic
+    */
+     function feeToDistribute(uint256 amount)
+        external
+        onlyRole(FEE_DISTRIBUTOR)
+    {
+        uint256 tokensCount = IERC20(veLNDX).totalSupply();
+        if (tokensCount == 0) {
+            feeNotDistributed += amount;
+            return;
+        }
+        feeSharesPerToken += (1e6 * (amount + feeNotDistributed)) / tokensCount;
+        feeNotDistributed = 0;
+    }
+&nbsp;
+    function stakeLNDX(uint256 amount, StakePeriods period) external {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(coefficients[period] != 0, "wrong period");
+        _transfer(msg.sender, address(this), amount);
+        uint256 mintAmount = (amount * coefficients[period]) / 100; //veLNDX amount to mint
+        IveLNDX(veLNDX).mint(msg.sender, mintAmount);
+        _rewardsToDistribute();
+        Stake memory stake = Stake({
+            staker: msg.sender,
+            amount: amount,
+            startTime: block.timestamp,
+            endTime: _calculateEndDate(period),
+            unstaked: false,
+            veLndxClaimed: mintAmount
+        });
+        stakesCount++;
+        stakes[stakesCount] = stake;
+&nbsp;
+        totalStaked += amount;
+        staked[msg.sender] += amount;
+&nbsp;
+        feePerStake[stakesCount] += (feeSharesPerToken * mintAmount) / 1e6;
+        rewardsPerStake[stakesCount] +=
+            (rewardSharesPerToken * mintAmount) /
+            1e6;
+&nbsp;
+        emit Staked(msg.sender, amount, stakesCount, stake.endTime);
+    }
+&nbsp;
+    function unstake(uint256 stakeID) external {
+        require(stakes[stakeID].staker == msg.sender, "not staker");
+        require(stakes[stakeID].unstaked == false, "already unstaked");
+        require(stakes[stakeID].endTime &lt;= block.timestamp, "too early");
+&nbsp;
+        Stake storage s = stakes[stakeID];
+        totalStaked -= s.amount;
+        staked[msg.sender] -= s.amount;
+&nbsp;
+        _rewardsToDistribute();
+&nbsp;
+        uint256 rewards = computeStakeReward(stakeID);
+        uint256 fee = computeStakeFee(stakeID);
+&nbsp;
+        stakerClaimed[s.staker][0] += fee;
+        stakerClaimed[s.staker][1] += rewards;
+&nbsp;
+        s.unstaked = true;
+&nbsp;
+        rewardsPerStake[stakeID] = 0;
+        feePerStake[stakeID] = 0;
+&nbsp;
+        _transfer(address(this), msg.sender, s.amount + rewards);
+        IveLNDX(veLNDX).burn(msg.sender, s.veLndxClaimed);
+        IERC20(usdc).transfer(msg.sender, fee);
+        emit Unstaked(msg.sender, s.amount, stakeID);
+    }
+&nbsp;
+    function _rewardsToDistributePreview() internal  view returns (uint256){
+      <span class="missing-if-branch" title="if path not taken" >I</span>if (rewardVested.amountVested &gt;= MAX_REWARD_AMOUNT) {
+<span class="cstat-no" title="statement not covered" >            return 0;</span>
+        }
+&nbsp;
+        uint256 vestingStartedAt = rewardVested.vestingStartedAt;
+        uint256 lastVestedAt = rewardVested.lastVestedAt;
+&nbsp;
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (vestingStartedAt == 0) {
+              vestingStartedAt = block.timestamp;
+        }
+&nbsp;
+         <span class="missing-if-branch" title="if path not taken" >I</span>if (lastVestedAt == 0) {
+            lastVestedAt = block.timestamp;
+        }
+&nbsp;
+        uint256 elapsedDays = (block.timestamp - lastVestedAt) / 1 days;
+&nbsp;
+        uint256 amountVested = 0;
+&nbsp;
+        if (elapsedDays &gt; 0) {
+            uint256 amountVestedPerDay = MAX_REWARD_AMOUNT / uint256(rewardVestingDuration);
+            amountVested = amountVestedPerDay * elapsedDays;
+&nbsp;
+            <span class="missing-if-branch" title="if path not taken" >I</span>if ((amountVested + rewardVested.amountVested) &gt; MAX_REWARD_AMOUNT) {
+                amountVested = MAX_REWARD_AMOUNT - rewardVested.amountVested;
+                elapsedDays = rewardVestingDuration - rewardVested.daysClaimed;
+            }
+&nbsp;
+                 uint256 tokensCount = IERC20(veLNDX).totalSupply();
+                 uint256  _rewardNotDistributed = rewardNotDistributed;
+                <span class="missing-if-branch" title="if path not taken" >I</span>if (tokensCount == 0) {
+                    _rewardNotDistributed += amountVested;
+<span class="cstat-no" title="statement not covered" >                    return 0;</span>
+                }
+                return (rewardSharesPerToken +
+                    (1e6 * (amountVested + _rewardNotDistributed)) /
+                    tokensCount);
+        }
+        return rewardSharesPerToken;
+    }
+&nbsp;
+    function unstakePreview(uint256 stakeID)
+        external
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256
+        )
+    {
+        <span class="missing-if-branch" title="else path not taken" >E</span>require(stakes[stakeID].unstaked == false, "already unstaked");
+&nbsp;
+        Stake storage s = stakes[stakeID];
+        uint256 _rewardSharesPerToken = _rewardsToDistributePreview();
+&nbsp;
+        uint256 rewards = (s.veLndxClaimed * _rewardSharesPerToken) / 1e6 - rewardsPerStake[stakeID];
+        uint256 fee = computeStakeFee(stakeID);
+&nbsp;
+        return (s.amount, fee, rewards);
+    }
+&nbsp;
+    function computeStakeReward(uint256 stakeID) public view returns (uint256) {
+        Stake storage stake = stakes[stakeID];
+        return
+            (stake.veLndxClaimed * rewardSharesPerToken) /
+            1e6 -
+            rewardsPerStake[stakeID];
+    }
+&nbsp;
+    function computeStakeFee(uint256 stakeID) public view returns (uint256) {
+        Stake storage stake = stakes[stakeID];
+        return
+            (stake.veLndxClaimed * feeSharesPerToken) /
+            1e6 -
+            feePerStake[stakeID];
+    }
+&nbsp;
+    function _calculateEndDate(StakePeriods period)
+        internal
+        view
+        returns (uint256)
+    {
+        if (period == StakePeriods.MONTHS_3) {
+            return (block.timestamp + 90 days);
+        }
+        if (period == StakePeriods.MONTHS_12) {
+            return (block.timestamp + 365 days);
+        }
+        <span class="missing-if-branch" title="else path not taken" >E</span>if (period == StakePeriods.MONTHS_48) {
+            return (block.timestamp + 4 * 365 days);
+        }
+<span class="cstat-no" title="statement not covered" >        return 0;</span>
+    }
+&nbsp;
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+&nbsp;
+    function renounceOwnership() public view override <span class="missing-if-branch" title="else path not taken" >E</span>onlyOwner {
+        revert ("can 't renounceOwnership here");
+    }
+}
+&nbsp;</pre></td></tr>
+</table></pre>
+<div class='push'></div><!-- for sticky footer -->
+</div><!-- /wrapper -->
+<div class='footer quiet pad2 space-top1 center small'>
+  Code coverage
+  generated by <a href="http://istanbul-js.org/" target="_blank">istanbul</a> at Tue Jan 17 2023 12:01:24 GMT+0300 (Moscow Standard Time)
+</div>
+</div>
+<script src="../prettify.js"></script>
+<script>
+window.onload = function () {
+        if (typeof prettyPrint === 'function') {
+            prettyPrint();
+        }
+};
+</script>
+<script src="../sorter.js"></script>
+</body>
+</html>
