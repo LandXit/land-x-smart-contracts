@@ -24,6 +24,9 @@ contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
         uint256 totalClaimed;
         address recipient;
         uint256 veLndxClaimed;
+        uint256 remainingVeLndx;
+        uint256 remainingRewards;
+        uint256 remainingFee;
     }
 
     struct Stake {
@@ -150,8 +153,8 @@ contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
 
         IveLNDX(veLNDX).mint(recipient, veLNDXAmount);
 
-        rewardsPerGrant[recipient] += rewardSharesPerToken * veLNDXAmount / 1e6;
-        feePerGrant[recipient] += (feeSharesPerToken * veLNDXAmount) / 1e6;
+        rewardsPerGrant[recipient] = rewardSharesPerToken * veLNDXAmount / 1e6;
+        feePerGrant[recipient] = feeSharesPerToken * veLNDXAmount / 1e6;
 
         uint256 startTime = block.timestamp +
             (30 days * uint256(cliffInMonths));
@@ -164,7 +167,10 @@ contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
             daysClaimed: 0,
             totalClaimed: 0,
             recipient: recipient,
-            veLndxClaimed: veLNDXAmount
+            veLndxClaimed: veLNDXAmount,
+            remainingVeLndx: veLNDXAmount,
+            remainingRewards: 0,
+            remainingFee: 0
         });
 
         grants[recipient] = grant;
@@ -184,20 +190,23 @@ contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
             grant.amount;
 
          if (grant.totalClaimed == grant.amount) {
-            veLNDXAmount = IERC20(veLNDX).balanceOf(msg.sender);
+            veLNDXAmount = grant.remainingVeLndx;
          }
 
         IveLNDX(veLNDX).burn(msg.sender, veLNDXAmount);
 
         totalLocked -= amountVested;
         uint256 totalFee = computeGrantFee(msg.sender);
-        uint256 fee = (veLNDXAmount * totalFee) / grant.veLndxClaimed;
-        feePerGrant[msg.sender] += fee;
-
+        uint256 fee = (grant.totalClaimed * totalFee) / grant.amount;
+       
         uint256 totalRewards = computeGrantReward(msg.sender);
-        uint256 rewards = (veLNDXAmount * totalRewards) / grant.veLndxClaimed;
-        rewardsPerGrant[msg.sender] += rewards;
+        uint256 rewards = (grant.totalClaimed * totalRewards) / grant.amount;
 
+        grant.remainingVeLndx -= veLNDXAmount;
+        grant.remainingRewards = totalRewards - rewards;
+        grant.remainingFee = totalFee - fee;
+        rewardsPerGrant[msg.sender]  = grant.remainingVeLndx * rewardSharesPerToken / 1e6;
+        feePerGrant[msg.sender]  = grant.remainingVeLndx * feeSharesPerToken / 1e6;
         IERC20(usdc).transfer(msg.sender, fee);
         _transfer(address(this), grant.recipient,  amountVested + rewards);
         emit GrantTokensClaimed(grant.recipient, amountVested);
@@ -210,17 +219,17 @@ contract LNDX is ILNDX, ERC20, Ownable, AccessControl {
     {
         Grant storage grant = grants[recipient];
         return
-            (grant.veLndxClaimed * rewardSharesPerToken) /
+            (grant.remainingVeLndx * rewardSharesPerToken) /
             1e6 -
-            rewardsPerGrant[recipient];
+            rewardsPerGrant[recipient] + grant.remainingRewards;
     }
 
     function computeGrantFee(address recipient) public view returns (uint256) {
         Grant storage grant = grants[recipient];
         return
-            (grant.veLndxClaimed * feeSharesPerToken) /
+            (grant.remainingVeLndx  * feeSharesPerToken) /
             1e6 -
-            feePerGrant[recipient];
+            feePerGrant[recipient] +  grant.remainingFee;
     }
 
     function _rewardsToDistribute() internal {

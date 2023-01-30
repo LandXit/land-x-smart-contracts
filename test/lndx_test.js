@@ -34,6 +34,30 @@ describe("LNDX", function () {
         expect(await veLNDX.balanceOf(acc1.address)).to.equal(0)
     })
 
+    it("Grant LNDX with cliff=0 and vesting=48, partial claims", async function () {
+        time.increase(172800)
+        await LNDX.grantLNDX(acc1.address, 100000000, 0, 48)
+        expect(await LNDX.balanceOf(acc1.address)).to.equal(0)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(100000000)
+        // 18 month passed
+        time.increase(46656000)
+        await LNDX.connect(acc1).claimVestedTokens()
+
+        expect(await LNDX.balanceOf(acc1.address)).to.equal(1730985325635)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(62500240)
+        // 40 month passed
+        time.increase(57024000)
+        await LNDX.connect(acc1).claimVestedTokens()
+        expect(await LNDX.balanceOf(acc1.address)).to.equal(8836474366957)
+        expect(await veLNDX.balanceOf(acc1.address)).to.equal(16667200)
+
+        //48 month passed
+         time.increase(20822400)
+         await LNDX.connect(acc1).claimVestedTokens()
+         expect(await LNDX.balanceOf(acc1.address)).to.equal(12317689040361)
+         expect(await veLNDX.balanceOf(acc1.address)).to.equal(0)
+    })
+
     it("Impossible create second grant for the same address", async function () {
         await LNDX.grantLNDX(acc1.address, 100000000, 2, 5)
         await expect(LNDX.grantLNDX(acc1.address, 100000000, 2, 5)).to.be.revertedWith("grant already exists")
@@ -209,7 +233,7 @@ describe("LNDX", function () {
         expect((await LNDX.rewardVested())["lastVestedAt"]).not.to.equal(0)
         expect((await LNDX.rewardVested())["vestingStartedAt"]).not.to.equal(0)
 
-        expect(await LNDX.balanceOf(acc2.address)).to.equal(3479496325)
+        expect(await LNDX.balanceOf(acc2.address)).to.equal(3479497368)
         expect(await veLNDX.balanceOf(acc2.address)).to.equal(24166667)
     })
 
@@ -225,7 +249,7 @@ describe("LNDX", function () {
 
         await LNDX.connect(acc2).claimVestedTokens()
 
-        expect(await LNDX.balanceOf(acc2.address)).to.equal(3479496325)
+        expect(await LNDX.balanceOf(acc2.address)).to.equal(3479497368)
 
         time.increase(2505600) // add 29 day, vesting is over
 
@@ -236,7 +260,7 @@ describe("LNDX", function () {
         expect((await LNDX.rewardVested())["lastVestedAt"]).not.to.equal(0)
         expect((await LNDX.rewardVested())["vestingStartedAt"]).not.to.equal(0)
 
-        expect(await LNDX.balanceOf(acc2.address)).to.equal(149271768047)
+        expect(await LNDX.balanceOf(acc2.address)).to.equal(152632058987)
         expect((await LNDX.grants(acc2.address))["totalClaimed"]).to.equal(100000000)
         expect(await veLNDX.balanceOf(acc2.address)).to.equal(0)
     })
@@ -251,7 +275,7 @@ describe("LNDX", function () {
 
         time.increase(5270400) // add 2 months and 1 day (cliff is over)
         await LNDX.connect(acc2).claimVestedTokens()
-        expect(await LNDX.balanceOf(acc2.address)).to.equal(3479496325)
+        expect(await LNDX.balanceOf(acc2.address)).to.equal(3479497368)
 
         time.increase(2505600) // add 29 day, vesting is over
         await LNDX.connect(acc2).claimVestedTokens()
