@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "./interfaces/IKeyProtocolVariables.sol";
 import "./interfaces/ILandXNFT.sol";
 import "./interfaces/IxTokenRouter.sol";
@@ -18,6 +17,7 @@ import "./interfaces/IRentFoundation.sol";
 import "./interfaces/IcToken.sol";
 import "./interfaces/IxToken.sol";
 import "./interfaces/ILNDX.sol";
+import "./interfaces/ITWAP.sol";
 
 //xToken NFT in = shards. xToken in = NFT
 //1 xToken = (tillableArea * cropShare) /  10000
@@ -39,7 +39,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder, 
     IKeyProtocolVariables public keyProtocolValues;
 
     ISwapRouter public uniswapRouter;
-    IQuoter public quoter;
+    ITWAP public twap;
 
     //only the initial owner of the NFT can redeem it
     mapping(uint256 => address) public initialOwner;
@@ -87,7 +87,7 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder, 
         xTokenRouter = IxTokenRouter(_xTokenRouter);
         keyProtocolValues = IKeyProtocolVariables(_keyProtocolValues);
         oraclePrices = IOraclePrices(_oraclePrices);
-        quoter = IQuoter(0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6);
+        twap = ITWAP(0x96dd5d8BF8de6d5F5F3Ef5da48C46b2a71013810);
         uniswapRouter = ISwapRouter(0xE592427A0AEce92De3Edee1F18E0157C05861564);
     }
 
@@ -367,14 +367,16 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder, 
         return (rent * area) / 10000;
     }
 
-    function quoteAmountOut(uint _amount) public returns (uint) {
-        uint amountOut = quoter.quoteExactInputSingle(address(this), usdc, 3000, _amount, 0);
+    function quoteAmountOut(uint _amount) public view returns (uint) {
+        uint price = twap.getPrice(address(this), usdc);
+        uint256 amountOut = _amount * price / 1e6;
         return amountOut;
     }
 
     function _convertToXToken(uint256 amount) internal returns (uint256) {
         uint256 slippage =  keyProtocolValues.buyXTokenSlippage();
-        uint256 predictedAmountOut = quoter.quoteExactInputSingle(usdc, address(this), 3000, amount, 0);
+        uint price = twap.getPrice(usdc, address(this));
+        uint256 predictedAmountOut = amount * price / 10 ** decimals();
         uint256 minAmountOut = predictedAmountOut * 10000 / (10000 + slippage);
 
         TransferHelper.safeApprove(usdc, address(uniswapRouter), amount);
@@ -489,8 +491,8 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, ERC1155Holder, 
     }
 
     // for test only purposes
-    function updateUniswapContracts(address _quoter, address _uniswapRouter) public onlyOwner {
-        quoter = IQuoter(_quoter);
+    function updateUniswapContracts(address _twap, address _uniswapRouter) public onlyOwner {
+        twap = ITWAP(_twap);
         uniswapRouter = ISwapRouter(_uniswapRouter);
     }
 

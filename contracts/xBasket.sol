@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/ISwapRouter.sol";
-import "@uniswap/v3-periphery/contracts/interfaces/IQuoter.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
 import "@openzeppelin/contracts/interfaces/IERC4626.sol";
@@ -13,6 +12,7 @@ import "./interfaces/IKeyProtocolVariables.sol";
 import "./interfaces/IxTokenRouter.sol";
 import "./interfaces/IOraclePrices.sol";
 import "./interfaces/IxToken.sol";
+import "./interfaces/ITWAP.sol";
 
 contract xBasket is ERC20, IERC4626, Ownable {
     IxTokenRouter public xTokenRouter;
@@ -29,7 +29,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
     address public usdc;
 
     ISwapRouter public uniswapRouter;
-    IQuoter public quoter;
+    ITWAP public twap;
 
     event AutoCompounded(uint256 xWheat, uint256 xSoy, uint256 xRice, uint256 xCorn);
 
@@ -38,7 +38,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         address _oraclePrices,
         address _keyProtocolValues,
         address _uniswapRouter,
-        address _quoter
+        address _twap
     ) ERC20("xBasket LandX Index Fund", "xBASKET") {
         require(_xTokenRouter != address(0), "zero address is not allowed");
         require(_oraclePrices != address(0), "zero address is not allowed");
@@ -57,7 +57,7 @@ contract xBasket is ERC20, IERC4626, Ownable {
         cCorn = xTokenRouter.getCToken("CORN");
         usdc = oraclePrices.usdc();
         uniswapRouter = ISwapRouter(_uniswapRouter);
-        quoter = IQuoter(_quoter);
+        twap = ITWAP(_twap);
     }
 
     // We have 4 underlying tokens
@@ -447,8 +447,9 @@ contract xBasket is ERC20, IERC4626, Ownable {
         emit AutoCompounded(xWheatBalance, xSoyBalance, xRiceBalance, xCornBalance);
     }
 
-     function quoteAmountOut(uint _amount, address xToken) public returns (uint) {
-        uint amountOut = quoter.quoteExactInputSingle(usdc, xToken, 3000, _amount, 0);
+     function quoteAmountOut(uint _amount, address xToken) public view returns (uint) {
+        uint price = twap.getPrice(usdc, xToken);
+        uint256 amountOut = _amount * price / 1e6; //xTokens has 6 decimals
         return amountOut;
     }
 

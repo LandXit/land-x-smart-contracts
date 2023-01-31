@@ -7,13 +7,44 @@ require("solidity-coverage");
 
 module.exports = {
 	solidity: {
-		version: "0.8.16",
-		settings: {
-			optimizer: {
-				enabled: true,
-				runs: 200,
+		compilers: [
+			{
+				version: "0.8.16",
+				settings: 
+				{
+					optimizer: 
+					{
+						enabled: true,
+						runs: 200,
+					}
+				}
 			},
-		},
+			{
+				version: "0.7.4",
+				settings: 
+				{
+					optimizer: 
+					{
+						enabled: true,
+						runs: 200,
+					}
+				}
+			}
+
+		],
+		overrides: {
+			"@uniswap/v3-core/contracts/libraries/TickMath.sol": {
+				version: "0.7.4",
+				settings: 
+				{
+					optimizer: 
+					{
+						enabled: true,
+						runs: 200,
+					}
+				}
+			}
+		}
 	},
 	networks: {
 		hardhat: {
@@ -40,7 +71,7 @@ module.exports = {
 			timeout: 15000,
 			accounts: [process.env.PRIVATE_KEY_GOERLI],
 	},
-	mainnet: {
+	/*mainnet: {
 			url: process.env.MAINNET_RPC,
 			gas: 1500000,
 			gasPrice: 87000000000, //87 gwei

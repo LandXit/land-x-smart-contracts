@@ -7,7 +7,7 @@ const { zeroAddress } = require("ethereumjs-util");
 
 let xToken, NFTContract, nft
 let mockedUSDCContract, mockedKeyProtocolVariablesContract, mockedXTokenRouterContract, mockedRentFoundationContract
-let mockedUniswapRouter, mockedLndxContract, mockedOraclePricesContract, mockedCTokenContract, mockedUniswapQuoter
+let mockedUniswapRouter, mockedLndxContract, mockedOraclePricesContract, mockedCTokenContract, mockedTwap
 let xTokenMintFee
 let owner, acc1, acc2, acc3, landxOperationalWallet, xTokensSecurityWallet, xSOY
 
@@ -26,8 +26,8 @@ describe("xToken", function () {
 		mockedKeyProtocolVariablesContract = await deployMockContract(owner, keyProtocolVariablesContract.abi)
         const xTokenRouterContract = require("../artifacts/contracts/xTokenRouter.sol/xTokenRouter.json")
 		mockedXTokenRouterContract = await deployMockContract(owner, xTokenRouterContract.abi)
-        const uniswapQuoterContract = require("@uniswap/v3-periphery/artifacts/contracts/interfaces/IQuoter.sol/IQuoter.json")
-		mockedUniswapQuoter = await deployMockContract(owner, uniswapQuoterContract.abi)
+        const twapContract = require("../artifacts/contracts/TWAP.sol/TWAP.json")
+		mockedTwap= await deployMockContract(owner, twapContract.abi)
        
         
         const uniswapRouterContract = require("@uniswap/v3-periphery/artifacts/contracts/interfaces/ISwapRouter.sol/ISwapRouter.json")
@@ -52,7 +52,7 @@ describe("xToken", function () {
             "CORN"
 		)
 		await xToken.deployed()
-        await xToken.updateUniswapContracts(mockedUniswapQuoter.address, mockedUniswapRouter.address)
+        await xToken.updateUniswapContracts(mockedTwap.address, mockedUniswapRouter.address)
         await mockedXTokenRouterContract.mock.getXToken.withArgs("CORN").returns(xToken.address)
 
         await mockedKeyProtocolVariablesContract.mock.maxValidatorFee.withArgs().returns(1000)
@@ -99,9 +99,9 @@ describe("xToken", function () {
         await mockedKeyProtocolVariablesContract.mock.landxOperationalWallet.withArgs().returns(landxOperationalWallet.address)
         await mockedKeyProtocolVariablesContract.mock.xTokensSecurityWallet.withArgs().returns(xTokensSecurityWallet.address)
         await mockedKeyProtocolVariablesContract.mock.sellXTokenSlippage.withArgs().returns(300)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(xToken.address,  mockedUSDCContract.address, 3000, 27000000000, 0).returns(100000000)
+        await mockedTwap.mock.getPrice.withArgs(xToken.address,  mockedUSDCContract.address).returns(3703)
         await mockedKeyProtocolVariablesContract.mock.sellXTokenSlippage.withArgs().returns(300)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(xToken.address,  mockedUSDCContract.address, 3000, 53029629000, 0).returns(2000000000)
+        await mockedTwap.mock.getPrice.withArgs(xToken.address,  mockedUSDCContract.address).returns(3703)
         
         await mockedKeyProtocolVariablesContract.mock.hedgeFundAllocation.withArgs().returns(1500)
         await mockedKeyProtocolVariablesContract.mock.hedgeFundWallet.withArgs().returns(hedgeFundWallet.address)
@@ -117,8 +117,8 @@ describe("xToken", function () {
         await mockedRentFoundationContract.mock.payInitialRent.withArgs(2, 900000).returns()
         await mockedRentFoundationContract.mock.initialRentApplied.withArgs(2).returns(false)
 
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 27000000000, 97087378, 0]).returns(100000000)
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 53029629000, 1941747572, 0]).returns(2000000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 27000000000, 97068932, 0]).returns(100000000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([xToken.address, mockedUSDCContract.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 53029629000, 190649238, 0]).returns(2000000000)
         await expect(xToken.connect(acc2).getShards(2)).not.to.reverted
         expect(await xToken.balanceOf(acc2.address)).to.equal(766940742000)
         expect(await xToken.balanceOf(xTokensSecurityWallet.address)).to.equal(53029629000)
@@ -224,12 +224,12 @@ describe("xToken", function () {
         await xToken.connect(xTokensSecurityWallet).approve(xToken.address, 53029629000)
         await mockedRentFoundationContract.mock.buyOut.withArgs(1).returns(92359133)
         await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(false)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xToken.address, 3000, 92359133, 0).returns(80029629000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xToken.address).returns(866504766)
 
         await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 92359133).returns(true)
 
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xToken.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 92359133, 77698668932, 0]).returns(80029629000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xToken.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 92359133, 77698668862, 0]).returns(80029629000)
         await expect(xToken.connect(acc2).getTheNFT(1)).not.to.reverted
         expect(await xToken.balanceOf(acc2.address)).to.equal(0)
         expect(await nft.balanceOf(acc2.address, 1)).to.equal(1)
@@ -255,11 +255,11 @@ describe("xToken", function () {
         await mockedRentFoundationContract.mock.buyOut.withArgs(1).returns(92359133)
         await mockedRentFoundationContract.mock.spentSecurityDeposit.withArgs(1).returns(true)
         await mockedKeyProtocolVariablesContract.mock.buyXTokenSlippage.withArgs().returns(300)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xToken.address, 3000, 92359133, 0).returns(80029629000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xToken.address).returns(866504766)
 
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 92359133).returns(true)
 
-        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xToken.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 92359133, 77698668932, 0]).returns(80029629000)
+        await mockedUniswapRouter.mock.exactInputSingle.withArgs([mockedUSDCContract.address, xToken.address, 3000, xToken.address, (await time.latest()).toNumber() + 15, 92359133, 77698668862, 0]).returns(80029629000)
         await expect(xToken.connect(acc2).getTheNFT(1)).not.to.reverted
         expect(await xToken.balanceOf(acc2.address)).to.equal(0)
         expect(await nft.balanceOf(acc2.address, 1)).to.equal(1)

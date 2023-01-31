@@ -16,5 +16,6 @@ module.exports = {
       'interfaces/IveLNDX.sol',
       'interfaces/IxToken.sol',
       'interfaces/IxTokenRouter.sol',
+      'interfaces/ITWAP.sol',
     ]
   };
