@@ -31,7 +31,8 @@
 		"deploy_ts:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_tokensale.js",
 		"deploy_gov:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_lndx_gov.js",
 		"deploy_faucet:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_faucet.js",
-		"deploy_migration:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_migration.js"
+		"deploy_migration:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_migration.js",
+		"deploy_twap:goerli": "NETWORK=goerli npx hardhat run --network goerli scripts/deploy_twap.js"
 	},
 	"author": "LandX",
 	"license": "MIT",

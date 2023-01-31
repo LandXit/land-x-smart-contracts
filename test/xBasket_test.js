@@ -3,7 +3,7 @@ const { expect } = require("chai");
 const { constants, BigNumber } = require("ethers");
 const { ethers} = require("hardhat");
 const { time, BN } = require("@openzeppelin/test-helpers");
-let mockedUSDCContract, mockedOraclePricesContract, mockedXTokenRouterContract, mockedUniswapRouter, mockedUniswapQuoter, mockedKeyProtocolVariablesContract
+let mockedUSDCContract, mockedOraclePricesContract, mockedXTokenRouterContract, mockedUniswapRouter, mockedTwap, mockedKeyProtocolVariablesContract
 let xBasket
 let cSOY, cWHEAT, cRICE, cCORN, xSOY, xRICE, xWHEAT, xCORN
 let owner, acc1, acc2
@@ -22,8 +22,8 @@ describe("xBasket", function () {
         const uniswapRouterContract = require("../node_modules/@uniswap/v3-periphery/artifacts/contracts/interfaces/ISwapRouter.sol/ISwapRouter.json")
 		mockedUniswapRouter = await deployMockContract(owner, uniswapRouterContract.abi)
 
-        const uniswapQuoterContract = require("../node_modules/@uniswap/v3-periphery/artifacts/contracts/interfaces/IQuoter.sol/IQuoter.json")
-		mockedUniswapQuoter = await deployMockContract(owner, uniswapQuoterContract.abi)
+        const twapContract = require("../artifacts/contracts/TWAP.sol/TWAP.json")
+		mockedTwap= await deployMockContract(owner, twapContract.abi)
 
         const keyProtocolVariablesContract = require("../artifacts/contracts/KeyProtocolVariables.sol/KeyProtocolVariables.json")
 		mockedKeyProtocolVariablesContract = await deployMockContract(owner, keyProtocolVariablesContract.abi)
@@ -54,7 +54,7 @@ describe("xBasket", function () {
         await mockedOraclePricesContract.mock.usdc.withArgs().returns(mockedUSDCContract.address)
 
         xBasketContract = await ethers.getContractFactory("xBasket")
-		xBasket = await xBasketContract.deploy(mockedXTokenRouterContract.address, mockedOraclePricesContract.address, mockedKeyProtocolVariablesContract.address, mockedUniswapRouter.address, mockedUniswapQuoter.address)
+		xBasket = await xBasketContract.deploy(mockedXTokenRouterContract.address, mockedOraclePricesContract.address, mockedKeyProtocolVariablesContract.address, mockedUniswapRouter.address, mockedTwap.address)
 		await xBasket.deployed()
 
         await mockedOraclePricesContract.mock.getXTokenPrice.withArgs(xCORN.address).returns(4430000)
@@ -290,22 +290,22 @@ describe("xBasket", function () {
         await cWHEAT.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xWHEAT.address).returns(6000000)
         
         await cSOY.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)  
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xSOY.address).returns(6000000)
 
         await cRICE.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xRICE.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xRICE.address).returns(6000000)
        
         await cCORN.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xCORN.address).returns(6000000)
 
         await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
         await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
@@ -408,22 +408,22 @@ describe("xBasket", function () {
         await cWHEAT.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xWHEAT.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xWHEAT.address).returns(6000000)
         
         await cSOY.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xSOY.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xSOY.address).returns(6000000)
 
         await cRICE.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xRICE.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xRICE.address).returns(6000000)
        
         await cCORN.mock.burn.withArgs(1000000).returns()
         await mockedUSDCContract.mock.balanceOf.withArgs(xBasket.address).returns(5000000)
         await mockedUSDCContract.mock.approve.withArgs(mockedUniswapRouter.address, 5000000).returns(true)
-        await mockedUniswapQuoter.mock.quoteExactInputSingle.withArgs(mockedUSDCContract.address, xCORN.address, 3000, 5000000, 0).returns(30000000)
+        await mockedTwap.mock.getPrice.withArgs(mockedUSDCContract.address, xCORN.address).returns(6000000)
 
         await xWHEAT.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
         await xSOY.mock.balanceOf.withArgs(xBasket.address).returns(30000000)
