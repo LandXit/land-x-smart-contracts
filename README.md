@@ -1,6 +1,6 @@
 [![codecov](https://codecov.io/gh/LandXit/land-x-smart-contracts/branch/develop/graph/badge.svg?token=J8INVF31NO)](https://codecov.io/gh/LandXit/land-x-smart-contracts)
 
-# Note: No Code changes made to smart contract after completion of security audit
+# Note: No code changes where made to smart contracts after completion of security audit
 
 # LandX Contracts
 
