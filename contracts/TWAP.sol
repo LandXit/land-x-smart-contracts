@@ -33,8 +33,37 @@ contract TWAP is ITWAP{
         }
 
         address poolToken0 = IUniswapV3Pool(uniswapV3Pool).token0();
-
         uint32 twapInterval = 3600; // 1 hour
+        uint32 toLastObservationInterval = 0;
+        (,,uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext,,) = IUniswapV3Pool(uniswapV3Pool).slot0();
+        if (observationCardinality <= observationCardinalityNext) {
+             (uint32  blockTimestamp,,, bool initialized) = IUniswapV3Pool(uniswapV3Pool).observations(observationIndex);
+             if (initialized) {
+                 toLastObservationInterval = uint32(block.timestamp) - blockTimestamp;
+             }
+        }
+        if (observationCardinality <= observationCardinalityNext) {
+             (uint32  blockTimestamp,,, bool initialized) = IUniswapV3Pool(uniswapV3Pool).observations(observationIndex);
+            if (initialized) {
+                 toLastObservationInterval = uint32(block.timestamp) - blockTimestamp;
+             }
+        } else {
+            if (observationIndex < (observationCardinality - 1)) {
+                (uint32  blockTimestamp,,, bool initialized) = IUniswapV3Pool(uniswapV3Pool).observations(observationIndex + 1);
+                             if (initialized) {
+                 toLastObservationInterval = uint32(block.timestamp) - blockTimestamp;
+             }
+            } else {
+                 (uint32  blockTimestamp,,, bool initialized) = IUniswapV3Pool(uniswapV3Pool).observations(0);
+                             if (initialized) {
+                 toLastObservationInterval = uint32(block.timestamp) - blockTimestamp;
+             }
+            }
+        }
+        if (toLastObservationInterval < twapInterval) {
+            twapInterval = toLastObservationInterval;
+        }
+
         uint32[] memory secondsAgos = new uint32[](2);
         secondsAgos[0] = twapInterval;
         secondsAgos[1] = 0;
