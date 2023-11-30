@@ -7,8 +7,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/draft-ERC20Permit.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@uniswap/v3-periphery/contracts/libraries/TransferHelper.sol";
-import "./interfaces/IxTokenRouter.sol";
-import "./interfaces/IcToken.sol";
+import "../interfaces/IxTokenRouter.sol";
+import "../interfaces/IcToken.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 
 //xToken NFT in = shards. xToken in = NFT

@@ -39,6 +39,7 @@
 	"dependencies": {
 		"@chainlink/contracts": "^0.5.1",
 		"@openzeppelin/contracts": "^4.7.0",
+		"@layerzerolabs/solidity-examples": "^1.0.0",
 		"@truffle/hdwallet-provider": "1.2.5",
 		"@uniswap/v3-periphery": "^1.4.1",
 		"dotenv": "^8.2.0",
@@ -55,7 +56,7 @@
 		"dotenv": "^8.2.0",
 		"ethereum-waffle": "^3.4.4",
 		"ethers": "^5.0.32",
-		"hardhat": "^2.1.2",
+		"hardhat": "^2.19.1",
 		"hardhat-gas-reporter": "^1.0.4",
 		"prettier": "^2.2.1",
 		"prettier-plugin-solidity": "^1.0.0-beta.7",
