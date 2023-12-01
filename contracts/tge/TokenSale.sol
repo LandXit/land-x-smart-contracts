@@ -7,14 +7,9 @@ import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 contract TokenSale {
     address public multisig;
     uint public tokenSaleStage = 0; // 0 = Omega, 1 = Alpha, 2 = Whitelist
-    uint[3] public usdcCap = [
-        5000e6, // Omega
-        2000e6, // Alpha
-        1000e6  // Whitelist
-    ];
     bytes32[3] public merkleRoots;
-    address public usdc = 0x78d581B48275DD87179D578c42F246B7263fA6da;
-    address public lndx = 0xb649D81f6e22975a88a4690cc8fE95F11681411C;
+    address public usdc = 0xCd869cbCA8E597a10b6e1AEbF12aBFD693e542f2; //update for mainnet
+    address public lndx = 0x534f0e10C9e5b392c75991CB59c560Db6256aea9; //update for mainnet
     uint public priceMultiplier = 2; // $0.5/LNDX 1e6 = 5e5 = (x = 1e6 / 5e5) = 2
     mapping(address => uint[3]) public claimed;
 
@@ -31,12 +26,7 @@ contract TokenSale {
         return result;
     }
 
-    function checkCap(address _user, uint _amountUSDC) public view returns(bool) {
-        return ((claimed[_user][tokenSaleStage] + _amountUSDC) <= usdcCap[tokenSaleStage]);
-    }
-
     function buyTokens(uint _amountUSDC, bytes32[] calldata _merkleProof) external {
-        require(checkCap(msg.sender, _amountUSDC) == true, "This amount exceeds the USDC cap");
         claimed[msg.sender][tokenSaleStage] += _amountUSDC;
         require(checkProof(msg.sender, _merkleProof) == true, "Merkle proof does not validate");
         IERC20(usdc).transferFrom(msg.sender, address(this), _amountUSDC);
