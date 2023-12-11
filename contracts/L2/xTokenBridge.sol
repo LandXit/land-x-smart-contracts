@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 interface IxToken is IERC20 {
    function symbol() external view returns (string memory);
+   function claim() external;
    function crop() external view returns (string memory);
    function burn(uint256 amount) external; 
    function mint(address account, uint256 amount) external;
@@ -18,6 +19,7 @@ interface IxToken is IERC20 {
 }
 
 interface IcToken is IERC20 {
+   function balanceOf(address account) external view returns (uint256);
    function symbol() external view returns (string memory);
    function crop() external view returns (string memory);
    function mint(address account, uint256 amount) external;
@@ -147,8 +149,9 @@ contract XTokenBridge is NonblockingLzApp {
             address xToken = xTokenRouter.getXToken(crop);
             address cToken = xTokenRouter.getCToken(crop);
             if (lzEndpoint.getChainId() == (mainChainId - 100)) {
-                (uint xAmount,) = IxToken(xToken).Staked(address(this));
-                IxToken(xToken).unstake(xAmount);
+                if (IcToken(cToken).balanceOf(address(this)) < amount) {
+                    IxToken(xToken).claim();
+                }
                 IcToken(cToken).transfer(to, amount);
             } else {
                 IcToken(cToken).mint(to, amount);
