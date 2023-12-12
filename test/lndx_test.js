@@ -18,7 +18,7 @@ describe("LNDX", function () {
         veLNDXContract = await ethers.getContractFactory("VeLNDX")
         veLNDX = await veLNDXContract.deploy()
 
-        LNDXContract = await ethers.getContractFactory("LNDX")
+        LNDXContract = await ethers.getContractFactory("contracts/LNDX.sol:LNDX")
         LNDX = await LNDXContract.deploy(usdc.address, veLNDX.address, 0)
         
         await veLNDX.grantRole("0x9f2df0fed2c77648de5860a4cc508cd0818c85b8b8a1ab4ceeef8d981c8956a6", LNDX.address)

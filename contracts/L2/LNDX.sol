@@ -16,13 +16,9 @@ contract LNDX is ERC20, AccessControl, ERC20Burnable, ERC20Permit {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-     // only minter can mint cTokens, for example  L2 bridge
+     // only minter can mint LNDX, for example  L2 bridge
     function mint(address account, uint256 amount) public onlyRole(MINTER_ROLE){
         _mint(account, amount);
-    }
-
-    function burn(uint256 amount) public override onlyRole(MINTER_ROLE){
-        _burn(msg.sender, amount);
     }
 
     function decimals() public pure override returns (uint8) {

@@ -55,10 +55,6 @@ contract XToken is Context, ERC20Permit, ERC20Burnable, Ownable, AccessControl {
         _mint(account, amount);
     }
 
-    function burn(uint256 amount) public override onlyRole(MINTER_ROLE){
-        _burn(msg.sender, amount);
-    }
-
     function stake(uint256 amount) public {
         _transfer(msg.sender, address(this), amount);
         uint256 yield = _calculateYield(Staked[msg.sender]);

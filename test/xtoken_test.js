@@ -40,7 +40,7 @@ describe("xToken", function () {
 		nft = await NFTContract.deploy(mockedXTokenRouterContract.address, mockedKeyProtocolVariablesContract.address, "http://dev-landx-nfts.s3-website-us-east-1.amazonaws.com/j/")
 		await nft.deployed()
 
-        let xTokenContract = await ethers.getContractFactory("XToken")
+        let xTokenContract = await ethers.getContractFactory("contracts/xToken.sol:XToken")
 		xToken = await xTokenContract.deploy(
 			nft.address, 
 			mockedLndxContract.address, 

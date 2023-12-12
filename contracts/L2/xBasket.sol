@@ -21,10 +21,6 @@ contract xBasket is ERC20, AccessControl, ERC20Burnable, ERC20Permit {
         _mint(account, amount);
     }
 
-    function burn(uint256 amount) public override onlyRole(MINTER_ROLE){
-        _burn(msg.sender, amount);
-    }
-
     function decimals() public pure override returns (uint8) {
         return 6;
     }

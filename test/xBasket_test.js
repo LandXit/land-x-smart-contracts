@@ -53,7 +53,7 @@ describe("xBasket", function () {
 
         await mockedOraclePricesContract.mock.usdc.withArgs().returns(mockedUSDCContract.address)
 
-        xBasketContract = await ethers.getContractFactory("xBasket")
+        xBasketContract = await ethers.getContractFactory("contracts/xBasket.sol:xBasket")
 		xBasket = await xBasketContract.deploy(mockedXTokenRouterContract.address, mockedOraclePricesContract.address, mockedKeyProtocolVariablesContract.address, mockedUniswapRouter.address, mockedTwap.address)
 		await xBasket.deployed()
 
