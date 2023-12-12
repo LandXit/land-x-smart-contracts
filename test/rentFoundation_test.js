@@ -463,7 +463,7 @@ describe("RentFoundation", function () {
     })
 
     it("sell cTokens", async function () {
-        let cTokenContract = await ethers.getContractFactory("CToken")
+        let cTokenContract = await ethers.getContractFactory("contracts/cToken.sol:CToken")
         cToken = await cTokenContract.deploy(rentFoundationContract.address, mockedXTokenRouterContract.address, "SOY")
 		await cToken.deployed()
 
@@ -489,7 +489,7 @@ describe("RentFoundation", function () {
     })
 
     it("can't sell cTokens, no valid cToken", async function () {
-        let cTokenContract = await ethers.getContractFactory("CToken")
+        let cTokenContract = await ethers.getContractFactory("contracts/cToken.sol:CToken")
         cToken = await cTokenContract.deploy(rentFoundationContract.address, mockedXTokenRouterContract.address, "SOY")
 		await cToken.deployed()
 

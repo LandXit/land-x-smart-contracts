@@ -22,10 +22,6 @@ contract CToken is IcToken, Context, ERC20Burnable, AccessControl {
         _mint(account, amount);
     }
 
-    function burn(uint256 amount) public override onlyRole(MINTER_ROLE){ 
-        _burn(msg.sender, amount);
-    }
-
     function decimals() public pure override returns (uint8) {
         return 6;
     }

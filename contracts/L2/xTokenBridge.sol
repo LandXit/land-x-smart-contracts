@@ -51,12 +51,12 @@ contract XTokenBridge is NonblockingLzApp {
    function estimateFee(address _token, uint16 _dstChainId, address _toAddress, uint _amount) public view returns (uint nativeFee, uint zroFee) {
         string memory tokenType = _getTokenType(_token);
         if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("x"))) {
-         bytes memory payload = abi.encode(
-             tokenType,
-             IxToken(_token).crop(),
-             _toAddress,
-             _amount
-         );
+            bytes memory payload = abi.encode(
+                tokenType,
+                IxToken(_token).crop(),
+                _toAddress,
+                _amount
+            );
 
          return lzEndpoint.estimateFees(_dstChainId, address(this), payload, false, bytes(""));
         }
@@ -64,7 +64,7 @@ contract XTokenBridge is NonblockingLzApp {
         if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("c"))) {
               bytes memory payload = abi.encode(
                     tokenType,
-                    IxToken(_token).crop(),
+                    IcToken(_token).crop(),
                     _toAddress,
                     _amount
                 );
@@ -76,6 +76,7 @@ contract XTokenBridge is NonblockingLzApp {
    function sendToken(address _token, uint16 _dstChainId, address _toAddress, uint _amount) public payable {
         string memory tokenType = _getTokenType(_token);
         if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("x"))) {
+            require(_token == xTokenRouter.getXToken(IxToken(_token).crop()), "not allowed token");
             if (lzEndpoint.getChainId() == (mainChainId - 100)) {
             IxToken(_token).transferFrom(msg.sender, address(this), _amount);
             IxToken(_token).stake(_amount);
@@ -103,6 +104,7 @@ contract XTokenBridge is NonblockingLzApp {
         }
 
         if (keccak256(abi.encodePacked(tokenType)) == keccak256(abi.encodePacked("c"))) {
+             require(_token == xTokenRouter.getCToken(IcToken(_token).crop()), "not allowed token");
              if (lzEndpoint.getChainId() != (mainChainId - 100)) {
                 IcToken(_token).burnFrom(msg.sender, _amount);
              } else {
