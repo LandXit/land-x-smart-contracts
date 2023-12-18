@@ -89,11 +89,16 @@ contract xBasket is ERC20, IERC4626, Ownable {
         if (circulatingSupply == 0) {
             shares = 4 * assets; // initially 1 xBasket = 0.25 of all 4 xTokens
         } else {
-            uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
-            uint256 xSoyPrice = oraclePrices.getXTokenPrice(xSoy);
-            uint256 xRicePrice = oraclePrices.getXTokenPrice(xRice);
-            uint256 xCornPrice = oraclePrices.getXTokenPrice(xCorn);
-            shares = assets *(xWheatPrice + xSoyPrice + xCornPrice + xRicePrice) * circulatingSupply / usdVaultValuation / 1e6;
+            uint256 xWheatPrice = twap.getPrice(xWheat, usdc);
+            uint256 xSoyPrice = twap.getPrice(xSoy, usdc);
+            uint256 xRicePrice = twap.getPrice(xRice, usdc);
+            uint256 xCornPrice = twap.getPrice(xCorn, usdc);
+            shares =
+                (assets *
+                    (xWheatPrice + xSoyPrice + xCornPrice + xRicePrice) *
+                    circulatingSupply) /
+                usdVaultValuation /
+                1e6;
         }
         return shares;
     }
@@ -113,11 +118,13 @@ contract xBasket is ERC20, IERC4626, Ownable {
         if (circulatingSupply == 0) {
             return shares / 4;
         }
-        uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
-        uint256 xSoyPrice = oraclePrices.getXTokenPrice(xSoy);
-        uint256 xRicePrice = oraclePrices.getXTokenPrice(xRice);
-        uint256 xCornPrice = oraclePrices.getXTokenPrice(xCorn);
-        uint256 redeemAmount =  1e6 * shares * usdVaultValuation / circulatingSupply / (xWheatPrice + xSoyPrice + xRicePrice + xCornPrice);
+        uint256 xWheatPrice = twap.getPrice(xWheat, usdc);
+        uint256 xSoyPrice = twap.getPrice(xSoy, usdc);
+        uint256 xRicePrice = twap.getPrice(xRice, usdc);
+        uint256 xCornPrice = twap.getPrice(xCorn, usdc);
+        uint256 redeemAmount = (1e6 * shares * usdVaultValuation) /
+            circulatingSupply /
+            (xWheatPrice + xSoyPrice + xRicePrice + xCornPrice);
         return redeemAmount;
     }
 
@@ -342,10 +349,10 @@ contract xBasket is ERC20, IERC4626, Ownable {
         (uint256 xCornStaked, ) = IxToken(xCorn).Staked(address(this));
 
         // USDC Prices - Note this assumes prices are stored in USDC with 6 decimals
-        uint256 xWheatPrice = oraclePrices.getXTokenPrice(xWheat);
-        uint256 xSoyPrice = oraclePrices.getXTokenPrice(xSoy);
-        uint256 xRicePrice = oraclePrices.getXTokenPrice(xRice);
-        uint256 xCornPrice = oraclePrices.getXTokenPrice(xCorn);
+        uint256 xWheatPrice = twap.getPrice(xWheat, usdc);
+        uint256 xSoyPrice = twap.getPrice(xSoy, usdc);
+        uint256 xRicePrice = twap.getPrice(xRice, usdc);
+        uint256 xCornPrice = twap.getPrice(xCorn, usdc);
 
         // Valutations
         uint256 collateral;
